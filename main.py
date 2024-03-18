@@ -12,16 +12,17 @@ TRATAMIENTOS T1, T2, T3, T4, T5
 """
 #TRATAMIENTO VOTACION Y RONDAS Y RONDA ACTUAL
 """
-  // BIENVENIDO
-  // ASIGNAR_CREDITOS
-  // RESUMEN_ASIGNACION_CREDITOS
-  // MOSTRAR_RESULTADOS_RONDA_Y_VOTACION
-  // MOSTRAR_RESULTADOS_VOTACION
+    // BIENVENIDO
+    // ASIGNAR_CREDITOS
+    // RESUMEN_ASIGNACION_CREDITOS
+    // MOSTRAR_RESULTADOS_RONDA_Y_VOTACION
+    // MOSTRAR_RESULTADOS_VOTACION
 
- // MOSTRAR_FINALIZAR_ACTIVIDAD
-// MOSTRAR_FINALIZAR_SESION
+    // MOSTRAR_FINALIZAR_ACTIVIDAD
+    // MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA
+    // MOSTRAR_FINALIZAR_SESION
 
-  // FINALIZAR_SESION_AGRADECIMIENTOS
+    // FINALIZAR_SESION_AGRADECIMIENTOS
 """
 
 dictParticipantes = ['A','B','C','D','E','F']
@@ -85,14 +86,36 @@ class AsignacionFichas:
         self.fichasClub = fichasClub
         self.fichasActividadPrivada = fichasActividadPrivada
         self.fichasRetiroTotalClubAzul = 0
+        self.costoMonitoreoPorJugador = 0
+        self.cantidadJugadoresAmarillos = 0
         self.costoDeMonitoreo = 0
         self.gananciasPesosExperimentales = 0
         self.tratamiento = tratamiento
-        self.dataTime = datetime.now()
+        self.dateTime = datetime.now()
 
         self.porcentajeVigilancia = porcentajeVigilancia
         self.fueMonitoreado = False
+        self.fueMultado = False
         self.multa = 0
+
+    def exportar(self):
+        data = {}
+        data['client_id'] = self.client_id
+        data['numeroRonda'] = self.numeroRonda
+        data['club'] = self.club
+        data['fichasClub'] = self.fichasClub
+        data['fichasActividadPrivada'] = self.fichasActividadPrivada
+        data['fichasRetiroTotalClubAzul'] = self.fichasRetiroTotalClubAzul
+        data['costoDeMonitoreo'] = self.costoDeMonitoreo
+        data['gananciasPesosExperimentales'] = self.gananciasPesosExperimentales
+        data['tratamiento'] = self.tratamiento
+        data['porcentajeVigilancia'] = self.porcentajeVigilancia
+        data['fueMonitoreado'] = self.fueMonitoreado
+        data['fueMultado'] = self.fueMultado
+        data['multa'] = self.multa
+        data['cantidadJugadoresAmarillos'] = self.cantidadJugadoresAmarillos
+        data['costoMonitoreoPorJugador'] = self.costoMonitoreoPorJugador
+        return data
 
     def calcularGanancias(self):
         if self.tratamiento == "T2":
@@ -122,9 +145,13 @@ class AsignacionFichas:
             if num <= self.porcentajeVigilancia:
                 # se fiscaliza
                 self.fueMonitoreado = True
-                multaAux = 8 * self.fichasClub
-                self.multa = multaAux
-                self.gananciasPesosExperimentales = self.gananciasPesosExperimentales - self.multa
+                if self.fichasClub > 0:
+                    multaAux = 8 * self.fichasClub
+                    self.fueMultado = True
+                    self.multa = multaAux
+                    self.gananciasPesosExperimentales = self.gananciasPesosExperimentales - multaAux
+                else:
+                    self.fueMultado = False
 
     def imprimir(self):
         print(self.client_id + " " + str(self.numeroRonda) + " " + self.club)
@@ -210,6 +237,18 @@ class Tratamiento:
 class JugadoresManager:
     def __init__(self, basePesosChilenos: int, dictJugadores, arrayTratamientos):
 
+        self.grupo = 1
+
+        self.dateTime = datetime.now()
+        year = self.dateTime.strftime("%Y")
+        month = self.dateTime.strftime("%m")
+        day = self.dateTime.strftime("%d")
+        hora = self.dateTime.strftime("%X")
+
+        self.sesionId = year+"-"+month+"-"+day+"-"+hora+"-"+str(self.grupo)
+
+        print(self.sesionId)
+
         self.resultadosJugadores = []
         self.actividad = 1
 
@@ -258,6 +297,12 @@ class JugadoresManager:
         #VISTA ACTUAL
         self.vistaActual = "BIENVENIDO"
 
+    def exportarAsignaciones(self):
+        array = []
+        for asig in self.asignaciones:
+            array.append(asig.exportar())
+        return array
+
     def buscarVotos(self, cliente, ronda):
         array = []
         for v in self.votosApilados:
@@ -265,17 +310,30 @@ class JugadoresManager:
                 array.append(v.votacion)
         return array
 
-    def generarArrayVotacionesVacio(self):
+    def generarArrayVotacionesVacio(self, client_id, club):
+
         array = []
+        if club == "AMARILLO":
+            for j in self.dictJugadores:
+                array.append('.')
+            return array
+
         for j in self.dictJugadores:
-            array.append('NO')
+            array.append('0')
+    
+        i = 0
+        for j in self.dictJugadores:
+            if j == client_id:
+                array[i] = "."
+            i = i + 1 
         return array
     
-    def escribirVotacion(self, array, votacion):
+    def escribirVotacion(self, array, votacion, client_id):
         i = 0
         for j in self.dictJugadores:
             if j == votacion:
-                array[i] = 'SI'
+                array[i] = '1'
+            # ES PARA SABER LA UBICACION EN LA QUE NOS ENCONTRAMOS
             i = i + 1
 
     def exportarFaseACsv(self):
@@ -283,21 +341,29 @@ class JugadoresManager:
         nombreArchivo = "actividad_" + str(self.numeroTratamiento + 1) + ".csv"
         with open(nombreArchivo, mode='w', newline='') as file:
 
-            headers = ['client_id', 'numeroRonda', 'dataTime', 'club','fichasClub','fichasActividadPrivada','fichasRetiroTotalClubAzul','costoDeMonitoreo','gananciasPesosExperimentales','tratamiento']
+            headers = ['sesion_id','actividadDePrueba','client_id', 'numeroRonda', 'hora', 'club','fichasClub','fichasActividadPrivada','fichasRetiroTotalClubAzul','costoDeMonitoreo','gananciasPesosExperimentales','tratamiento']
             for j in self.dictJugadores:
                 headers.append("votaPor_" + str(j))
             asigArray = []
             for asigAux in self.asignaciones:
-                arrayToAsig = [asigAux.client_id ,asigAux.numeroRonda ,asigAux.dataTime, asigAux.club, asigAux.fichasClub, asigAux.fichasActividadPrivada, asigAux.fichasRetiroTotalClubAzul, asigAux.costoDeMonitoreo, asigAux.gananciasPesosExperimentales, asigAux.tratamiento]
+                arrayToAsig = [self.sesionId, str(self.tratamientoDePrueba) , asigAux.client_id ,asigAux.numeroRonda ,asigAux.dateTime.strftime("%X"), asigAux.club, asigAux.fichasClub, asigAux.fichasActividadPrivada, asigAux.fichasRetiroTotalClubAzul, asigAux.costoDeMonitoreo, asigAux.gananciasPesosExperimentales, asigAux.tratamiento]
                 #************************* ACA VAMOS A GENERAR LOS VOTOS
                 client_id = asigAux.client_id
                 ronda = asigAux.numeroRonda
+                club = asigAux.club
                 votosEnEstaRonda = self.buscarVotos(client_id,ronda)
+                print("El jugador " + str(client_id) + " ha votado por:")
+                print("votos en esta ronda")
                 print(votosEnEstaRonda)
-                arrayVotosAux = self.generarArrayVotacionesVacio()
+
+                # votosEnEstaRonda = ['C','D']
+
+
+                # GENERAMOS UN ARAY CON PUROS CEROS
+                arrayVotosAux = self.generarArrayVotacionesVacio(client_id, club)
 
                 for j in votosEnEstaRonda:
-                    self.escribirVotacion(arrayVotosAux, j)
+                    self.escribirVotacion(arrayVotosAux, j, client_id)
                 
                 print(arrayVotosAux)
 
@@ -317,13 +383,13 @@ class JugadoresManager:
         nombreArchivo = "encuestas.csv"
         with open(nombreArchivo, mode='w', newline='') as file:
 
-            headers = ['grupo', 'integrante', 'genero', 'edad','universidad','carrera','anoCursando','anoEsperaTenerCumplidoRequisitos','ingresoFamilia','integrantesFamilia','perteneAClub','reelevanteClub']
+            headers = ['sesion_id','grupo', 'integrante', 'genero', 'edad','universidad','carrera','anoCursando','anoEsperaTenerCumplidoRequisitos','ingresoFamilia','integrantesFamilia','perteneAClub','reelevanteClub']
             writer = csv.writer(file)
             writer.writerow( headers) # Creamos las column
 
             encArray = []
             for encAux in self.encuestas:
-                encArray.append([encAux.grupo, encAux.integrante, encAux.genero, encAux.edad,encAux.universidad,encAux.carrera,encAux.anoCursando,encAux.anoEsperaTenerCumplidoRequisitos,encAux.ingresoFamilia,encAux.integrantesFamilia,encAux.perteneAClub,encAux.reelevanteClub])
+                encArray.append([self.sesionId,encAux.grupo, encAux.integrante, encAux.genero, encAux.edad,encAux.universidad,encAux.carrera,encAux.anoCursando,encAux.anoEsperaTenerCumplidoRequisitos,encAux.ingresoFamilia,encAux.integrantesFamilia,encAux.perteneAClub,encAux.reelevanteClub])
             
             for encAux in encArray:
                 writer.writerow(encAux)
@@ -359,8 +425,14 @@ class JugadoresManager:
             for j in self.jugadores:
                 ganaciaPesosExperimentales = self.calcularGananciasAcumuladas(j.client_id)
                 pesos = self.factorConversion * ganaciaPesosExperimentales
-                rj = ResultadoJugador(j.client_id, "club", self.actividad, ganaciaPesosExperimentales , pesos, self.factorConversion)
-                self.resultadosJugadores.append(rj)
+
+                if ganaciaPesosExperimentales > 0:
+                    rj = ResultadoJugador(j.client_id, "club", self.actividad, ganaciaPesosExperimentales , pesos, self.factorConversion)
+                    self.resultadosJugadores.append(rj)
+                else:
+                    rj = ResultadoJugador(j.client_id, "club", self.actividad, ganaciaPesosExperimentales , 0, self.factorConversion)
+                    self.resultadosJugadores.append(rj)
+                
             self.actividad = self.actividad + 1
 
     def siguienteActividad(self):
@@ -411,9 +483,11 @@ class JugadoresManager:
     def formatearArrayVotacion(self):
         ## SOLO LOS JUGADORES DEL CLUB AZUL PUEDEN VOTAR 
         self.arrayParticipantesDinamicoVotacion = self.dictJugadores.copy()
+        """
         for j in self.jugadores:
             if j.club == "AMARILLO":
                 self.arrayParticipantesDinamicoVotacion.remove(j.client_id)
+        """
         self.votos = []
 
     def haVotado(self, jugador:str):
@@ -468,6 +542,10 @@ class JugadoresManager:
             self.votosApilados.append(voto)
         self.arrayParticipantesDinamicoVotacion.remove(jugador)
     
+    def votarEnFalso(self, jugador:str):
+        self.arrayParticipantesDinamicoVotacion.remove(jugador)
+
+    
     def hanVotadoTodos(self):
         if len(self.arrayParticipantesDinamicoVotacion) == 0:
             return True
@@ -512,7 +590,6 @@ class JugadoresManager:
         arrayResultados = []
         for j in self.dictJugadores:
             arrayResultados.append(self.calcularVotacionJugador(j))
-        print(arrayResultados)
         arrayNotificaciones = []
         jugadoresEnviadosGrupoAmarillo = []
         for a in arrayResultados:
@@ -848,6 +925,8 @@ class JugadoresManager:
             cm = cantidadAmarillos * self.costoDeMonitoreo
             for asigAux in arrayAsignacionesRondasAux:
                 asigAux.costoDeMonitoreo = cm
+                asigAux.cantidadJugadoresAmarillos = cantidadAmarillos
+                asigAux.costoMonitoreoPorJugador = self.costoDeMonitoreo
 
             # AHORA DEBEMOS SETEAR LAS FICHAS DEL RETIRO DEL CLUB Y CALCULAR LAS GANACIAS EXPERIMENTALES
             for asigAux in arrayAsignacionesRondasAux:
@@ -903,9 +982,14 @@ except:
     print("creando fichero")
     arrayTrat = []
     #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
-    t1 = Tratamiento("T4",2, False, 5, 50, 20)
+    t1 = Tratamiento("T4",2, True, 3, 50, 15)
     arrayTrat.append(t1)
-
+    t1 = Tratamiento("T4",2, False, 10, 50, 15)
+    arrayTrat.append(t1)
+    t1 = Tratamiento("T4",2, False, 10, 50, 15)
+    arrayTrat.append(t1)
+    t1 = Tratamiento("T4",2, False, 10, 50, 15)
+    arrayTrat.append(t1)
     jugadoresManager = JugadoresManager(4500, dictParticipantes, arrayTrat) 
     jugadoresManager.crearJugadoresGrupo1()
     
@@ -1190,6 +1274,21 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     } 
                     jsonSend = json.dumps(mensaje)
                     await manager.broadcastClients(jsonSend)
+                
+                if jugadoresManager.vistaActual == "MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA":
+                    mensaje = {
+                        "action": jugadoresManager.vistaActual,
+                        "bloqueado": False,
+                        "rondaActual": jugadoresManager.rondaActual,
+                        "rondasTotales": jugadoresManager.rondasTotales,
+                        "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                        "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                        "info": jugadoresManager.getInfoFase(),
+                        "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
+
+                    } 
+                    jsonSend = json.dumps(mensaje)
+                    await manager.broadcastClients(jsonSend)
 
                 if jugadoresManager.vistaActual == "MOSTRAR_FINALIZAR_SESION":
                     mensaje = {
@@ -1239,7 +1338,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 # ACA DEBEMOS GUARDAR LOS DATOS ENTREGADOS POR EL USUARIO
                 cliente = data['cliente']
                 club = data['club']
-                ronda = data['ronda']
+                ronda = jugadoresManager.rondaActual
                 fichasClub = data['fichasClub']
                 fichasActividadPrivada = data['fichasActividadPrivada']
 
@@ -1256,6 +1355,25 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     jugadoresManager.siguienteRonda()
                     # guardamos el binario
                     guardarEstadoApp(jugadoresManager)
+
+                    # ACA DEBERIAMOS MOSTRAR LA IMAGEN CON EL RETIRO QUE NECESITAMOS
+                    jugadoresManager.vistaActual = "RESUMEN_ASIGNACION_CREDITOS"
+                    mensaje = {
+                        "to":"Clientes",
+                        "action": jugadoresManager.vistaActual,
+                        "rondaActual": jugadoresManager.rondaActual,
+                        "rondasTotales": jugadoresManager.rondasTotales,
+                        "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                        "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                        "info": jugadoresManager.getInfoFase(),
+                        "asignaciones": jugadoresManager.exportarAsignaciones(),
+                    }
+
+                    # ACA DEBEMOS CALCULAR LA VOTACION Y QUIENES PUEDEN VOTAR 
+                    jsonSend = json.dumps(mensaje)
+                    await manager.broadcastClients(jsonSend)
+                    time.sleep(20)
+
                     
                     # ACA DEBEMOS MOSTRAR EL RESUMEN DE LA RONDA PERO SIN VOTAR Y PASAR A ASIGNAR FICHAS NUEVAMENTE
                     # DEBEMOS PREGUNTAR SI LA RONDA ES LA ULTIMA PARA FINALIZAR EL EXPERIMENTO
@@ -1284,25 +1402,48 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                             
                             # CONSULTAMOS SI ES LA ULTIMA ACTIVDAD
                             if jugadoresManager.existeSiguienteActividad():
-                                ## aca debemos mostrar el final de la actividad
-                                jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD"
 
-                                jugadoresManager.guardarResultadosActividad()
-                                # guardamos el binario
-                                guardarEstadoApp(jugadoresManager)
+                                if jugadoresManager.tratamientoDePrueba:
+                                    ## aca debemos mostrar el final de la actividad
+                                    jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA"
 
-                                mensaje = {
-                                    "action": jugadoresManager.vistaActual,
-                                    "bloqueado": False,
-                                    "rondaActual": jugadoresManager.rondaActual,
-                                    "rondasTotales": jugadoresManager.rondasTotales,
-                                    "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
-                                    "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
-                                    "info": jugadoresManager.getInfoFase(),
-                                    "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
-                                } 
-                                jsonSend = json.dumps(mensaje)
-                                await manager.broadcastClients(jsonSend)
+                                    jugadoresManager.guardarResultadosActividad()
+                                    # guardamos el binario
+                                    guardarEstadoApp(jugadoresManager)
+
+                                    mensaje = {
+                                        "action": jugadoresManager.vistaActual,
+                                        "bloqueado": False,
+                                        "rondaActual": jugadoresManager.rondaActual,
+                                        "rondasTotales": jugadoresManager.rondasTotales,
+                                        "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                                        "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                                        "info": jugadoresManager.getInfoFase(),
+                                        "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
+                                    } 
+                                    jsonSend = json.dumps(mensaje)
+                                    await manager.broadcastClients(jsonSend)
+
+                                else:
+                                    ## aca debemos mostrar el final de la actividad
+                                    jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD"
+
+                                    jugadoresManager.guardarResultadosActividad()
+                                    # guardamos el binario
+                                    guardarEstadoApp(jugadoresManager)
+
+                                    mensaje = {
+                                        "action": jugadoresManager.vistaActual,
+                                        "bloqueado": False,
+                                        "rondaActual": jugadoresManager.rondaActual,
+                                        "rondasTotales": jugadoresManager.rondasTotales,
+                                        "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                                        "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                                        "info": jugadoresManager.getInfoFase(),
+                                        "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
+                                    } 
+                                    jsonSend = json.dumps(mensaje)
+                                    await manager.broadcastClients(jsonSend)
 
 
                                 # guardamos el binario
@@ -1405,25 +1546,50 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
                                 time.sleep(10)
 
-                                # SE DEBE MOSTRAR LA FINALIZACION DE LA ACTIVIDAD
-                                ## aca debemos mostrar el final de la fase
-                                jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD"
-                                jugadoresManager.guardarResultadosActividad()
-                                # guardamos el binario
-                                guardarEstadoApp(jugadoresManager)
-                                mensaje = {
-                                    "action": jugadoresManager.vistaActual,
-                                    "bloqueado": False,
-                                    "rondaActual": jugadoresManager.rondaActual,
-                                    "rondasTotales": jugadoresManager.rondasTotales,
-                                    "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
-                                    "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
-                                    "info": jugadoresManager.getInfoFase(),
-                                    "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
 
-                                } 
-                                jsonSend = json.dumps(mensaje)
-                                await manager.broadcastClients(jsonSend)
+                                if jugadoresManager.tratamientoDePrueba:
+                                
+                                    # SE DEBE MOSTRAR LA FINALIZACION DE LA ACTIVIDAD
+                                    ## aca debemos mostrar el final de la fase
+                                    jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA"
+                                    jugadoresManager.guardarResultadosActividad()
+                                    # guardamos el binario
+                                    guardarEstadoApp(jugadoresManager)
+                                    mensaje = {
+                                        "action": jugadoresManager.vistaActual,
+                                        "bloqueado": False,
+                                        "rondaActual": jugadoresManager.rondaActual,
+                                        "rondasTotales": jugadoresManager.rondasTotales,
+                                        "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                                        "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                                        "info": jugadoresManager.getInfoFase(),
+                                        "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
+
+                                    } 
+                                    jsonSend = json.dumps(mensaje)
+                                    await manager.broadcastClients(jsonSend)
+                                
+                                else:
+
+                                    # SE DEBE MOSTRAR LA FINALIZACION DE LA ACTIVIDAD
+                                    ## aca debemos mostrar el final de la fase
+                                    jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD"
+                                    jugadoresManager.guardarResultadosActividad()
+                                    # guardamos el binario
+                                    guardarEstadoApp(jugadoresManager)
+                                    mensaje = {
+                                        "action": jugadoresManager.vistaActual,
+                                        "bloqueado": False,
+                                        "rondaActual": jugadoresManager.rondaActual,
+                                        "rondasTotales": jugadoresManager.rondasTotales,
+                                        "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                                        "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                                        "info": jugadoresManager.getInfoFase(),
+                                        "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
+
+                                    } 
+                                    jsonSend = json.dumps(mensaje)
+                                    await manager.broadcastClients(jsonSend)
 
                                 # guardamos el binario
                                 guardarEstadoApp(jugadoresManager)
@@ -1505,8 +1671,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 cliente = data['cliente']
                 votacion = data['votacion']
                 club = data['club']
-
-                jugadoresManager.votar(cliente,votacion, jugadoresManager.rondaActual)
+                
+                ## Vemos si el tipo de voto es real o falso con el club
+                if club == "AMARILLO":
+                    jugadoresManager.votarEnFalso(cliente)
+                else:
+                    jugadoresManager.votar(cliente,votacion, jugadoresManager.rondaActual)
 
                 # guardamos el binario
                 guardarEstadoApp(jugadoresManager)
@@ -1550,25 +1720,52 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     ## ACA DEBEMOS VER SI ESTAN TODOS EN GRUPO AMARILLO Y PASAR A LA SIGUIENTE 
                     if jugadoresManager.sonTodosAmarillos():
 
+                        #ACA DEBEMOS MOSTRAR LA IMAGEN DE QUE SE HA DILUIDO EL GRUPO AZUL
+                        mensaje = {
+                            "action": "ALERT_GRUPO_AZUL_ELIMINADO",
+                        } 
+                        jsonSend = json.dumps(mensaje)
+                        await manager.broadcastClients(jsonSend)
+
                         ## DEBEMOS PASAR A LA SIGUIENTE ACTIVIDAD, SI ES LA ACTIVIDAD FINAL SE DEBE FINALZAR LA SESION 
                         if jugadoresManager.existeSiguienteActividad():
+
                             # SE DEBE MOSTRAR LA FINALIZACION DE LA ACTIVIDAD
-                            jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD"
-                            jugadoresManager.guardarResultadosActividad()
-                            # guardamos el binario
-                            guardarEstadoApp(jugadoresManager)
-                            mensaje = {
-                                "action": jugadoresManager.vistaActual,
-                                "bloqueado": False,
-                                "rondaActual": jugadoresManager.rondaActual,
-                                "rondasTotales": jugadoresManager.rondasTotales,
-                                "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
-                                "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
-                                "info": jugadoresManager.getInfoFase(),
-                                "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
-                            } 
-                            jsonSend = json.dumps(mensaje)
-                            await manager.broadcastClients(jsonSend)
+
+                            if jugadoresManager.tratamientoDePrueba:
+                                jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA"
+                                jugadoresManager.guardarResultadosActividad()
+                                # guardamos el binario
+                                guardarEstadoApp(jugadoresManager)
+                                mensaje = {
+                                    "action": jugadoresManager.vistaActual,
+                                    "bloqueado": False,
+                                    "rondaActual": jugadoresManager.rondaActual,
+                                    "rondasTotales": jugadoresManager.rondasTotales,
+                                    "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                                    "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                                    "info": jugadoresManager.getInfoFase(),
+                                    "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
+                                } 
+                                jsonSend = json.dumps(mensaje)
+                                await manager.broadcastClients(jsonSend)
+                            else:
+                                jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_ACTIVIDAD"
+                                jugadoresManager.guardarResultadosActividad()
+                                # guardamos el binario
+                                guardarEstadoApp(jugadoresManager)
+                                mensaje = {
+                                    "action": jugadoresManager.vistaActual,
+                                    "bloqueado": False,
+                                    "rondaActual": jugadoresManager.rondaActual,
+                                    "rondasTotales": jugadoresManager.rondasTotales,
+                                    "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                                    "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                                    "info": jugadoresManager.getInfoFase(),
+                                    "resultadoJugadores": jugadoresManager.exportarTablaResultadosJugadores()
+                                } 
+                                jsonSend = json.dumps(mensaje)
+                                await manager.broadcastClients(jsonSend)
 
                             # guardamos el binario
                             guardarEstadoApp(jugadoresManager)
