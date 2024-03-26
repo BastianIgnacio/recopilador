@@ -24,46 +24,31 @@ import {
 import IntlMessages from 'helpers/IntlMessages';
 import { Colxx, Separator } from 'components/common/CustomBootstrap';
 import { Formik, Form, Field } from 'formik';
-import { wsAPI1 } from 'constants/defaultValues';
+import { colorPlomo, wsAPI1 } from 'constants/defaultValues';
 import { FormikReactSelect, FormikCheckbox } from './FormikFields';
 import CardUser from './cardUser';
+import CardTratamiento from './cardTratamiento';
 
 const Experimento1 = ({ match }) => {
   const [ws, setWs] = useState(null);
   const [socketOpen, setSocketOpen] = useState(false);
-
-  const [modalAddTratamiento, setModalAddTratamiento] = useState(false);
+  const [modalCrearSesion, setModalCrearSesion] = useState(false);
+  const [
+    modalConfirmacionSiguienteActividad,
+    setModalConfirmacionSiguienteActividad,
+  ] = useState(false);
+  const [modalConfirmacionEncuesta, setModalConfirmacionEncuesta] =
+    useState(false);
   const tratamientosOptions = [
-    { label: 'Trat. 1', value: 'T1', key: 1 },
-    { label: 'Trat. 2', value: 'T2', key: 2 },
-    { label: 'Trat. 3', value: 'T3', key: 3 },
-  ];
-  const cantidadRondasOptions = [
-    { label: '1', value: 1, key: 1 },
-    { label: '2', value: 2, key: 2 },
-    { label: '3', value: 3, key: 3 },
-    { label: '4', value: 4, key: 4 },
-    { label: '5', value: 5, key: 5 },
-    { label: '6', value: 6, key: 6 },
-    { label: '7', value: 7, key: 7 },
-    { label: '8', value: 8, key: 8 },
-    { label: '9', value: 9, key: 9 },
-    { label: '10', value: 10, key: 10 },
-    { label: '11', value: 11, key: 11 },
-    { label: '12', value: 12, key: 12 },
+    { label: 'Trat. 1', value: 1 },
+    { label: 'Trat. 2', value: 2 },
+    { label: 'Trat. 3', value: 3 },
+    { label: 'Trat. 4', value: 4 },
   ];
 
   const [dataSesion, setDataSesion] = useState([]);
   const [dataUsuarios, setDataUsuarios] = useState([]);
-
-  const onSubmit = (values, { setSubmitting, resetForm }) => {
-    const payload = {
-      ...values,
-    };
-    setTimeout(() => {
-      console.log(payload);
-    }, 500);
-  };
+  const [conversor, setConversor] = useState([]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -79,9 +64,13 @@ const Experimento1 = ({ match }) => {
       const json = JSON.parse(data);
       console.log(json);
       const users = json.usersOnline;
-      if (users !== undefined) {
+      const conv = json.conversorJugadores;
+      console.log(users);
+      console.log(conv);
+      if (users !== undefined && conv !== undefined) {
         const jsonUsers = JSON.parse(users);
         setDataUsuarios(jsonUsers);
+        setConversor(conv);
       }
     };
     websocket.onclose = () => {
@@ -100,6 +89,9 @@ const Experimento1 = ({ match }) => {
     };
     const dataQuery = JSON.stringify(jsonSend);
     ws.send(dataQuery);
+    setModalConfirmacionSiguienteActividad(
+      !modalConfirmacionSiguienteActividad
+    );
   };
 
   const comenzarEncuesta = () => {
@@ -110,158 +102,235 @@ const Experimento1 = ({ match }) => {
     ws.send(dataQuery);
   };
 
+  const onSubmit = (values, { setSubmitting }) => {
+    const payload = {
+      ...values,
+    };
+
+    console.log(payload);
+    const jsonSend = {
+      tipo: 'ADMIN_CREAR_SESION',
+      tratamiento: parseInt(payload.tratamiento, 10),
+    };
+    const dataQuery = JSON.stringify(jsonSend);
+    ws.send(dataQuery);
+
+    setTimeout(() => {
+      console.log(payload);
+      setModalCrearSesion(!modalCrearSesion);
+      setSubmitting(false);
+    }, 500);
+  };
+
   return (
     <Card>
-      <CardTitle>
-        <IntlMessages id="experimento.grupo1" />
-      </CardTitle>
       <CardBody>
         {socketOpen ? (
-          <div className="scroll dashboard-list-with-thumbs">
-            <PerfectScrollbar
-              options={{ suppressScrollX: true, wheelPropagation: false }}
-            >
-              {' '}
-              <Row>
-                <Colxx lg="8">
-                  <Card>
-                    <CardBody>
-                      <CardText>
-                        {' '}
-                        aaca debe estar la descripcion de los tratamientos
-                      </CardText>
-                    </CardBody>
-                  </Card>
-                </Colxx>
-                <Colxx lg="4">
-                  <CardUser idUser="A" dataUsuarios={dataUsuarios} />
-                  <CardUser idUser="B" dataUsuarios={dataUsuarios} />
-                  <CardUser idUser="C" dataUsuarios={dataUsuarios} />
-                  <CardUser idUser="D" dataUsuarios={dataUsuarios} />
-                  <CardUser idUser="E" dataUsuarios={dataUsuarios} />
-                  <CardUser idUser="F" dataUsuarios={dataUsuarios} />
-                </Colxx>
-              </Row>
-            </PerfectScrollbar>
+          <div>
+            {' '}
+            <Row>
+              <Colxx lg="3">
+                <Row>
+                  <Colxx lg="12">
+                    <CardUser
+                      internalId={1}
+                      dataUsuarios={dataUsuarios}
+                      conversor={conversor}
+                    />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardUser
+                      internalId={2}
+                      dataUsuarios={dataUsuarios}
+                      conversor={conversor}
+                    />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardUser
+                      internalId={3}
+                      dataUsuarios={dataUsuarios}
+                      conversor={conversor}
+                    />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardUser
+                      internalId={4}
+                      dataUsuarios={dataUsuarios}
+                      conversor={conversor}
+                    />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardUser
+                      internalId={5}
+                      dataUsuarios={dataUsuarios}
+                      conversor={conversor}
+                    />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardUser
+                      internalId={6}
+                      dataUsuarios={dataUsuarios}
+                      conversor={conversor}
+                    />{' '}
+                  </Colxx>
+                </Row>
+              </Colxx>
+              <Colxx lg="8">
+                <Row>
+                  <Colxx lg="12">
+                    <CardTratamiento numeroActividad={0} />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardTratamiento numeroActividad={1} />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardTratamiento numeroActividad={2} />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardTratamiento numeroActividad={3} />{' '}
+                  </Colxx>
+                  <Colxx lg="12">
+                    <CardTratamiento numeroActividad={4} />{' '}
+                  </Colxx>
+                </Row>
+              </Colxx>
+            </Row>
           </div>
         ) : (
           <> Por favor recargar la pag F5</>
         )}
       </CardBody>
       <CardFooter>
-        <Button onClick={comenzarSiguienteActividad}>
+        <Button onClick={() => setModalCrearSesion(!modalCrearSesion)}>
+          Nueva Sesion
+        </Button>
+        <Button
+          onClick={() =>
+            setModalConfirmacionSiguienteActividad(
+              !modalConfirmacionSiguienteActividad
+            )
+          }
+        >
           Siguiente actividad
         </Button>
-        <Button onClick={comenzarEncuesta}>Comenzar encuesta</Button>
+        <Button
+          onClick={() =>
+            setModalConfirmacionEncuesta(!modalConfirmacionEncuesta)
+          }
+        >
+          Comenzar encuesta
+        </Button>
       </CardFooter>
-      <Formik
-        initialValues={{
-          cantidadRondas: cantidadRondasOptions[0],
-          tratamiento: tratamientosOptions[0],
-          prueba: false,
-        }}
-        onSubmit={onSubmit}
+      <Modal
+        isOpen={modalConfirmacionSiguienteActividad}
+        toggle={() =>
+          setModalConfirmacionSiguienteActividad(
+            !modalConfirmacionSiguienteActividad
+          )
+        }
       >
-        {({
-          // eslint-disable-next-line no-unused-vars
-          handleSubmit,
-          handleReset,
-          // eslint-disable-next-line no-unused-vars
-          setFieldValue,
-          // eslint-disable-next-line no-unused-vars
-          setFieldTouched,
-          // eslint-disable-next-line no-unused-vars
-          handleChange,
-          // eslint-disable-next-line no-unused-vars
-          handleBlur,
-          // eslint-disable-next-line no-unused-vars
-          values,
-          errors,
-          touched,
-          // eslint-disable-next-line no-unused-vars
-          isSubmitting,
-        }) => (
-          <>
-            <Modal
-              isOpen={modalAddTratamiento}
-              toggle={() => setModalAddTratamiento(!modalAddTratamiento)}
-            >
-              <Form className="av-tooltip tooltip-label-bottom">
-                <ModalHeader>Nuevo tratamiento</ModalHeader>
-                <ModalBody>
-                  <Row>
-                    <Colxx xxs="12" xs="12" lg="8">
-                      <FormGroup className="form-group has-float-label">
-                        <Label>TRATAMIENTO</Label>
-                        <FormikReactSelect
-                          name="tratamiento"
-                          id="tratamiento"
-                          value={values.tratamiento}
-                          options={tratamientosOptions}
-                          onChange={setFieldValue}
-                          onBlur={setFieldTouched}
-                        />
-                        {errors.posicionCarrusel && touched.posicionCarrusel ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.posicionCarrusel}
-                          </div>
-                        ) : null}
-                      </FormGroup>
-                    </Colxx>
-                    <Colxx xxs="12" xs="12" lg="4">
-                      <FormGroup className="form-group has-float-label">
-                        <Label>RONDAS</Label>
-                        <FormikReactSelect
-                          name="cantidadRondas"
-                          id="cantidadRondas"
-                          value={values.cantidadRondas}
-                          options={cantidadRondasOptions}
-                          onChange={setFieldValue}
-                          onBlur={setFieldTouched}
-                        />
-                        {errors.posicionCarrusel && touched.posicionCarrusel ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.posicionCarrusel}
-                          </div>
-                        ) : null}
-                      </FormGroup>
-                    </Colxx>
-                    <Colxx xxs="12" xs="12" lg="12">
-                      <FormGroup className="error-l-150">
-                        <FormikCheckbox
-                          id="prueba"
-                          name="prueba"
-                          value={values.prueba}
-                          label="Tratamiento de prueba"
-                          onChange={setFieldValue}
-                          onBlur={setFieldTouched}
-                        />
-                        {errors.checkboxSingle && touched.checkboxSingle ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.checkboxSingle}
-                          </div>
-                        ) : null}
-                      </FormGroup>
-                    </Colxx>
-                  </Row>
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="primary" type="submit">
-                    Agregar
-                  </Button>{' '}
-                  <Button
-                    color="secondary"
-                    outline
-                    onClick={() => setModalAddTratamiento(!modalAddTratamiento)}
-                  >
-                    Cancelar
-                  </Button>
-                </ModalFooter>
-              </Form>
-            </Modal>
-          </>
-        )}
-      </Formik>
+        <ModalHeader>
+          Seguro que quiere comenzar la nueva actividad ?
+        </ModalHeader>
+
+        <ModalFooter>
+          <Button color="primary" onClick={() => comenzarSiguienteActividad()}>
+            SI
+          </Button>{' '}
+          <Button
+            color="secondary"
+            outline
+            onClick={() =>
+              setModalConfirmacionSiguienteActividad(
+                !modalConfirmacionSiguienteActividad
+              )
+            }
+          >
+            Cancelar
+          </Button>
+        </ModalFooter>
+      </Modal>
+      <Modal
+        isOpen={modalConfirmacionEncuesta}
+        toggle={() => setModalConfirmacionEncuesta(!modalConfirmacionEncuesta)}
+      >
+        <ModalHeader>Seguro que quiere comenzar la encuesta ?</ModalHeader>
+        <ModalFooter>
+          <Button
+            color="primary"
+            onClick={() => {
+              comenzarEncuesta();
+              setModalConfirmacionEncuesta(!modalConfirmacionEncuesta);
+            }}
+          >
+            SI
+          </Button>{' '}
+          <Button
+            color="secondary"
+            outline
+            onClick={() =>
+              setModalConfirmacionEncuesta(!modalConfirmacionEncuesta)
+            }
+          >
+            Cancelar
+          </Button>
+        </ModalFooter>
+      </Modal>
+      <Modal
+        isOpen={modalCrearSesion}
+        toggle={() => setModalCrearSesion(!modalCrearSesion)}
+      >
+        <ModalHeader>Crear Sesión</ModalHeader>
+        <Formik
+          initialValues={{
+            tratamiento: 1,
+          }}
+          onSubmit={onSubmit}
+        >
+          {({
+            handleSubmit,
+            setFieldValue,
+            setFieldTouched,
+            handleChange,
+            handleBlur,
+            values,
+            errors,
+            touched,
+            isSubmitting,
+          }) => (
+            <Form className="av-tooltip tooltip-label-right">
+              <CardBody>
+                <FormGroup className="error-l-100 pt-3 pl-3 pr-3" row>
+                  <Label sm={6}>Tratamiento a realizar</Label>
+                  <Colxx sm={6}>
+                    {' '}
+                    <select
+                      name="tratamiento"
+                      className="form-control"
+                      value={values.tratamiento}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    >
+                      {tratamientosOptions.map((item, i) => {
+                        return (
+                          <option value={item.value} key={item.value}>
+                            {item.label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </Colxx>
+                </FormGroup>
+              </CardBody>
+              <CardFooter>
+                <Button className="mt-2" block type="submit">
+                  Crear
+                </Button>
+              </CardFooter>
+            </Form>
+          )}
+        </Formik>
+      </Modal>
     </Card>
   );
 };

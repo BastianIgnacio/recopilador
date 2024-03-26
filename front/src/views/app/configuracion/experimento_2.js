@@ -33,6 +33,10 @@ const Experimento2 = ({ match }) => {
   const [socketOpen, setSocketOpen] = useState(false);
 
   const [modalAddTratamiento, setModalAddTratamiento] = useState(false);
+  const [
+    modalConfirmacionSiguienteActividad,
+    setMmdalConfirmacionSiguienteActividad,
+  ] = useState(false);
   const tratamientosOptions = [
     { label: 'Trat. 1', value: 'T1', key: 1 },
     { label: 'Trat. 2', value: 'T2', key: 2 },
@@ -54,7 +58,6 @@ const Experimento2 = ({ match }) => {
   ];
 
   const [dataSesion, setDataSesion] = useState([]);
-  const [enProceso, setEnProceso] = useState(false);
   const [dataUsuarios, setDataUsuarios] = useState([]);
 
   const onSubmit = (values, { setSubmitting, resetForm }) => {
@@ -87,6 +90,7 @@ const Experimento2 = ({ match }) => {
     };
     websocket.onclose = () => {
       console.log('coneccion cerrada del admin');
+      setSocketOpen(false);
     };
     return () => {
       websocket.close();
@@ -100,6 +104,9 @@ const Experimento2 = ({ match }) => {
     };
     const dataQuery = JSON.stringify(jsonSend);
     ws.send(dataQuery);
+    setMmdalConfirmacionSiguienteActividad(
+      !modalConfirmacionSiguienteActividad
+    );
   };
 
   const comenzarEncuesta = () => {
@@ -112,24 +119,11 @@ const Experimento2 = ({ match }) => {
 
   return (
     <Card>
-      <div className="position-absolute card-top-buttons">
-        {!enProceso && (
-          <button
-            type="button"
-            className="btn btn-header-light icon-button"
-            onClick={() => setModalAddTratamiento(!modalAddTratamiento)}
-          >
-            <i className="simple-icon-plus" />
-          </button>
-        )}
-      </div>
+      <CardTitle>
+        <IntlMessages id="experimento.grupo1" />
+      </CardTitle>
       <CardBody>
-        <CardTitle>
-          <IntlMessages id="experimento.grupo2" />
-        </CardTitle>
-        {enProceso ? (
-          'EN PROCESO'
-        ) : (
+        {socketOpen ? (
           <div className="scroll dashboard-list-with-thumbs">
             <PerfectScrollbar
               options={{ suppressScrollX: true, wheelPropagation: false }}
@@ -157,10 +151,18 @@ const Experimento2 = ({ match }) => {
               </Row>
             </PerfectScrollbar>
           </div>
+        ) : (
+          <> Por favor recargar la pag F5</>
         )}
       </CardBody>
       <CardFooter>
-        <Button onClick={comenzarSiguienteActividad}>
+        <Button
+          onClick={() =>
+            setMmdalConfirmacionSiguienteActividad(
+              !modalConfirmacionSiguienteActividad
+            )
+          }
+        >
           Siguiente actividad
         </Button>
         <Button onClick={comenzarEncuesta}>Comenzar encuesta</Button>
@@ -264,6 +266,40 @@ const Experimento2 = ({ match }) => {
                     color="secondary"
                     outline
                     onClick={() => setModalAddTratamiento(!modalAddTratamiento)}
+                  >
+                    Cancelar
+                  </Button>
+                </ModalFooter>
+              </Form>
+            </Modal>
+            <Modal
+              isOpen={modalConfirmacionSiguienteActividad}
+              toggle={() =>
+                setMmdalConfirmacionSiguienteActividad(
+                  !modalConfirmacionSiguienteActividad
+                )
+              }
+            >
+              <Form className="av-tooltip tooltip-label-bottom">
+                <ModalHeader>
+                  Seguro que quiere comenzar la nueva actividad ?
+                </ModalHeader>
+
+                <ModalFooter>
+                  <Button
+                    color="primary"
+                    onClick={() => comenzarSiguienteActividad()}
+                  >
+                    SI
+                  </Button>{' '}
+                  <Button
+                    color="secondary"
+                    outline
+                    onClick={() =>
+                      setMmdalConfirmacionSiguienteActividad(
+                        !modalConfirmacionSiguienteActividad
+                      )
+                    }
                   >
                     Cancelar
                   </Button>

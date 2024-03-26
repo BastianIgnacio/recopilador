@@ -22,7 +22,7 @@ const App = ({ match }) => {
               roles={[UserRole.Admin]}
       /> */}
             <Route
-              path={`${match.url}/:id`}
+              path={`${match.url}/:idGrupoParam/:idInternParam`}
               render={(props) => <FrameAppCliente {...props} />}
             />
             <Redirect to="/error" />

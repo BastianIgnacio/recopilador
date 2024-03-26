@@ -15,8 +15,9 @@ import {
 } from 'reactstrap';
 import data from 'data/topRatedItems';
 
-const CardUser = ({ idUser, dataUsuarios }) => {
+const CardUser = ({ internalId, dataUsuarios, conversor }) => {
   const [conectado, setConectado] = useState(false);
+  const [jugador, setJugador] = useState('NO');
 
   useEffect(() => {
     const aux = [];
@@ -24,34 +25,35 @@ const CardUser = ({ idUser, dataUsuarios }) => {
     for (let i = 0; i < dataUsuarios.length; i++) {
       aux.push(dataUsuarios[i].client_id);
     }
-    if (aux.includes(idUser.toUpperCase())) {
+    if (aux.includes(internalId)) {
       setConectado(true);
+      setJugador(conversor[internalId]);
     } else {
       setConectado(false);
+      setJugador(conversor[internalId]);
     }
-  }, [dataUsuarios, idUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataUsuarios, internalId, conversor]);
 
   return (
-    <Card className="d-flex flex-row m-1">
-      <div className="position-absolute card-top-buttons">
-        {conectado && <Button color="success">{idUser}</Button>}
-        {!conectado && <Button color="danger">{idUser}</Button>}
-      </div>
-      <div className=" d-flex flex-grow-1 min-width-zero">
-        <CardBody className=" pl-0 align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero">
-          <div className="min-width-zero">
-            {conectado && (
-              <CardText className="text-muted text-small ml-3">
-                Conectado
-              </CardText>
-            )}
-            {!conectado && (
-              <CardText className="text-muted text-small ml-3">
-                Desconectado
-              </CardText>
-            )}
-          </div>
-        </CardBody>
+    <Card className="m-2">
+      <div className="d-flex justify-content-start m-3">
+        <div>
+          {conectado && <Button color="success">{internalId}</Button>}
+          {!conectado && <Button color="danger">{internalId}</Button>}
+        </div>
+        <div className="d-flex align-items-center">
+          {conectado && (
+            <CardText className="text-muted text-medium  ml-3">
+              Jugador {jugador}
+            </CardText>
+          )}
+          {!conectado && (
+            <CardText className="text-muted text-medium ml-3">
+              Jugador {jugador}
+            </CardText>
+          )}
+        </div>
       </div>
     </Card>
   );

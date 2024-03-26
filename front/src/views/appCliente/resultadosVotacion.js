@@ -30,20 +30,11 @@ const ResultadosVotacion = ({
   traslados,
   arrayJugadores,
 }) => {
-  console.log(notificaciones);
-  console.log(traslados);
-  console.log(arrayJugadores);
-  const ronda = 10;
-
-  const onSubmit = (values, { setSubmitting }) => {
-    const payload = {
-      ...values,
-    };
-    setTimeout(() => {
-      console.log(JSON.stringify(payload, null, 2));
-      setSubmitting(false);
-    }, 1000);
+  const ordenarArray = (array) => {
+    array.sort((a, b) => a.letraJugador.localeCompare(b.letraJugador));
   };
+
+  ordenarArray(arrayJugadores);
 
   return (
     <>
@@ -60,7 +51,7 @@ const ResultadosVotacion = ({
               style={{ backgroundColor: 'transparent', borderRadius: '10px' }}
               className="ml-2 mr-2 mt-2 mb-2"
             >
-              <div className="text-left mt-2 ml-4">
+              <div className="text-center mt-2 ml-4">
                 <Label
                   className="h3"
                   style={{ color: 'black', fontWeight: 'bold' }}

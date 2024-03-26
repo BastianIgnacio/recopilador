@@ -10,6 +10,8 @@ import { Row, Card, CardBody, Label } from 'reactstrap';
 import { colorBlue, colorYellow, colorPlomo } from 'constants/defaultValues';
 
 const JugadorLabel = ({ id, element, traslados }) => {
+  console.log(traslados);
+  console.log(element);
   const ud = '(USTED)';
   return (
     <>
@@ -25,10 +27,12 @@ const JugadorLabel = ({ id, element, traslados }) => {
             >
               {element.client_id === id && (
                 <>
-                  {ud} Jugador {element.client_id}
+                  {ud} Jugador {element.letraJugador}
                 </>
               )}
-              {element.client_id !== id && <> Jugador {element.client_id} </>}
+              {element.client_id !== id && (
+                <> Jugador {element.letraJugador} </>
+              )}
             </Label>
           </div>
         </div>
@@ -45,10 +49,12 @@ const JugadorLabel = ({ id, element, traslados }) => {
             >
               {element.client_id === id && (
                 <>
-                  {ud} Jugador {element.client_id}
+                  {ud} Jugador {element.letraJugador}
                 </>
               )}
-              {element.client_id !== id && <> Jugador {element.client_id} </>}
+              {element.client_id !== id && (
+                <> Jugador {element.letraJugador} </>
+              )}
             </Label>
           </div>
         </div>
@@ -65,10 +71,12 @@ const JugadorLabel = ({ id, element, traslados }) => {
             >
               {element.client_id === id && (
                 <>
-                  {ud} Jugador {element.client_id}
+                  {ud} Jugador {element.letraJugador}
                 </>
               )}
-              {element.client_id !== id && <> Jugador {element.client_id} </>}
+              {element.client_id !== id && (
+                <> Jugador {element.letraJugador} </>
+              )}
             </Label>
           </div>
         </div>

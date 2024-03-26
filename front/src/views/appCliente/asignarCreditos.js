@@ -35,7 +35,6 @@ const AsignarCreditos = ({
   id,
   ws,
   club,
-  ronda,
   bloqueado,
   setBloqueadoView,
   rondaActual,
@@ -70,16 +69,22 @@ const AsignarCreditos = ({
       setSubmitting(false);
     }, 500);
   };
+
+  const ordenarArray = (array) => {
+    array.sort((a, b) => a.letraJugador.localeCompare(b.letraJugador));
+  };
+
   const senalarJugador = (array) => {
     // eslint-disable-next-line func-names
     array.forEach(function (i) {
-      if (i.id === id) {
+      if (i.id === String(id)) {
         // eslint-disable-next-line no-param-reassign
-        i.jugador = `(USTED) Jugador ${i.id}`;
+        i.jugador = `(USTED) Jugador ${i.letraJugador}`;
       }
     });
   };
   senalarJugador(arrayTablasJugadores);
+  ordenarArray(arrayTablasJugadores);
 
   const colsRetirosJugadores = React.useMemo(
     () => [
@@ -235,98 +240,102 @@ const AsignarCreditos = ({
               prepareRow(row);
               return (
                 <>
-                  {row.original.club === 'AZUL' && row.original.id !== id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightBlue,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
-                  {row.original.club === 'AZUL' && row.original.id === id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightBlue,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 950,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
-                  {row.original.club === 'AMARILLO' && row.original.id !== id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightYellow,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
-                  {row.original.club === 'AMARILLO' && row.original.id === id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightYellow,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 950,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
+                  {row.original.club === 'AZUL' &&
+                    row.original.id !== String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightBlue,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
+                  {row.original.club === 'AZUL' &&
+                    row.original.id === String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightBlue,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 950,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
+                  {row.original.club === 'AMARILLO' &&
+                    row.original.id !== String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightYellow,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
+                  {row.original.club === 'AMARILLO' &&
+                    row.original.id === String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightYellow,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 950,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
                   {row.original.club === 'total' && (
                     <tr
                       {...row.getRowProps()}

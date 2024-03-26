@@ -176,7 +176,9 @@ const FinalizarActividad = ({ match, idWs, resultadoJugadores }) => {
       <Row className="d-flex justify-content-center">
         <Colxx xl="4">
           <Card>
-            <CardTitle className="m-3 "> Jugador {idWs}</CardTitle>
+            <CardTitle className="text-center mt-3 font-weight-bold">
+              Ha finalizado la actividad
+            </CardTitle>
             <CardBody>
               <Table columns={colsRetirosJugadores} data={resultadoJugadores} />
             </CardBody>

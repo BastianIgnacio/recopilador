@@ -175,9 +175,8 @@ const FinalizarSesion = ({
       <Row className="d-flex justify-content-center">
         <Colxx xl="6">
           <Card>
-            <CardTitle className="m-1 text-center">
-              {' '}
-              Jugador {idWs} - La sesion experimental ha finalizado
+            <CardTitle className="mt-3 text-center font-weight-bold">
+              La sesión experimental ha finalizado
             </CardTitle>
             <CardBody>
               <Table columns={colsRetirosJugadores} data={resultadoJugadores} />

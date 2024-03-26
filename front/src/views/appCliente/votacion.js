@@ -29,20 +29,16 @@ import {
 import { NotificationManager } from 'components/common/react-notifications';
 
 import { useTable, usePagination, useSortBy } from 'react-table';
-import DatatablePagination from 'components/DatatablePagination';
 
 import { FormikCustomRadioGroupMax } from './FormikFields';
 
 const Votacion = ({
   match,
   id,
-  socketConectado,
   club,
   ws,
   bloqueado,
   setBloqueadoView,
-  rondaActual,
-  rondasTotales,
   arrayJugadores,
   arrayTablasJugadores,
   info,
@@ -51,31 +47,38 @@ const Votacion = ({
   const senalarJugador = (array) => {
     // eslint-disable-next-line func-names
     array.forEach(function (i) {
-      if (i.id === id) {
+      console.log(i);
+      if (i.id === String(id)) {
         // eslint-disable-next-line no-param-reassign
-        i.jugador = `(USTED) Jugador ${i.id}`;
+        i.jugador = `(USTED) Jugador ${i.letraJugador}`;
       }
     });
   };
 
+  const ordenarArray = (array) => {
+    array.sort((a, b) => a.letraJugador.localeCompare(b.letraJugador));
+  };
+  ordenarArray(arrayTablasJugadores);
+
   senalarJugador(arrayTablasJugadores);
+
   const generarOpcionesVotacion = (array) => {
     const arrayOpctions = [];
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < array.length; i++) {
       if (array[i].club === 'AZUL') {
-        if (array[i].client_id !== id) {
+        if (array[i].client_id !== String(id)) {
           const a = {
-            value: array[i].client_id,
-            label: `Jugador ${array[i].client_id}`,
+            value: parseInt(array[i].client_id, 10),
+            label: `Jugador ${array[i].letraJugador}`,
             disabled: false,
           };
           arrayOpctions.push(a);
         }
-      } else if (array[i].client_id !== id) {
+      } else if (array[i].client_id !== String(id)) {
         const a = {
-          value: array[i].client_id,
-          label: `Jugador ${array[i].client_id}`,
+          value: parseInt(array[i].client_id, 10),
+          label: `Jugador ${array[i].letraJugador}`,
           disabled: true,
         };
         arrayOpctions.push(a);
@@ -84,6 +87,15 @@ const Votacion = ({
     arrayOpctions.push({
       value: 'no',
       label: 'No trasladar a ningun integrante',
+    });
+    return arrayOpctions;
+  };
+
+  const generarOpcionesVotacionAmarillo = (array) => {
+    const arrayOpctions = [];
+    arrayOpctions.push({
+      value: 'no',
+      label: 'Yo no puedo votar',
     });
     return arrayOpctions;
   };
@@ -242,98 +254,102 @@ const Votacion = ({
               prepareRow(row);
               return (
                 <>
-                  {row.original.club === 'AZUL' && row.original.id !== id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightBlue,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
-                  {row.original.club === 'AZUL' && row.original.id === id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightBlue,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 950,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
-                  {row.original.club === 'AMARILLO' && row.original.id !== id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightYellow,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
-                  {row.original.club === 'AMARILLO' && row.original.id === id && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightYellow,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 950,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
+                  {row.original.club === 'AZUL' &&
+                    row.original.id !== String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightBlue,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
+                  {row.original.club === 'AZUL' &&
+                    row.original.id === String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightBlue,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 950,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
+                  {row.original.club === 'AMARILLO' &&
+                    row.original.id !== String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightYellow,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
+                  {row.original.club === 'AMARILLO' &&
+                    row.original.id === String(id) && (
+                      <tr
+                        {...row.getRowProps()}
+                        style={{
+                          backgroundColor: colorLightYellow,
+                          color: 'black',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          fontWeight: 950,
+                        }}
+                      >
+                        {row.cells.map((cell, cellIndex) => (
+                          <td
+                            key={`td_${cellIndex}`}
+                            style={{
+                              color: 'black',
+                            }}
+                          >
+                            {cell.render('Cell')}
+                          </td>
+                        ))}
+                      </tr>
+                    )}
                   {row.original.club === 'total' && (
                     <tr
                       {...row.getRowProps()}
@@ -390,6 +406,34 @@ const Votacion = ({
     const dataQuery = JSON.stringify(jsonSend);
     ws.send(dataQuery);
   };
+
+  const onSubmitVotoEnFalso = (values, { setSubmitting }) => {
+    const payload = {
+      ...values,
+    };
+    if (payload.customRadioGroup.length === 0) {
+      NotificationManager.warning(
+        '',
+        'Debes seleccionar la UNICA opción',
+        3000,
+        null,
+        null,
+        'filled'
+      );
+      return;
+    }
+    const data = {
+      cliente: id,
+      club,
+      votacion: payload.customRadioGroup,
+    };
+    setTimeout(() => {
+      setBloqueadoView(true);
+      enviarVotacion(data);
+      setSubmitting(false);
+    }, 100);
+  };
+
   const onSubmit = (values, { setSubmitting }) => {
     const payload = {
       ...values,
@@ -405,7 +449,6 @@ const Votacion = ({
       );
       return;
     }
-    console.log(payload);
     const data = {
       cliente: id,
       club,
@@ -414,10 +457,10 @@ const Votacion = ({
     setTimeout(() => {
       setBloqueadoView(true);
       enviarVotacion(data);
-
       setSubmitting(false);
     }, 100);
   };
+
   return (
     <>
       {club === 'AZUL' && (
@@ -471,28 +514,36 @@ const Votacion = ({
                   }) => (
                     <Form className="av-tooltip tooltip-label-right">
                       <CardBody>
-                        <CardTitle>
-                          En esta ronda usted puede votar para trasladar un
-                          maximo de 2 integrantes al club amarillo.
-                        </CardTitle>
-                        <FormGroup className="error-l-175">
-                          <FormikCustomRadioGroupMax
-                            name="customRadioGroup"
-                            id="customRadioGroup"
-                            label="Which of these?"
-                            values={values.customRadioGroup}
-                            onChange={setFieldValue}
-                            onBlur={setFieldTouched}
-                            options={generarOpcionesVotacion(arrayJugadores)}
-                            max={2}
-                          />
-                          {errors.customRadioGroup &&
-                          touched.customRadioGroup ? (
-                            <div className="invalid-feedback d-block">
-                              {errors.customRadioGroup}
-                            </div>
-                          ) : null}
-                        </FormGroup>
+                        {!bloqueado ? (
+                          <>
+                            <CardTitle>
+                              En esta ronda usted puede votar para trasladar un
+                              maximo de 1 integrante al club amarillo.
+                            </CardTitle>
+                            <FormGroup className="error-l-175">
+                              <FormikCustomRadioGroupMax
+                                name="customRadioGroup"
+                                id="customRadioGroup"
+                                label="Which of these?"
+                                values={values.customRadioGroup}
+                                onChange={setFieldValue}
+                                onBlur={setFieldTouched}
+                                options={generarOpcionesVotacion(
+                                  arrayJugadores
+                                )}
+                                max={1}
+                              />
+                              {errors.customRadioGroup &&
+                              touched.customRadioGroup ? (
+                                <div className="invalid-feedback d-block">
+                                  {errors.customRadioGroup}
+                                </div>
+                              ) : null}
+                            </FormGroup>
+                          </>
+                        ) : (
+                          <CardTitle>Gracias por su votación</CardTitle>
+                        )}
                       </CardBody>
                       <CardFooter>
                         <Button
@@ -551,27 +602,84 @@ const Votacion = ({
                       }}
                     >
                       <div className="text-center mt-3 ml-3">
-                        <Label
-                          className="h3"
-                          style={{ color: 'white', fontWeight: 'bold' }}
-                        >
+                        <Label className="h5" style={{ color: 'white' }}>
                           VOTACIÓN
                         </Label>
                       </div>
                     </div>
-                    <CardBody>
-                      <CardTitle
-                        className="text-center"
-                        style={{ fontWeight: 'bold' }}
-                      >
-                        NO PUEDES VOTAR
-                      </CardTitle>
-                    </CardBody>
-                    <CardFooter>
-                      <CardSubtitle className="text-center">
-                        ESPERANDO LA VOTACIÓN DE LOS INTEGRANTES DEL CLUB AZUL
-                      </CardSubtitle>
-                    </CardFooter>
+                    <Formik
+                      initialValues={{
+                        customRadioGroup: [],
+                      }}
+                      // validationSchema={SignupSchema}
+                      onSubmit={onSubmitVotoEnFalso}
+                    >
+                      {({
+                        handleSubmit,
+                        setFieldValue,
+                        setFieldTouched,
+                        handleChange,
+                        handleBlur,
+                        values,
+                        errors,
+                        touched,
+                        isSubmitting,
+                      }) => (
+                        <Form className="av-tooltip tooltip-label-right">
+                          <CardBody>
+                            {!bloqueado ? (
+                              <>
+                                {' '}
+                                <CardTitle>
+                                  USTED ES UN INTEGRANTE DEL CLUB AMARILLO Y NO
+                                  PUEDE VOTAR.
+                                </CardTitle>
+                                <CardTitle>
+                                  HAGA CLICK EN ESTE RECUADRO Y ENVÍE.
+                                </CardTitle>
+                                <FormGroup className="error-l-175">
+                                  <FormikCustomRadioGroupMax
+                                    name="customRadioGroup"
+                                    id="customRadioGroup"
+                                    label="Which of these?"
+                                    values={values.customRadioGroup}
+                                    onChange={setFieldValue}
+                                    onBlur={setFieldTouched}
+                                    options={generarOpcionesVotacionAmarillo()}
+                                    max={2}
+                                  />
+                                  {errors.customRadioGroup &&
+                                  touched.customRadioGroup ? (
+                                    <div className="invalid-feedback d-block">
+                                      {errors.customRadioGroup}
+                                    </div>
+                                  ) : null}
+                                </FormGroup>
+                              </>
+                            ) : (
+                              <CardTitle>GRACIAS POR SU VOTACION</CardTitle>
+                            )}
+                          </CardBody>
+                          <CardFooter>
+                            <Button
+                              block
+                              style={{
+                                color: 'black',
+                                backgroundColor: colorYellow,
+                                fontWeight: 'bold',
+                                fontSize: '12px',
+                              }}
+                              type="submit"
+                              disabled={bloqueado}
+                            >
+                              {!bloqueado
+                                ? 'Enviar'
+                                : 'Esperando a los otros participantes..'}
+                            </Button>
+                          </CardFooter>
+                        </Form>
+                      )}
+                    </Formik>
                   </Card>
                 </Colxx>
               )}

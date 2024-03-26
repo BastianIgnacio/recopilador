@@ -18,20 +18,42 @@ import {
 } from 'reactstrap';
 import { Colxx } from 'components/common/CustomBootstrap';
 
-const FinalizarSesionAgradecimientos = ({ match, idWs, grupo }) => {
+const FinalizarSesionAgradecimientos = ({
+  match,
+  id,
+  grupo,
+  resultadoJugadores,
+}) => {
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const row = resultadoJugadores.find((tupla) => tupla.rowTotal === true);
+    if (row !== undefined) {
+      setTotal(row.pesos);
+    }
+  }, [resultadoJugadores]);
+
   return (
     <>
       <Row className="d-flex justify-content-center">
         <Colxx xl="6">
           <Card>
-            <CardTitle className="m-3 ">
-              {' '}
-              Muchas gracias por participar en esta sesion experimental
+            <CardTitle className="text-center font-weight-bold mt-3">
+              MUCHAS GRACIAS POR PARTICIPAR EN ESTA SESIÓN EXPERIMENTAL
             </CardTitle>
             <CardBody>
               <CardText>
-                Ahora puedes pasar por el pago correspondiente, recuerda que tu
-                identificacion es la letra {idWs} y tu grupo es el {grupo}.
+                TU PAGO CORRESPONDIENTE
+                <p className="card-text font-weight-semibold mb-0">
+                  {total} (Pesos Chilenos)
+                </p>
+              </CardText>
+              <CardText>
+                {' '}
+                IMPORTANTE: RECUERDA QUE TU ERES:
+                <p className="card-text font-weight-semibold mb-0">
+                  EL JUGADOR {id} DEL GRUPO {grupo}.
+                </p>
               </CardText>
             </CardBody>
           </Card>

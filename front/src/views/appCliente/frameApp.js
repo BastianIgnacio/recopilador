@@ -11,6 +11,7 @@ import {
   wsAPI2,
 } from 'constants/defaultValues';
 import { Card, CardBody, CardHeader, Label } from 'reactstrap';
+import { NotificationManager } from 'components/common/react-notifications';
 import Bienvenido from './bienvenido';
 import AsignarCreditos from './asignarCreditos';
 import Votacion from './votacion';
@@ -20,10 +21,11 @@ import FinalizarActividad from './FinalizarActividad';
 import FinalizarSesion from './FinalizarSesion';
 import Encuesta from './Encuesta';
 import FinalizarSesionAgradecimientos from './FinalizarSesionAgradecimientos';
+import ResumenAsignacionCreditos from './resumenAsignacionCreditos';
+import FinalizarActividadPrueba from './FinalizarActividadPrueba';
 
 const FrameAppCliente = ({ match }) => {
   const [wsApp, setWsApp] = useState(null);
-  const [idWs, setIdWs] = useState(null);
   const [grupo, setGrupo] = useState('-');
 
   const [socketConectado, setSocketConectado] = useState(false);
@@ -35,18 +37,29 @@ const FrameAppCliente = ({ match }) => {
   const [trasladosVotacion, setTrasladosVotacion] = useState([]);
   const [info, setInfo] = useState([]);
   const [resultadoJugadores, setResultadoJugadores] = useState([]);
+  const [asignacionesArray, setAsignacionesArray] = useState([]);
+
   const [mostrarVotacion, setMostrarVotacion] = useState(false);
   const [mostrarEncuesta, setMostrarEncuesta] = useState(false);
   const [mostrarAgradecimientos, setMostrarAgradecimientos] = useState(false);
-
+  const [mostrarFinalizarActividadPrueba, setMostrarActividadPrueba] =
+    useState(false);
   const [mostrarFinalizarActividad, setMostrarFinalizarActividad] =
     useState(false);
   const [mostrarFinalizarSesion, setMostrarFinalizarSesion] = useState(false);
 
   const [capturaEnProceso, setCapturaEnProceso] = useState(false);
 
-  const { id } = useParams();
-  const idLink = id.toUpperCase();
+  const { idGrupoParam, idInternParam } = useParams();
+
+  const [grupoParse, setGrupoParse] = useState(parseInt(idGrupoParam, 10));
+  const [integrante, setIntegrante] = useState(parseInt(idInternParam, 10));
+  const [arrayConvertJugador, setArrayConvertJugador] = useState([]);
+  const [jugadorShow, setJugadorShow] = useState('');
+
+  // idInternParam ID ES NUMERO 1-6
+
+  // idGrupoParam es 1 o 2
 
   // BIENVENIDO
   // ASIGNAR_CREDITOS
@@ -58,14 +71,16 @@ const FrameAppCliente = ({ match }) => {
   // MOSTRAR_FINALIZAR_SESION
   // FINALIZAR_SESION_AGRADECIMIENTOS
 
+  // ALERT_GRUPO_AZUL_ELIMINADO
+
   const [view, setView] = useState('BIENVENIDO');
   const [club, setClub] = useState('AZUL');
   const [colorFondo, setColorFondo] = useState(colorLightBlue);
   const [bloqueadoView, setBloqueadoView] = useState(false);
 
-  const actualizarClub = (array, integrante) => {
+  const actualizarClub = (array, integranteView) => {
     array.forEach((element) => {
-      if (integrante === element.client_id) {
+      if (String(integranteView) === element.client_id) {
         if (element.club === 'AMARILLO') {
           setClub(element.club);
           setColorFondo(colorLightYellow);
@@ -78,13 +93,29 @@ const FrameAppCliente = ({ match }) => {
     });
   };
 
-  useEffect(() => {
-    var arrayDeCadenas = idLink.split('');
+  const reiniciarVistas = () => {
+    setMostrarVotacion(false);
+    setMostrarEncuesta(false);
+    setMostrarAgradecimientos(false);
+    setMostrarActividadPrueba(false);
+    setMostrarFinalizarActividad(false);
+    setMostrarFinalizarSesion(false);
+  };
 
-    const grupoParse = parseInt(arrayDeCadenas[0], 10);
-    const integrante = arrayDeCadenas[1];
+  useEffect(() => {
+    console.log(arrayConvertJugador);
+    if (arrayConvertJugador) {
+      const jugadorToShow = arrayConvertJugador[integrante];
+      setJugadorShow(jugadorToShow);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [arrayConvertJugador]);
+
+  useEffect(() => {
     // eslint-disable-next-line vars-on-top
     let webSocketApi = '';
+    console.log(grupoParse);
+    console.log(integrante);
 
     if (grupoParse === 1) {
       webSocketApi = wsAPI1;
@@ -99,7 +130,6 @@ const FrameAppCliente = ({ match }) => {
       // ACA DEBEMOS SOLICITAR UN REDUX
       setSocketConectado(true);
       setWsApp(websocket);
-      setIdWs(integrante);
       // ACA DEBEMOS SOLICITAR EL ESTADO ACTUAL DE LA VISTA
       const jsonSend = {
         tipo: 'CLIENTE_SOLICITAR_VISTA',
@@ -110,39 +140,72 @@ const FrameAppCliente = ({ match }) => {
     };
     websocket.onmessage = (e) => {
       const jsonRespuesta = JSON.parse(e.data);
+      console.log(jsonRespuesta);
       const { action, bloqueado, jugadores, notificaciones, traslados } =
         jsonRespuesta;
       const infoJson = jsonRespuesta.info;
+
+      if (action === 'ALERT_GRUPO_AZUL_ELIMINADO') {
+        NotificationManager.secondary(
+          'SE HA DISUELTO EL GRUPO AZUL',
+          'ACTIVIDAD FINALIZADA',
+          5000,
+          null,
+          null,
+          'filled'
+        );
+        return;
+      }
+
       if (action === 'BIENVENIDO') {
+        reiniciarVistas();
+
         setView('BIENVENIDO');
         setBloqueadoView(bloqueado);
         setCapturaEnProceso(true);
+        setArrayConvertJugador(infoJson.conversorJugadores);
       }
       if (action === 'ASIGNAR_CREDITOS') {
+        reiniciarVistas();
+        setView('ASIGNAR_CREDITOS');
         const rondaActualJson = jsonRespuesta.rondaActual;
         const rondasTotalesJson = jsonRespuesta.rondasTotales;
         const tablasJugadores = jsonRespuesta.arrayTablasJugadores;
-        setArrayTablasJugadores(tablasJugadores);
 
+        setArrayTablasJugadores(tablasJugadores);
         actualizarClub(jugadores, integrante);
-        setView('ASIGNAR_CREDITOS');
         setInfo(infoJson);
         setBloqueadoView(bloqueado);
         setRondaActual(rondaActualJson);
         setRondasTotales(rondasTotalesJson);
+        setArrayConvertJugador(infoJson.conversorJugadores);
 
         setCapturaEnProceso(true);
-        setMostrarFinalizarActividad(false);
-        setMostrarFinalizarSesion(false);
       }
-      if (action === 'MOSTRAR_RESULTADOS_RONDA_Y_VOTACION') {
+      if (action === 'RESUMEN_ASIGNACION_CREDITOS') {
+        reiniciarVistas();
+        setView('RESUMEN_ASIGNACION_CREDITOS');
+
         const rondaActualJson = jsonRespuesta.rondaActual;
         const rondasTotalesJson = jsonRespuesta.rondasTotales;
-        actualizarClub(jugadores, integrante);
+
+        setAsignacionesArray(jsonRespuesta.asignaciones);
+        setInfo(infoJson);
+        setBloqueadoView(bloqueado);
+        setRondaActual(rondaActualJson);
+        setRondasTotales(rondasTotalesJson);
+        setCapturaEnProceso(true);
+        setArrayConvertJugador(infoJson.conversorJugadores);
+      }
+      if (action === 'MOSTRAR_RESULTADOS_RONDA_Y_VOTACION') {
+        reiniciarVistas();
+        setView('MOSTRAR_RESULTADOS_RONDA_Y_VOTACION');
+        const rondaActualJson = jsonRespuesta.rondaActual;
+        const rondasTotalesJson = jsonRespuesta.rondasTotales;
         const tablasJugadores = jsonRespuesta.arrayTablasJugadores;
         const mostrarVotacionJson = jsonRespuesta.mostrarVotacion;
 
-        setView('MOSTRAR_RESULTADOS_RONDA_Y_VOTACION');
+        actualizarClub(jugadores, integrante);
         setInfo(infoJson);
         setMostrarVotacion(mostrarVotacionJson);
         setArrayJugadores(jugadores);
@@ -151,50 +214,73 @@ const FrameAppCliente = ({ match }) => {
         setRondaActual(rondaActualJson);
         setRondasTotales(rondasTotalesJson);
         setCapturaEnProceso(true);
+        setArrayConvertJugador(infoJson.conversorJugadores);
       }
       if (action === 'MOSTRAR_RESULTADOS_VOTACION') {
+        reiniciarVistas();
         setView('MOSTRAR_RESULTADOS_VOTACION');
 
         actualizarClub(jugadores, integrante);
         setArrayJugadores(jugadores);
         setNotificacionesVotacion(JSON.parse(notificaciones));
         setTrasladosVotacion(JSON.parse(traslados));
+        setArrayConvertJugador(infoJson.conversorJugadores);
       }
       if (action === 'MOSTRAR_FINALIZAR_ACTIVIDAD') {
+        reiniciarVistas();
+        setCapturaEnProceso(false);
+        setView('MOSTRAR_FINALIZAR_ACTIVIDAD');
+
         const rj = jsonRespuesta.resultadoJugadores;
+        console.log(rj);
         const result = rj.filter((tupla) => tupla.client_id === integrante);
         setResultadoJugadores(result);
-        setView('MOSTRAR_FINALIZAR_ACTIVIDAD');
-        setMostrarFinalizarSesion(false);
-        setCapturaEnProceso(false);
+
         setMostrarFinalizarActividad(true);
       }
-      if (action === 'MOSTRAR_FINALIZAR_SESION') {
+      if (action === 'MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA') {
+        reiniciarVistas();
+        setCapturaEnProceso(false);
+        setView('MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA');
+
         const rj = jsonRespuesta.resultadoJugadores;
         const result = rj.filter((tupla) => tupla.client_id === integrante);
         setResultadoJugadores(result);
 
-        setView('MOSTRAR_FINALIZAR_SESION');
+        setMostrarActividadPrueba(true);
+      }
+      if (action === 'MOSTRAR_FINALIZAR_SESION') {
+        reiniciarVistas();
         setCapturaEnProceso(false);
-        setMostrarFinalizarActividad(false);
+        setView('MOSTRAR_FINALIZAR_SESION');
+
+        const rj = jsonRespuesta.resultadoJugadores;
+        const result = rj.filter((tupla) => tupla.client_id === integrante);
+        setResultadoJugadores(result);
+
         setMostrarFinalizarSesion(true);
       }
       if (action === 'MOSTRAR_ENCUESTA') {
-        setView('MOSTRAR_ENCUESTA');
+        reiniciarVistas();
         setCapturaEnProceso(false);
+        setView('MOSTRAR_ENCUESTA');
+
+        // parametros necesarios
+        setGrupo(jsonRespuesta.info.grupo);
+
         setBloqueadoView(bloqueado);
-        setMostrarFinalizarActividad(false);
-        setMostrarFinalizarSesion(false);
         setMostrarEncuesta(true);
-        setMostrarAgradecimientos(false);
       }
       if (action === 'FINALIZAR_SESION_AGRADECIMIENTOS') {
+        reiniciarVistas();
+        setCapturaEnProceso(false);
         setView('FINALIZAR_SESION_AGRADECIMIENTOS');
         setCapturaEnProceso(false);
-        setMostrarFinalizarActividad(false);
-        setMostrarFinalizarSesion(false);
-        setMostrarEncuesta(false);
         setMostrarAgradecimientos(true);
+
+        const rj = jsonRespuesta.info.resultadoJugadores;
+        const result = rj.filter((tupla) => tupla.client_id === integrante);
+        setResultadoJugadores(result);
       }
     };
     websocket.onclose = () => {
@@ -214,34 +300,39 @@ const FrameAppCliente = ({ match }) => {
         <>
           {mostrarFinalizarActividad && (
             <FinalizarActividad
-              id={id}
+              id={String(integrante)}
               socketConectado={socketConectado}
               club={club}
-              idWs={idWs}
               info={info}
               resultadoJugadores={resultadoJugadores}
             />
           )}
           {mostrarFinalizarSesion && (
             <FinalizarSesion
-              id={id}
+              id={String(integrante)}
               socketConectado={socketConectado}
               club={club}
-              idWs={idWs}
               info={info}
               resultadoJugadores={resultadoJugadores}
             />
           )}
           {mostrarEncuesta && (
             <Encuesta
-              id={id}
-              idWs={idWs}
+              id={integrante}
               bloqueado={bloqueadoView}
               ws={wsApp}
+              grupo={grupo}
             />
           )}
           {mostrarAgradecimientos && (
-            <FinalizarSesionAgradecimientos idWs={idWs} grupo={grupo} />
+            <FinalizarSesionAgradecimientos
+              grupo={grupo}
+              id={integrante}
+              resultadoJugadores={resultadoJugadores}
+            />
+          )}
+          {mostrarFinalizarActividadPrueba && (
+            <FinalizarActividadPrueba grupo={grupo} />
           )}
           {capturaEnProceso && (
             <Card style={{ backgroundColor: colorFondo, minHeight: '780px' }}>
@@ -250,14 +341,22 @@ const FrameAppCliente = ({ match }) => {
                   style={{ backgroundColor: colorBlue, borderRadius: '10px' }}
                 >
                   <div className="d-flex justify-content-between mt-3 ">
-                    <Label
-                      className="h3 fst-italic ml-4"
-                      style={{ color: 'white', fontWeight: 'bold' }}
-                    >
-                      Grupo {grupo} &#10143; JUGADOR {idWs} &#10143; USTED ES
-                      INTEGRANTE DEL CLUB AZUL
-                    </Label>
-
+                    {view !== 'BIENVENIDO' ? (
+                      <Label
+                        className="h3 fst-italic ml-4"
+                        style={{ color: 'white', fontWeight: 'bold' }}
+                      >
+                        Grupo {grupo} &#10143; JUGADOR {jugadorShow} &#10143;
+                        USTED ES INTEGRANTE DEL CLUB AZUL
+                      </Label>
+                    ) : (
+                      <Label
+                        className="h3 fst-italic ml-4"
+                        style={{ color: 'white', fontWeight: 'bold' }}
+                      >
+                        USTED ES INTEGRANTE DEL CLUB AZUL
+                      </Label>
+                    )}
                     {view !== 'BIENVENIDO' && (
                       <>
                         {view === 'ASIGNAR_CREDITOS' ? (
@@ -297,8 +396,8 @@ const FrameAppCliente = ({ match }) => {
                       className="h3 fst-italic ml-4"
                       style={{ color: 'white', fontWeight: 'bold' }}
                     >
-                      Grupo {grupo} &#10143; JUGADOR {idWs} &#10143; USTED ES
-                      INTEGRANTE DEL CLUB AMARILLO
+                      Grupo {grupo} &#10143; JUGADOR {jugadorShow} &#10143;
+                      USTED ES INTEGRANTE DEL CLUB AMARILLO
                     </Label>
                     {view === 'ASIGNAR_CREDITOS' ? (
                       <Label
@@ -329,7 +428,7 @@ const FrameAppCliente = ({ match }) => {
               <CardBody>
                 {view === 'BIENVENIDO' && (
                   <Bienvenido
-                    id={idWs}
+                    id={integrante}
                     ws={wsApp}
                     socketConectado={socketConectado}
                     club={club}
@@ -339,7 +438,7 @@ const FrameAppCliente = ({ match }) => {
                 )}
                 {view === 'ASIGNAR_CREDITOS' && (
                   <AsignarCreditos
-                    id={idWs}
+                    id={integrante}
                     socketConectado={socketConectado}
                     ws={wsApp}
                     club={club}
@@ -352,9 +451,25 @@ const FrameAppCliente = ({ match }) => {
                     info={info}
                   />
                 )}
+                {view === 'RESUMEN_ASIGNACION_CREDITOS' && (
+                  <ResumenAsignacionCreditos
+                    id={integrante}
+                    socketConectado={socketConectado}
+                    ws={wsApp}
+                    club={club}
+                    rondaActual={rondaActual}
+                    rondasTotales={rondasTotales}
+                    bloqueado={bloqueadoView}
+                    setBloqueadoView={setBloqueadoView}
+                    arrayJugadores={arrayJugadores}
+                    arrayTablasJugadores={arrayTablasJugadores}
+                    info={info}
+                    asignaciones={asignacionesArray}
+                  />
+                )}
                 {view === 'MOSTRAR_RESULTADOS_RONDA_Y_VOTACION' && (
                   <Votacion
-                    id={idWs}
+                    id={integrante}
                     socketConectado={socketConectado}
                     club={club}
                     ws={wsApp}
@@ -370,7 +485,7 @@ const FrameAppCliente = ({ match }) => {
                 )}
                 {view === 'MOSTRAR_RESULTADOS_VOTACION' && (
                   <ResultadosVotacion
-                    id={idWs}
+                    id={integrante}
                     socketConectado={socketConectado}
                     club={club}
                     ws={wsApp}

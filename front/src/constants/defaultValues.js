@@ -9,9 +9,18 @@ Menu Types:
 */
 export const defaultMenuTypeBackApp = 'menu-default';
 export const defaultMenuTypeClientApp = 'menu-hidden h-100';
+/** 
+export const wsAPI1 = 'ws://192.168.50.24:8000/ws/';
+export const wsAPI2 = 'ws://192.168.50.24:8001/ws/';
+*/
 
+export const wsAPI1 = 'ws://172.16.73.161:8000/ws/';
+export const wsAPI2 = 'ws://172.16.73.161:8001/ws/';
+
+/** 
 export const wsAPI1 = 'ws://192.168.3.58:8000/ws/';
 export const wsAPI2 = 'ws://192.168.3.58:8001/ws/';
+*/
 
 export const colorBlue = '#001840';
 export const colorLightBlue = '#D7E7FF';
