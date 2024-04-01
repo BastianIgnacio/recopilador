@@ -125,17 +125,12 @@ class AsignacionFichas:
         return data
 
     def calcularGanancias(self):
-        if self.tratamiento == "T2":
-            self.costoDeMonitoreo = 0
-            if self.club == "AMARILLO":
-                self.fichasActividadPrivada = 5
-                self.fichasClub = 0
-                self.gananciasPesosExperimentales = 5
-            if self.club == "AZUL":
-                a = self.fichasClub
-                b = self.fichasRetiroTotalClubAzul - self.fichasClub
-                self.gananciasPesosExperimentales = (5-a)+ 4*(a)+2*(30-b-a) - self.costoDeMonitoreo
-        # PARA TRATAMIENTOS DISTINTOS DE T2
+        if self.tratamiento == "T1":
+            a = self.fichasClub
+            b = self.fichasRetiroTotalClubAzul - self.fichasClub
+            self.gananciasPesosExperimentales = (5-a)+ 4*(a)+2*(30-b-a) 
+        
+        # PARA TRATAMIENTOS DISTINTOS DE T2 T3  T4
         else:
             a = self.fichasClub
             b = self.fichasRetiroTotalClubAzul - self.fichasClub
@@ -255,11 +250,14 @@ class JugadoresManager:
         day = self.dateTime.strftime("%d")
         hora = self.dateTime.strftime("%X")
 
-        self.sesionId = year+"-"+month+"-"+day+"-"+hora
+        horaNumber = self.dateTime.hour
+        minute = self.dateTime.minute
+
+
+        self.sesionId = year+"-"+month+"-"+day+"-"+str(horaNumber)+ "-" + str(minute)
 
 
         self.resultadosJugadores = []
-        self.actividad = 1
 
         #DATOS DE LAS ENCUESTAS REALIZADAS
         self.encuestas = []
@@ -291,6 +289,8 @@ class JugadoresManager:
         self.jugadores = []
         self.asignaciones = []
         self.votosApilados = []
+
+        self.asignacionesAcumuladas = []
 
         self.votos = []
 
@@ -392,20 +392,25 @@ class JugadoresManager:
             i = i + 1
 
     def exportarFaseACsv(self):
+
+        sesion_id = self.sesionId
+        groupNumber = self.grupo
+        activityNumber = self.numeroTratamiento
+
         
-        nombreArchivo = "actividad_" + str(self.numeroTratamiento + 1) + ".csv"
+        nombreArchivo = sesion_id + "_" + str(groupNumber) + "_" +str(activityNumber) + ".csv"
         with open(nombreArchivo, mode='w', newline='') as file:
 
-            headers = ['sesion_id','numeroActividad','grupo','actividadDePrueba','client_id', 'letraJugador' ,'numeroRonda', 'club','fichasClub','fichasActividadPrivada','fichasRetiroTotalClubAzul','costoDeMonitoreo','gananciasPesosExperimentales','tratamiento']
+            headers = ['sessionId','groupNumber','activityNumber','activityTest','internId', 'playerLetter' ,'round', 'club','tokensTakenBlueClub','tokensPrivateActivity','totalTokensBlueAccount','exclusionCost','experimentalPesosEarnings','treatment']
             for j in self.dictJugadores:
-                headers.append("votaPor_" + str(j))
-            headers.append("votosRecibidos")
-            headers.append("fueMonitoreado")
-            headers.append("fueMultado")
-            headers.append("multa")
+                headers.append("voteFor_" + str(j))
+            headers.append("votesReceived")
+            headers.append("wasMonitored")
+            headers.append("wasFined")
+            headers.append("penalty")
             asigArray = []
             for asigAux in self.asignaciones:
-                arrayToAsig = [self.sesionId, self.actividad ,str(self.grupo) , str(self.tratamientoDePrueba) , asigAux.client_id , asigAux.letraJugador ,asigAux.numeroRonda , asigAux.club, asigAux.fichasClub, asigAux.fichasActividadPrivada, asigAux.fichasRetiroTotalClubAzul, asigAux.costoDeMonitoreo, asigAux.gananciasPesosExperimentales, asigAux.tratamiento]
+                arrayToAsig = [self.sesionId, str(self.grupo), self.numeroTratamiento , str(self.tratamientoDePrueba) , asigAux.client_id , asigAux.letraJugador ,asigAux.numeroRonda , asigAux.club, asigAux.fichasClub, asigAux.fichasActividadPrivada, asigAux.fichasRetiroTotalClubAzul, asigAux.costoDeMonitoreo, asigAux.gananciasPesosExperimentales, asigAux.tratamiento]
                 #************************* ACA VAMOS A GENERAR LOS VOTOS
                 client_id = asigAux.client_id
                 ronda = asigAux.numeroRonda
@@ -425,8 +430,6 @@ class JugadoresManager:
                 for j in votosEnEstaRonda:
                     self.escribirVotacion(arrayVotosAux, j, client_id)
                 
-                print(arrayVotosAux)
-
                 for element in arrayVotosAux:
                     arrayToAsig.append(element)
 
@@ -459,6 +462,28 @@ class JugadoresManager:
 
             for asigAux in asigArray:
                 writer.writerow(asigAux)
+                self.asignacionesAcumuladas.append(asigAux)
+                
+    def exportarAsignacionesAcumuladasCsv(self):
+        sesion_id = self.sesionId
+        groupNumber = self.grupo
+        activityNumber = self.numeroTratamiento
+
+        nombreArchivo = sesion_id + "_" + str(groupNumber) + "_" +"totalActivities.csv"
+        with open(nombreArchivo, mode='w', newline='') as file:
+
+            headers = ['sessionId','groupNumber','activityNumber','activityTest','playerId', 'playerLetter' ,'round', 'club','tokensTakenBlueClub','tokensPrivateActivity','totalTokensBlueAccount','exclusionCost','experimentalPesosEarnings','treatment']
+            for j in self.dictJugadores:
+                headers.append("voteFor_" + str(j))
+            headers.append("votesReceived")
+            headers.append("wasMonitored")
+            headers.append("wasFined")
+            headers.append("penalty")
+            writer = csv.writer(file)
+            writer.writerow( headers)
+            
+            for asigAux in self.asignacionesAcumuladas:
+                writer.writerow(asigAux)
 
     def exportarEncuestasACSV(self):
         nombreArchivo = "encuestas.csv"
@@ -480,7 +505,7 @@ class JugadoresManager:
         nombreArchivo = "resultadosGanancias.csv"
         with open(nombreArchivo, mode='w', newline='') as file:
 
-            headers = ['jugador', 'Dinero',]
+            headers = ['player', 'base','earningAct0','earningAct1','earningAct2','earningAct3','earningAct4','totalEarnings']
             writer = csv.writer(file)
             writer.writerow( headers) # Creamos las column
 
@@ -488,11 +513,18 @@ class JugadoresManager:
             
             for j in self.jugadores:
                 client_id = j.client_id
-                total = j.gananciaBase
-                for rj in self.resultadosJugadores:
-                    if rj.client_id == client_id:
-                        total = total + rj.pesos
-                writerArray.append([client_id,"$ " + str(total)])
+                gananciaEnActividad = []
+                for i in range(4):
+                    activity = i + 1
+                    for rj in self.resultadosJugadores:
+                        if rj.client_id == client_id and rj.actividad == activity:
+                            gananciaEnActividad.append(rj.pesos)
+                
+                total = self.basePesosChilenos
+                for act in gananciaEnActividad:
+                    total = total + act
+
+                writerArray.append([client_id,"$" + str(j.gananciaBase), "$" + str(0), "$" +str(gananciaEnActividad[0]), "$" + str(gananciaEnActividad[1]), "$" + str(gananciaEnActividad[2]), "$" + str(gananciaEnActividad[3]), "$" + str(total)])
             for wAux in writerArray:
                 writer.writerow(wAux)
                
@@ -508,16 +540,14 @@ class JugadoresManager:
                 pesos = self.factorConversion * ganaciaPesosExperimentales
 
                 if ganaciaPesosExperimentales > 0:
-                    rj = ResultadoJugador(j.client_id, "club", self.actividad, ganaciaPesosExperimentales , pesos, self.factorConversion)
+                    rj = ResultadoJugador(j.client_id, "club", self.numeroTratamiento, ganaciaPesosExperimentales , pesos, self.factorConversion)
                     self.resultadosJugadores.append(rj)
                 else:
-                    rj = ResultadoJugador(j.client_id, "club", self.actividad, ganaciaPesosExperimentales , 0, self.factorConversion)
+                    rj = ResultadoJugador(j.client_id, "club", self.numeroTratamiento, ganaciaPesosExperimentales , 0, self.factorConversion)
                     self.resultadosJugadores.append(rj)
                 
-            self.actividad = self.actividad + 1
-
     def siguienteActividad(self):
-    
+
         # entramos al siguiente tratamiento y formateamos todas las variables que son dinamicas
         self.numeroTratamiento = self.numeroTratamiento + 1
         self.tratamientoObjeto = self.tratamientos[self.numeroTratamiento]
@@ -584,6 +614,11 @@ class JugadoresManager:
 
     def haAsignadoFichas(self, jugador:int):
         if jugador in self.arrayParticipantesDinamicoAsignarFichas:
+            return False
+        return True
+
+    def haConfirmadoResumenAsignacion(self, jugador:int):
+        if jugador in self.arrayParticipantesDinamicoResumenAsignacionFichas:
             return False
         return True
 
@@ -985,9 +1020,20 @@ class JugadoresManager:
             # CALCULAMOS TODAS LAS FICHAS DEL CLUB AZUL RETIRADAS EN LA RONDA
             # ACA LOS JUGADORES PUEDEN PERTENECEER AL CLUB AMARILLO, SOLO SE TOMAN EN CUENTA LOS QUE PERTENECEN AL CLUB AZUL
             auxFichasClub = 0
+            cantidadAmarillos = 0
             for asigAux in arrayAsignacionesRondasAux:
-                if asigAux.club == "AZUL" :
+                if asigAux.club == "AZUL":
                     auxFichasClub = auxFichasClub + asigAux.fichasClub
+                else:
+                    auxFichasClub = auxFichasClub + asigAux.fichasClub
+                    cantidadAmarillos = cantidadAmarillos + 1
+            
+            # AHORA DEBEMOS ASIGNAR EL COSTO DE MONITOREO PARA CADA UNA DE LAS ASIGNACIONES
+            cm = cantidadAmarillos * self.costoDeMonitoreo
+            for asigAux in arrayAsignacionesRondasAux:
+                asigAux.costoDeMonitoreo = cm
+                asigAux.cantidadJugadoresAmarillos = cantidadAmarillos
+                asigAux.costoMonitoreoPorJugador = self.costoDeMonitoreo
             
             # AHORA DEBEMOS SETEAR LAS FICHAS DEL RETIRO DEL CLUB Y CALCULAR LAS GANACIAS EXPERIMENTALES
             for asigAux in arrayAsignacionesRondasAux:
@@ -1004,14 +1050,30 @@ class JugadoresManager:
                     arrayAsignacionesRondasAux.append(asig)
 
             # CALCULAMOS TODAS LAS FICHAS DEL CLUB AZUL RETIRADAS EN LA RONDA
+            # ACA LOS JUGADORES PUEDEN PERTENECEER AL CLUB AMARILLO, SOLO SE TOMAN EN CUENTA LOS QUE PERTENECEN AL CLUB AZUL
             auxFichasClub = 0
+            cantidadAmarillos = 0
             for asigAux in arrayAsignacionesRondasAux:
-                auxFichasClub = auxFichasClub + asigAux.fichasClub
+                if asigAux.club == "AZUL":
+                    auxFichasClub = auxFichasClub + asigAux.fichasClub
+                else:
+                    auxFichasClub = auxFichasClub + asigAux.fichasClub
+                    cantidadAmarillos = cantidadAmarillos + 1
+            
+            # AHORA DEBEMOS ASIGNAR EL COSTO DE MONITOREO PARA CADA UNA DE LAS ASIGNACIONES
+            cm = cantidadAmarillos * self.costoDeMonitoreo
+            for asigAux in arrayAsignacionesRondasAux:
+                asigAux.costoDeMonitoreo = cm
+                asigAux.cantidadJugadoresAmarillos = cantidadAmarillos
+                asigAux.costoMonitoreoPorJugador = self.costoDeMonitoreo
             
             # AHORA DEBEMOS SETEAR LAS FICHAS DEL RETIRO DEL CLUB Y CALCULAR LAS GANACIAS EXPERIMENTALES
             for asigAux in arrayAsignacionesRondasAux:
                 asigAux.fichasRetiroTotalClubAzul = auxFichasClub
                 asigAux.calcularGanancias()
+
+
+
 
         ## hay expulsioin. pero los amarillos si pueden robar de la cuenta del club azul y existe costo de monitoreo 2
         if(self.tratamiento == "T4"):
@@ -1033,8 +1095,7 @@ class JugadoresManager:
                     cantidadAmarillos = cantidadAmarillos + 1
 
             # AHORA DEBEMOS ASIGNAR EL COSTO DE MONITOREO PARA CADA UNA DE LAS ASIGNACIONES
-            ## cm = cantidadAmarillos * self.costoDeMonitoreo
-            cm = 0 ## NO HAY COSTO DE MONITOREO
+            cm = cantidadAmarillos * self.costoDeMonitoreo
             for asigAux in arrayAsignacionesRondasAux:
                 asigAux.costoDeMonitoreo = cm
                 asigAux.cantidadJugadoresAmarillos = cantidadAmarillos
@@ -1147,7 +1208,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
                 trat2 = Tratamiento(t,2, False, 10, 50, 10, dictJugadores)
                 arrayTrat.append(trat2)
-
+                
                 ## CREAMOS LA ACTIVIDAD 3
                 dictJugadores = {}
                 dictJugadores[1] = "E"
@@ -1171,7 +1232,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
                 trat4 = Tratamiento(t,2, False, 10, 50, 10, dictJugadores)
                 arrayTrat.append(trat4)
-
+                
                
                 jugadoresManager.setArrayTratamientos(arrayTrat)
                 jugadoresManager.comenzarSesion()
@@ -1184,8 +1245,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 jugadoresManager.comenzarSesion()
                 jugadoresManager.crearJugadoresGrupo1()
                 jugadoresManager.generarLetrasJugadores()
+        
             if(tipoConsulta == "AUX_ENVIAR_ENCUESTA"):
-                print("Recibiendo encuesta")
                 dataEncuesta = json.loads(dataJson['data'])
 
                 grupo = dataEncuesta['grupo']
@@ -1253,6 +1314,14 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     message = {"time":current_time,"clientId":client_id,"message":"Online"}
                     data = {"event" : json.dumps(message), "usersOnline": manager.getJsonUsers(), "conversorJugadores": jugadoresManager.getConversorJugadores()}
                     await manager.broadcast(json.dumps(data))
+
+                    #ACA DEBEMOS MOSTRAR LA ALERTA DEL CAMBIO DE LETRAS DE JUGADORES
+                    mensaje = {
+                        "action": "ALERT_CAMBIO_LETRAS_JUGADORES",
+                        "conversorJugadores": jugadoresManager.getConversorJugadores()
+                    } 
+                    jsonSend = json.dumps(mensaje)
+                    await manager.broadcastClients(jsonSend)
 
                     # guardamos el binario
                     guardarEstadoApp(jugadoresManager)
@@ -1468,6 +1537,40 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     jsonSend = json.dumps(mensaje)
                     await manager.send_personal_message(jsonSend, websocket)
                 
+                if jugadoresManager.vistaActual == "RESUMEN_ASIGNACION_CREDITOS":
+
+                    if jugadoresManager.haConfirmadoResumenAsignacion(cliente):
+                        # MOSTRAR PANTALLA BLOQUEADA
+                        mensaje = {
+                            "to":"Clientes",
+                            "bloqueado": True,
+                            "action": jugadoresManager.vistaActual,
+                            "rondaActual": jugadoresManager.rondaActual,
+                            "rondasTotales": jugadoresManager.rondasTotales,
+                            "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                            "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                            "info": jugadoresManager.getInfoFase(),
+                            "asignaciones": jugadoresManager.exportarAsignaciones(),
+                        }
+                
+                        jsonSend = json.dumps(mensaje)
+                        await manager.send_personal_message(jsonSend, websocket)
+                    else:
+                        mensaje = {
+                            "to":"Clientes",
+                            "bloqueado": False,
+                            "action": jugadoresManager.vistaActual,
+                            "rondaActual": jugadoresManager.rondaActual,
+                            "rondasTotales": jugadoresManager.rondasTotales,
+                            "jugadores": jugadoresManager.exportarTablaEstadoJugadores(),
+                            "arrayTablasJugadores": jugadoresManager.exportarTablaRetirosJugadores(),
+                            "info": jugadoresManager.getInfoFase(),
+                            "asignaciones": jugadoresManager.exportarAsignaciones(),
+                        }
+                
+                        jsonSend = json.dumps(mensaje)
+                        await manager.send_personal_message(jsonSend, websocket)
+                
             if(tipoConsulta == "CLIENTE_INICIAR_BLOQUES_TRATAMIENTO"):
                 data = dataJson["data"]
                 cliente = data['cliente']
@@ -1528,6 +1631,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                     jugadoresManager.vistaActual = "RESUMEN_ASIGNACION_CREDITOS"
                     mensaje = {
                         "to":"Clientes",
+                        "bloqueado": False,
                         "action": jugadoresManager.vistaActual,
                         "rondaActual": jugadoresManager.rondaActual,
                         "rondasTotales": jugadoresManager.rondasTotales,
@@ -1636,8 +1740,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             else:
                                 ## aca debemos mostrar el final de la fase
                                 jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_SESION"
-
                                 jugadoresManager.guardarResultadosActividad()
+                                jugadoresManager.exportarAsignacionesAcumuladasCsv()
                                 # guardamos el binario
                                 guardarEstadoApp(jugadoresManager)
 
@@ -1804,6 +1908,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 ## ACA DEBEMOS MOSTRAR EL FINAL DE LA SESION
                                 jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_SESION"
                                 jugadoresManager.guardarResultadosActividad()
+                                jugadoresManager.exportarAsignacionesAcumuladasCsv()
 
                                 # guardamos el binario
                                 guardarEstadoApp(jugadoresManager)
@@ -1958,6 +2063,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             ## ACA DEBEMOS MOSTRAR EL FINAL DE LA SESION
                             jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_SESION"
                             jugadoresManager.guardarResultadosActividad()
+                            jugadoresManager.exportarAsignacionesAcumuladasCsv()
 
                             # guardamos el binario
                             guardarEstadoApp(jugadoresManager)
