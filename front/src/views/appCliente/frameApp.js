@@ -156,6 +156,19 @@ const FrameAppCliente = ({ match }) => {
         );
         return;
       }
+      if (action === 'ALERT_CAMBIO_LETRAS_JUGADORES') {
+        const { conversorJugadores } = jsonRespuesta;
+        const nuevaId = conversorJugadores[integrante];
+        NotificationManager.warning(
+          `AHORA ERES JUGADOR ${nuevaId}`,
+          'TIENES IDENTIFICACIÓN NUEVA',
+          5000,
+          null,
+          null,
+          'filled'
+        );
+        return;
+      }
 
       if (action === 'BIENVENIDO') {
         reiniciarVistas();

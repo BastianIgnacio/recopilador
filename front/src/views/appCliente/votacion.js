@@ -56,13 +56,15 @@ const Votacion = ({
   };
 
   const ordenarArray = (array) => {
+    console.log(array);
     array.sort((a, b) => a.letraJugador.localeCompare(b.letraJugador));
+    return array;
   };
-  ordenarArray(arrayTablasJugadores);
 
   senalarJugador(arrayTablasJugadores);
 
   const generarOpcionesVotacion = (array) => {
+    console.log(array);
     const arrayOpctions = [];
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < array.length; i++) {
@@ -86,7 +88,7 @@ const Votacion = ({
     }
     arrayOpctions.push({
       value: 'no',
-      label: 'No trasladar a ningun integrante',
+      label: 'No trasladar a ningún integrante',
     });
     return arrayOpctions;
   };
@@ -477,7 +479,7 @@ const Votacion = ({
               <CardBody>
                 <Table
                   columns={colsRetirosJugadores}
-                  data={arrayTablasJugadores}
+                  data={ordenarArray(arrayTablasJugadores)}
                 />
               </CardBody>
             </Card>
@@ -518,7 +520,7 @@ const Votacion = ({
                           <>
                             <CardTitle>
                               En esta ronda usted puede votar para trasladar un
-                              maximo de 1 integrante al club amarillo.
+                              máximo de 1 integrante al club amarillo.
                             </CardTitle>
                             <FormGroup className="error-l-175">
                               <FormikCustomRadioGroupMax
@@ -529,7 +531,7 @@ const Votacion = ({
                                 onChange={setFieldValue}
                                 onBlur={setFieldTouched}
                                 options={generarOpcionesVotacion(
-                                  arrayJugadores
+                                  ordenarArray(arrayJugadores)
                                 )}
                                 max={1}
                               />
@@ -585,7 +587,7 @@ const Votacion = ({
               <CardBody>
                 <Table
                   columns={colsRetirosJugadores}
-                  data={arrayTablasJugadores}
+                  data={ordenarArray(arrayTablasJugadores)}
                 />
               </CardBody>
             </Card>

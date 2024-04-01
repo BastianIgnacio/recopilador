@@ -45,6 +45,7 @@ const ResumenAsignacionCreditos = ({
   info,
   asignaciones,
 }) => {
+  console.log(info.tratamiento);
   const [fueMonitoreado, setFueMonitoreado] = useState(false);
   const [fueMultado, setFueMultado] = useState(false);
   const [fichasClub, setFichasClub] = useState(0);
@@ -58,8 +59,6 @@ const ResumenAsignacionCreditos = ({
   const [cantidadJugadoresAmarillos, setCantidadJugadoresAmarillos] =
     useState(0);
   const [costoDeMonitoreo, setCostoDeMonitoreo] = useState(0);
-  const [textButton, setTextButton] = useState('CONTINUAR');
-  const [buttonEnabled, setButtonEnabled] = useState(true);
 
   const enviarVotacionWs = (data) => {
     const jsonSend = {
@@ -71,8 +70,7 @@ const ResumenAsignacionCreditos = ({
   };
 
   const enviarConfirmacion = () => {
-    setTextButton('Esperando la confirmación de los otros jugadores');
-    setButtonEnabled(false);
+    setBloqueadoView(true);
     const data = {
       cliente: id,
     };
@@ -115,74 +113,135 @@ const ResumenAsignacionCreditos = ({
                 TUS GANANCIAS EN ESTA RONDA SON:
               </div>
             </Colxx>
-            {fueMonitoreado ? (
-              <Colxx lg="12" className="ml-4">
-                <div className="h4 m-4 text-left font-weight-bold">
-                  <li>
-                    Fuiste inspeccionado
-                    {fueMultado ? (
-                      <> y multado. </>
-                    ) : (
-                      <>
-                        , pero no fuiste multado, ya que no retiraste fichas de
-                        la Cuenta Compartida Club Azul.
-                      </>
-                    )}
-                  </li>
-                </div>
-              </Colxx>
-            ) : (
-              <Colxx lg="12" className="ml-4">
-                <div className="h4 m-4 text-left font-weight-bold ">
-                  <li>NO fuiste inspeccionado.</li>
-                </div>
-              </Colxx>
-            )}
-            <Colxx lg="12" className="ml-4">
-              <div className="h5 m-4 text-left">
-                <li className="mb-3">
-                  (+) FICHAS RETIRADAS CUENTA COMPARTIDA CLUB AZUL
-                  &#10143;&#10143; {fichasClub} * (4E$) &#10143;&#10143; E$
-                  {fichasClub * 4}
-                </li>
-                <li className="mb-3">
-                  (+) FICHAS CUENTA PRIVADA &#10143;&#10143;{' '}
-                  {fichasActividadPrivada} * (1E$) &#10143;&#10143; E$
-                  {fichasActividadPrivada * 1}
-                </li>
-                {fueMultado && (
-                  <li className="mb-4">
-                    (-) MULTA &#10143;&#10143; {fichasClub} * (8E$)
-                    &#10143;&#10143; E$
-                    {fichasClub * 8}
-                  </li>
-                )}
-              </div>
-            </Colxx>
-            <Colxx lg="12" className="ml-4">
-              <div className="h3 m-4 text-left">
-                {fueMultado ? (
-                  <>
-                    <li className="mb-1 font-weight-bold">
-                      Total ganancias &#10143; E${fichasClub * 4} (Fichas
-                      Retiradas Cuenta Compartida Club Azul) + E$
-                      {fichasActividadPrivada * 1} (Fichas Cuenta Privada) - E$
-                      {fichasClub * 8} (Multa)
+            {info.tratamiento === 'T2' && (
+              <>
+                <Colxx lg="12" className="ml-4">
+                  <div className="h5 m-4 text-left">
+                    <li className="mb-3">
+                      (+) FICHAS CUENTA PRIVADA &#10143;&#10143;{' '}
+                      {fichasActividadPrivada} * (1E$) &#10143;&#10143; E$
+                      {fichasActividadPrivada * 1}
                     </li>
-                  </>
+                  </div>
+                </Colxx>
+                <Colxx lg="12" className="ml-4">
+                  <div className="h3 m-4 text-left">
+                    <li className="mb-1 font-weight-bold">
+                      Total ganancias &#10143;&#10143; E$
+                      {fichasActividadPrivada * 1} (Fichas Cuenta Privada)
+                    </li>
+                    <li className="mb-2 font-weight-bold">
+                      Total ganancias &#10143;&#10143; E$
+                      {gananciasPesosExperimentales}
+                    </li>
+                  </div>
+                </Colxx>
+              </>
+            )}
+            {info.tratamiento === 'T3' && (
+              <>
+                <Colxx lg="12" className="ml-4">
+                  <div className="h5 m-4 text-left">
+                    <li className="mb-3">
+                      (+) FICHAS RETIRADAS CUENTA COMPARTIDA CLUB AZUL
+                      &#10143;&#10143; {fichasClub} * (4E$) &#10143;&#10143; E$
+                      {fichasClub * 4}
+                    </li>
+                    <li className="mb-3">
+                      (+) FICHAS CUENTA PRIVADA &#10143;&#10143;{' '}
+                      {fichasActividadPrivada} * (1E$) &#10143;&#10143; E$
+                      {fichasActividadPrivada * 1}
+                    </li>
+                  </div>
+                </Colxx>
+                <Colxx lg="12" className="ml-4">
+                  <div className="h3 m-4 text-left">
+                    <li className="mb-1 font-weight-bold">
+                      Total ganancias &#10143;&#10143; E${fichasClub * 4}{' '}
+                      (Fichas Retiradas Cuenta Compartida Club Azul) + E$
+                      {fichasActividadPrivada * 1} (Fichas Cuenta Privada)
+                    </li>
+                    <li className="mb-2 font-weight-bold">
+                      Total ganancias &#10143;&#10143; E$
+                      {gananciasPesosExperimentales}
+                    </li>
+                  </div>
+                </Colxx>
+              </>
+            )}
+            {info.tratamiento === 'T4' && (
+              <>
+                {fueMonitoreado ? (
+                  <Colxx lg="12" className="ml-4">
+                    <div className="h4 m-4 text-left font-weight-bold">
+                      <li>
+                        Fuiste inspeccionado
+                        {fueMultado ? (
+                          <> y multado. </>
+                        ) : (
+                          <>
+                            , pero no fuiste multado, ya que no retiraste fichas
+                            de la Cuenta Compartida Club Azul.
+                          </>
+                        )}
+                      </li>
+                    </div>
+                  </Colxx>
                 ) : (
-                  <li className="mb-1 font-weight-bold">
-                    Total ganancias &#10143;&#10143; E${fichasClub * 4} (Fichas
-                    Retiradas Cuenta Compartida Club Azul) + E$
-                    {fichasActividadPrivada * 1} (Fichas Cuenta Privada)
-                  </li>
+                  <Colxx lg="12" className="ml-4">
+                    <div className="h4 m-4 text-left font-weight-bold ">
+                      <li>NO fuiste inspeccionado.</li>
+                    </div>
+                  </Colxx>
                 )}
-                <li className="mb-2 font-weight-bold">
-                  Total ganancias &#10143;&#10143; E$
-                  {gananciasPesosExperimentales}
-                </li>
-              </div>
-            </Colxx>
+                <Colxx lg="12" className="ml-4">
+                  <div className="h5 m-4 text-left">
+                    <li className="mb-3">
+                      (+) FICHAS RETIRADAS CUENTA COMPARTIDA CLUB AZUL
+                      &#10143;&#10143; {fichasClub} * (4E$) &#10143;&#10143; E$
+                      {fichasClub * 4}
+                    </li>
+                    <li className="mb-3">
+                      (+) FICHAS CUENTA PRIVADA &#10143;&#10143;{' '}
+                      {fichasActividadPrivada} * (1E$) &#10143;&#10143; E$
+                      {fichasActividadPrivada * 1}
+                    </li>
+                    {fueMultado && (
+                      <li className="mb-4">
+                        (-) MULTA &#10143;&#10143; {fichasClub} * (8E$)
+                        &#10143;&#10143; E$
+                        {fichasClub * 8}
+                      </li>
+                    )}
+                  </div>
+                </Colxx>
+                <Colxx lg="12" className="ml-4">
+                  <div className="h3 m-4 text-left">
+                    {fueMultado ? (
+                      <>
+                        <li className="mb-1 font-weight-bold">
+                          Total ganancias &#10143; E${fichasClub * 4} (Fichas
+                          Retiradas Cuenta Compartida Club Azul) + E$
+                          {fichasActividadPrivada * 1} (Fichas Cuenta Privada) -
+                          E$
+                          {fichasClub * 8} (Multa)
+                        </li>
+                      </>
+                    ) : (
+                      <li className="mb-1 font-weight-bold">
+                        Total ganancias &#10143;&#10143; E${fichasClub * 4}{' '}
+                        (Fichas Retiradas Cuenta Compartida Club Azul) + E$
+                        {fichasActividadPrivada * 1} (Fichas Cuenta Privada)
+                      </li>
+                    )}
+                    <li className="mb-2 font-weight-bold">
+                      Total ganancias &#10143;&#10143; E$
+                      {gananciasPesosExperimentales}
+                    </li>
+                  </div>
+                </Colxx>
+              </>
+            )}
           </Row>
         </>
       )}
@@ -214,9 +273,9 @@ const ResumenAsignacionCreditos = ({
                 </li>
                 {cantidadJugadoresAmarillos > 0 && (
                   <li className="mb-4">
-                    (-) INSPECCIÓN: HAY {cantidadJugadoresAmarillos} JUGADOR /ES
-                    AMARILLOS &#10143;&#10143; {cantidadJugadoresAmarillos}{' '}
-                    (JUGADOR/ES) * (E$
+                    (-) COSTO POR EXCLUSIÓN: HAY {cantidadJugadoresAmarillos}{' '}
+                    JUGADOR /ES AMARILLOS &#10143;&#10143;{' '}
+                    {cantidadJugadoresAmarillos} (JUGADOR/ES) * (E$
                     {costoDeMonitoreoPorJugador}) &#10143;&#10143; E$
                     {costoDeMonitoreo}
                   </li>
@@ -231,8 +290,8 @@ const ResumenAsignacionCreditos = ({
                     Retiradas Cuenta Compartida Club Azul) + E$
                     {fichasActividadPrivada * 1} (Fichas Cuenta Privada) + E$
                     {-(fichasRetiroTotalClubAzul - 30) * 2} (Fichas Remanentes
-                    Cuenta Compartida Club Azul) - E${costoDeMonitoreo}{' '}
-                    (Inspección)
+                    Cuenta Compartida Club Azul) - E${costoDeMonitoreo} (Costo
+                    por exclusión)
                   </li>
                 ) : (
                   <li className="mb-2 font-weight-bold">
@@ -257,7 +316,7 @@ const ResumenAsignacionCreditos = ({
         <Button
           className="m-4"
           onClick={enviarConfirmacion}
-          disabled={!buttonEnabled}
+          disabled={bloqueado}
           style={{
             backgroundColor: colorPlomo,
             fontWeight: 'bold',
@@ -266,7 +325,7 @@ const ResumenAsignacionCreditos = ({
             minWidth: '400px',
           }}
         >
-          {textButton}
+          {!bloqueado ? 'CONTINUAR' : 'Esperando a los otros participantes..'}
         </Button>
       </div>
     </Card>

@@ -129,7 +129,7 @@ const Experimento1 = ({ match }) => {
           <div>
             {' '}
             <Row>
-              <Colxx lg="3">
+              <Colxx lg="6">
                 <Row>
                   <Colxx lg="12">
                     <CardUser
@@ -175,7 +175,7 @@ const Experimento1 = ({ match }) => {
                   </Colxx>
                 </Row>
               </Colxx>
-              <Colxx lg="8">
+              <Colxx lg="6">
                 <Row>
                   <Colxx lg="12">
                     <CardTratamiento numeroActividad={0} />{' '}
