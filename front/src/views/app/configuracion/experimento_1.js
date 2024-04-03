@@ -28,6 +28,7 @@ import { colorPlomo, wsAPI1 } from 'constants/defaultValues';
 import { FormikReactSelect, FormikCheckbox } from './FormikFields';
 import CardUser from './cardUser';
 import CardTratamiento from './cardTratamiento';
+import TablaJugadores from './TablaJugadores';
 
 const Experimento1 = ({ match }) => {
   const [ws, setWs] = useState(null);
@@ -50,6 +51,8 @@ const Experimento1 = ({ match }) => {
   const [dataUsuarios, setDataUsuarios] = useState([]);
   const [conversor, setConversor] = useState([]);
 
+  const [arrayTablasJugadores, setArrayTablasJugadores] = useState([]);
+  const [vistaActual, setVistaActual] = useState('');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const websocket = new WebSocket(`${wsAPI1}1000`);
@@ -60,17 +63,24 @@ const Experimento1 = ({ match }) => {
     };
     websocket.onmessage = (e) => {
       const { data } = e;
-      console.log(data);
       const json = JSON.parse(data);
+      const { action } = json;
       console.log(json);
-      const users = json.usersOnline;
-      const conv = json.conversorJugadores;
-      console.log(users);
-      console.log(conv);
-      if (users !== undefined && conv !== undefined) {
-        const jsonUsers = JSON.parse(users);
-        setDataUsuarios(jsonUsers);
-        setConversor(conv);
+      if (action === 'ACTUALIZAR_JUGADORES_MANAGER') {
+        console.log('se debe actualizar x un cambio');
+        console.log(json.arrayTablasJugadores);
+        if (json.arrayTablasJugadores !== undefined) {
+          setArrayTablasJugadores(json.arrayTablasJugadores);
+        }
+        setVistaActual(json.vistaActual);
+      } else {
+        const users = json.usersOnline;
+        const conv = json.conversorJugadores;
+        if (users !== undefined && conv !== undefined) {
+          const jsonUsers = JSON.parse(users);
+          setDataUsuarios(jsonUsers);
+          setConversor(conv);
+        }
       }
     };
     websocket.onclose = () => {
@@ -129,44 +139,44 @@ const Experimento1 = ({ match }) => {
           <div>
             {' '}
             <Row>
-              <Colxx lg="6">
+              <Colxx lg="12">
                 <Row>
-                  <Colxx lg="12">
+                  <Colxx lg="4">
                     <CardUser
                       internalId={1}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
                     />{' '}
                   </Colxx>
-                  <Colxx lg="12">
+                  <Colxx lg="4">
                     <CardUser
                       internalId={2}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
                     />{' '}
                   </Colxx>
-                  <Colxx lg="12">
+                  <Colxx lg="4">
                     <CardUser
                       internalId={3}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
                     />{' '}
                   </Colxx>
-                  <Colxx lg="12">
+                  <Colxx lg="4">
                     <CardUser
                       internalId={4}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
                     />{' '}
                   </Colxx>
-                  <Colxx lg="12">
+                  <Colxx lg="4">
                     <CardUser
                       internalId={5}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
                     />{' '}
                   </Colxx>
-                  <Colxx lg="12">
+                  <Colxx lg="4">
                     <CardUser
                       internalId={6}
                       dataUsuarios={dataUsuarios}
@@ -175,24 +185,13 @@ const Experimento1 = ({ match }) => {
                   </Colxx>
                 </Row>
               </Colxx>
-              <Colxx lg="6">
-                <Row>
-                  <Colxx lg="12">
-                    <CardTratamiento numeroActividad={0} />{' '}
-                  </Colxx>
-                  <Colxx lg="12">
-                    <CardTratamiento numeroActividad={1} />{' '}
-                  </Colxx>
-                  <Colxx lg="12">
-                    <CardTratamiento numeroActividad={2} />{' '}
-                  </Colxx>
-                  <Colxx lg="12">
-                    <CardTratamiento numeroActividad={3} />{' '}
-                  </Colxx>
-                  <Colxx lg="12">
-                    <CardTratamiento numeroActividad={4} />{' '}
-                  </Colxx>
-                </Row>
+              <Colxx lg="12">
+                <Card className="mb-2">
+                  <CardBody> Vista Actual: {vistaActual}</CardBody>
+                </Card>
+              </Colxx>
+              <Colxx lg="12">
+                <TablaJugadores arrayTablasJugadores={arrayTablasJugadores} />
               </Colxx>
             </Row>
           </div>

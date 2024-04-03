@@ -82,6 +82,12 @@ class ConnectionManager:
             if connection.client_id != 1000:
                 await connection.ws.send_text(message)
 
+    async def toAdminMensaje(self, message: str):
+        for connection in self.active_connections:
+            if connection.client_id == 1000:
+                await connection.ws.send_text(message)
+    
+
 
 class AsignacionFichas:
     def __init__(self, client_id: int, letraJugador, numeroRonda: int, fichasClub: int, fichasActividadPrivada: int, club: str, tratamiento: str, porcentajeVigilancia: int):
@@ -822,7 +828,7 @@ class JugadoresManager:
 
     def exportarRetiroTotal(self, rondas: int):
         arrayToReturn = {}
-        arrayToReturn['id'] = "retiros_totales"
+        arrayToReturn['id'] = "-"
         arrayToReturn['letraJugador'] = "Z"
         arrayToReturn['jugador'] = "Retiros totales"
         arrayToReturn['club'] = "total"
@@ -923,7 +929,27 @@ class JugadoresManager:
         arrayTablasJugadores.append(tablaRetiroTotal)
         return arrayTablasJugadores
     
-    
+
+    def exportarAsignaciones(self):
+        arrayToReturn = []
+        for j in self.asignaciones:
+            data = j.exportar()
+            arrayToReturn.append(data)
+        return arrayToReturn
+
+    def exportarDataJugadoresManager(self):
+        arrayTablaResultadosJugadores = self.exportarTablaResultadosJugadores()
+        mensaje = {
+            "action": "ACTUALIZAR_JUGADORES_MANAGER",
+            "arrayTablasJugadores": self.exportarTablaRetirosJugadores(),
+            "rondaActual" : self.rondaActual,
+            "rondasTotales": self.rondasTotales,
+            "vistaActual": self.vistaActual,
+            "jugadores": self.exportarTablaEstadoJugadores(),
+            "asignacionesTratamiento": self.exportarAsignaciones(),
+        }
+        return mensaje
+        
     def moverAlClubAmarillo(self, jugador:int):
         for j in self.jugadores:
             if j.client_id == jugador:
@@ -1151,6 +1177,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     message = {"time":current_time,"clientId":client_id,"message":"Online"}
     data = {"event" : json.dumps(message), "usersOnline": manager.getJsonUsers(), "conversorJugadores": jugadoresManager.getConversorJugadores()}
     await manager.broadcast(json.dumps(data))
+
     try:
         while True:
             data = await websocket.receive_text()
@@ -2112,6 +2139,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                         jsonSend = json.dumps(mensaje)
                         await manager.broadcastClients(jsonSend)
 
+            if jugadoresManager != None:
+                mensaje = jugadoresManager.exportarDataJugadoresManager() 
+                jsonSend = json.dumps(mensaje)
+                await manager.toAdminMensaje(jsonSend)    
+
+            
                     
     except WebSocketDisconnect:
         manager.disconnect(websocket)
