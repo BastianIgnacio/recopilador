@@ -179,6 +179,9 @@ const FinalizarActividad = ({ match, idWs, resultadoJugadores }) => {
             <CardTitle className="text-center mt-3 font-weight-bold">
               Ha finalizado la actividad
             </CardTitle>
+            <CardTitle className="text-center mt-3 font-weight-bold">
+              Por favor esperar a los otros participantes!
+            </CardTitle>
             <CardBody>
               <Table columns={colsRetirosJugadores} data={resultadoJugadores} />
             </CardBody>

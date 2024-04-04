@@ -13,7 +13,6 @@ import {
   CardSubtitle,
   CardText,
 } from 'reactstrap';
-import data from 'data/topRatedItems';
 
 const CardUser = ({ internalId, dataUsuarios, conversor }) => {
   const [conectado, setConectado] = useState(false);

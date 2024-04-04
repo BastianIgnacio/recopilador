@@ -21,10 +21,11 @@ import {
   FormText,
   CardText,
 } from 'reactstrap';
-import IntlMessages from 'helpers/IntlMessages';
-import { Colxx, Separator } from 'components/common/CustomBootstrap';
+// eslint-disable-next-line import/no-unresolved
+import { Colxx } from 'components/common/CustomBootstrap';
 import { Formik, Form, Field } from 'formik';
-import { colorPlomo, wsAPI1 } from 'constants/defaultValues';
+// eslint-disable-next-line import/no-unresolved
+import { colorPlomo, wsAPI2 } from 'constants/defaultValues';
 import { FormikReactSelect, FormikCheckbox } from './FormikFields';
 import CardUser from './cardUser';
 import CardTratamiento from './cardTratamiento';
@@ -55,7 +56,7 @@ const Experimento2 = ({ match }) => {
   const [vistaActual, setVistaActual] = useState('');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    const websocket = new WebSocket(`${wsAPI1}1000`);
+    const websocket = new WebSocket(`${wsAPI2}1000`);
     websocket.onopen = () => {
       console.log('admin conectado');
       setSocketOpen(true);

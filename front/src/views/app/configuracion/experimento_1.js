@@ -21,9 +21,10 @@ import {
   FormText,
   CardText,
 } from 'reactstrap';
-import IntlMessages from 'helpers/IntlMessages';
+// eslint-disable-next-line import/no-unresolved
 import { Colxx, Separator } from 'components/common/CustomBootstrap';
 import { Formik, Form, Field } from 'formik';
+// eslint-disable-next-line import/no-unresolved
 import { colorPlomo, wsAPI1 } from 'constants/defaultValues';
 import { FormikReactSelect, FormikCheckbox } from './FormikFields';
 import CardUser from './cardUser';
@@ -53,6 +54,8 @@ const Experimento1 = ({ match }) => {
 
   const [arrayTablasJugadores, setArrayTablasJugadores] = useState([]);
   const [vistaActual, setVistaActual] = useState('');
+  const [tratamiento, setTratamiento] = useState('NO');
+  const [actividad, setActividad] = useState(1000);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const websocket = new WebSocket(`${wsAPI1}1000`);
@@ -73,6 +76,17 @@ const Experimento1 = ({ match }) => {
           setArrayTablasJugadores(json.arrayTablasJugadores);
         }
         setVistaActual(json.vistaActual);
+        const conv = json.conversorJugadores;
+        setConversor(conv);
+
+        setTratamiento(json.tratamiento);
+        setActividad(json.actividad);
+
+        const users = json.usersOnline;
+        if (users !== undefined) {
+          const jsonUsers = JSON.parse(users);
+          setDataUsuarios(jsonUsers);
+        }
       } else {
         const users = json.usersOnline;
         const conv = json.conversorJugadores;
@@ -187,7 +201,20 @@ const Experimento1 = ({ match }) => {
               </Colxx>
               <Colxx lg="12">
                 <Card className="mb-2">
-                  <CardBody> Vista Actual: {vistaActual}</CardBody>
+                  <CardBody>
+                    {' '}
+                    <CardText>Vista Actual: {vistaActual}</CardText>{' '}
+                    <CardText>Tratamiento: {tratamiento}</CardText>
+                    {actividad > 0 && actividad < 5 && (
+                      <CardText>ACTIVIDAD N° {actividad}</CardText>
+                    )}
+                    {actividad === 0 && (
+                      <CardText>ACTIVIDAD DE PRUEBA</CardText>
+                    )}
+                    {actividad === 1000 && (
+                      <CardText>No hay actividad</CardText>
+                    )}
+                  </CardBody>
                 </Card>
               </Colxx>
               <Colxx lg="12">
@@ -200,25 +227,35 @@ const Experimento1 = ({ match }) => {
         )}
       </CardBody>
       <CardFooter>
-        <Button onClick={() => setModalCrearSesion(!modalCrearSesion)}>
-          Nueva Sesion
-        </Button>
-        <Button
-          onClick={() =>
-            setModalConfirmacionSiguienteActividad(
-              !modalConfirmacionSiguienteActividad
-            )
-          }
-        >
-          Siguiente actividad
-        </Button>
-        <Button
-          onClick={() =>
-            setModalConfirmacionEncuesta(!modalConfirmacionEncuesta)
-          }
-        >
-          Comenzar encuesta
-        </Button>
+        <div className="d-flex justify-content-around">
+          <Button onClick={() => setModalCrearSesion(!modalCrearSesion)}>
+            NUEVA SESION
+          </Button>
+
+          {actividad === 4 ? (
+            <Button
+              onClick={() =>
+                setModalConfirmacionEncuesta(!modalConfirmacionEncuesta)
+              }
+            >
+              INICIAR ENCUESTA
+            </Button>
+          ) : (
+            <>
+              {actividad !== 1000 && (
+                <Button
+                  onClick={() =>
+                    setModalConfirmacionSiguienteActividad(
+                      !modalConfirmacionSiguienteActividad
+                    )
+                  }
+                >
+                  INICIAR ACTIVIDAD N° {actividad + 1}
+                </Button>
+              )}
+            </>
+          )}
+        </div>
       </CardFooter>
       <Modal
         isOpen={modalConfirmacionSiguienteActividad}

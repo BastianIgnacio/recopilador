@@ -248,7 +248,7 @@ class Tratamiento:
 class JugadoresManager:
     def __init__(self, basePesosChilenos: int, dictJugadores):
 
-        self.grupo = 1
+        self.grupo = 2
 
         self.dateTime = datetime.now()
         year = self.dateTime.strftime("%Y")
@@ -941,12 +941,15 @@ class JugadoresManager:
         arrayTablaResultadosJugadores = self.exportarTablaResultadosJugadores()
         mensaje = {
             "action": "ACTUALIZAR_JUGADORES_MANAGER",
+            "conversorJugadores": jugadoresManager.getConversorJugadores(),
             "arrayTablasJugadores": self.exportarTablaRetirosJugadores(),
             "rondaActual" : self.rondaActual,
             "rondasTotales": self.rondasTotales,
             "vistaActual": self.vistaActual,
             "jugadores": self.exportarTablaEstadoJugadores(),
             "asignacionesTratamiento": self.exportarAsignaciones(),
+            "tratamiento": self.tratamiento,
+            "actividad": self.numeroTratamiento,
         }
         return mensaje
         
@@ -1170,13 +1173,30 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     global jugadoresManager
     if(manager.existeConeccion(client_id)):
         return
+
+
     
     await manager.connect(websocket,client_id)
-    now = datetime.now()
-    current_time = now.strftime("%H:%M")
-    message = {"time":current_time,"clientId":client_id,"message":"Online"}
-    data = {"event" : json.dumps(message), "usersOnline": manager.getJsonUsers(), "conversorJugadores": jugadoresManager.getConversorJugadores()}
-    await manager.broadcast(json.dumps(data))
+
+    if client_id == 1000:
+        if jugadoresManager.tratamientoObjeto == None:
+            now = datetime.now()
+            current_time = now.strftime("%H:%M")
+            message = {"time":current_time,"clientId":client_id,"message":"Online"}
+            data = {"event" : json.dumps(message), "usersOnline": manager.getJsonUsers(), "conversorJugadores": jugadoresManager.getConversorJugadores()}
+            await manager.broadcast(json.dumps(data))
+        else:
+            mensaje = jugadoresManager.exportarDataJugadoresManager() 
+            mensaje["usersOnline"] =  manager.getJsonUsers()
+            jsonSend = json.dumps(mensaje)
+            await manager.toAdminMensaje(jsonSend)
+
+    else:
+        now = datetime.now()
+        current_time = now.strftime("%H:%M")
+        message = {"time":current_time,"clientId":client_id,"message":"Online"}
+        data = {"event" : json.dumps(message), "usersOnline": manager.getJsonUsers(), "conversorJugadores": jugadoresManager.getConversorJugadores()}
+        await manager.broadcast(json.dumps(data))
 
     try:
         while True:
@@ -1209,7 +1229,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 dictJugadores[5] = "E"
                 dictJugadores[6] = "F"
                 #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
-                trat0 = Tratamiento(t,2, True, 3, 50, 10, dictJugadores)
+                trat0 = Tratamiento(t,2, True, 2, 50, 10, dictJugadores)
                 arrayTrat.append(trat0)
 
                 ## CREAMOS LA ACTIVIDAD 1
@@ -1221,7 +1241,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 dictJugadores[5] = "F"
                 dictJugadores[6] = "E"
                 #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
-                trat1 = Tratamiento(t,2, False, 10, 50, 10, dictJugadores)
+                trat1 = Tratamiento(t,2, False, 2, 50, 10, dictJugadores)
                 arrayTrat.append(trat1)
 
                 ## CREAMOS LA ACTIVIDAD 2
@@ -1233,7 +1253,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 dictJugadores[5] = "C"
                 dictJugadores[6] = "D"
                 #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
-                trat2 = Tratamiento(t,2, False, 10, 50, 10, dictJugadores)
+                trat2 = Tratamiento(t,2, False, 2, 50, 10, dictJugadores)
                 arrayTrat.append(trat2)
                 
                 ## CREAMOS LA ACTIVIDAD 3
@@ -1245,7 +1265,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 dictJugadores[5] = "B"
                 dictJugadores[6] = "C"
                 #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
-                trat3 = Tratamiento(t,2, False, 10, 50, 10, dictJugadores)
+                trat3 = Tratamiento(t,2, False, 2, 50, 10, dictJugadores)
                 arrayTrat.append(trat3)
 
                 ## CREAMOS LA ACTIVIDAD 4
@@ -1257,7 +1277,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 dictJugadores[5] = "D"
                 dictJugadores[6] = "B"
                 #  (self, tratamiento: str, costoDeMonitoreo: str, esPrueba, rondas : int , porcentajeVigilancia : int, factorConversion: int
-                trat4 = Tratamiento(t,2, False, 10, 50, 10, dictJugadores)
+                trat4 = Tratamiento(t,2, False, 2, 50, 10, dictJugadores)
                 arrayTrat.append(trat4)
                 
                
@@ -1268,11 +1288,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                 # guardamos el binario
                 guardarEstadoApp(jugadoresManager)
 
-            if tipoConsulta == "ADMIN_INICIAR_SESION":
-                jugadoresManager.comenzarSesion()
-                jugadoresManager.crearJugadoresGrupo1()
-                jugadoresManager.generarLetrasJugadores()
-        
+                mensaje = jugadoresManager.exportarDataJugadoresManager() 
+                mensaje["usersOnline"] =  manager.getJsonUsers()
+                jsonSend = json.dumps(mensaje)
+                await manager.toAdminMensaje(jsonSend)
+
+                
             if(tipoConsulta == "AUX_ENVIAR_ENCUESTA"):
                 dataEncuesta = json.loads(dataJson['data'])
 
@@ -1768,7 +1789,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 ## aca debemos mostrar el final de la fase
                                 jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_SESION"
                                 jugadoresManager.guardarResultadosActividad()
-                                jugadoresManager.exportarAsignacionesAcumuladasCsv()
+                                
                                 # guardamos el binario
                                 guardarEstadoApp(jugadoresManager)
 
@@ -1787,8 +1808,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
 
                                 # guardamos el binario
                                 guardarEstadoApp(jugadoresManager)
+
                                 jugadoresManager.exportarFaseACsv()
                                 jugadoresManager.exportarResultadosJugadoresCsv()
+                                jugadoresManager.exportarAsignacionesAcumuladasCsv()
+
+                                # guardamos el binario
+                                guardarEstadoApp(jugadoresManager)
                             
                         else:
                             # ACA DEBEMOS MOSTRAR EL RESUMEN DE LA RONDA Y VOLVER A LA ASIGNACION DE FICHAS
@@ -1911,7 +1937,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
 
                                
                             else:
-
+                                # NO EXISTE SIGUIENTE ACTIVIDAD POR ENDE SE DEBE MOSTRAR DESPUES LA FINALIZACION DE LA SESION
                                 # ACA DEBEMOS MOSTRAR EL RESUMEN DE LA RONDA
                                 jugadoresManager.vistaActual = "MOSTRAR_RESULTADOS_RONDA_Y_VOTACION"
                                 # guardamos el binario
@@ -1932,11 +1958,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 await manager.broadcastClients(jsonSend)
 
                                 time.sleep(10)
+
                                 ## ACA DEBEMOS MOSTRAR EL FINAL DE LA SESION
                                 jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_SESION"
                                 jugadoresManager.guardarResultadosActividad()
-                                jugadoresManager.exportarAsignacionesAcumuladasCsv()
-
+                                
                                 # guardamos el binario
                                 guardarEstadoApp(jugadoresManager)
                         
@@ -1956,6 +1982,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
 
                                 jugadoresManager.exportarFaseACsv()
                                 jugadoresManager.exportarResultadosJugadoresCsv()
+                                jugadoresManager.exportarAsignacionesAcumuladasCsv()
+
+                                # guardamos el binario
+                                guardarEstadoApp(jugadoresManager)
 
                         else:
                             jugadoresManager.vistaActual = "MOSTRAR_RESULTADOS_RONDA_Y_VOTACION"
@@ -2090,7 +2120,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             ## ACA DEBEMOS MOSTRAR EL FINAL DE LA SESION
                             jugadoresManager.vistaActual = "MOSTRAR_FINALIZAR_SESION"
                             jugadoresManager.guardarResultadosActividad()
-                            jugadoresManager.exportarAsignacionesAcumuladasCsv()
 
                             # guardamos el binario
                             guardarEstadoApp(jugadoresManager)
@@ -2113,6 +2142,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
 
                             jugadoresManager.exportarFaseACsv()
                             jugadoresManager.exportarResultadosJugadoresCsv()
+                            jugadoresManager.exportarAsignacionesAcumuladasCsv()
+
+                            # guardamos el binario
+                            guardarEstadoApp(jugadoresManager)
+
                     
                     else:
                         # POR ESTE LADO ESTAMOS OK
