@@ -68,3 +68,9 @@ entorno/
 .DS_Store
 
 .idea
+
+back_1/fileJugadoresManager
+
+*.pyc
+
+back_2/fileJugadoresManager
