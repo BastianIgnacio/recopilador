@@ -56,6 +56,8 @@ const Experimento1 = ({ match }) => {
   const [vistaActual, setVistaActual] = useState('');
   const [tratamiento, setTratamiento] = useState('NO');
   const [actividad, setActividad] = useState(1000);
+  const [rondaActual, setRondaActual] = useState(0);
+  const [rondasTotales, setRondasTotales] = useState(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const websocket = new WebSocket(`${wsAPI1}1000`);
@@ -81,6 +83,8 @@ const Experimento1 = ({ match }) => {
 
         setTratamiento(json.tratamiento);
         setActividad(json.actividad);
+        setRondaActual(json.rondaActual);
+        setRondasTotales(json.rondasTotales);
 
         const users = json.usersOnline;
         if (users !== undefined) {
@@ -151,60 +155,60 @@ const Experimento1 = ({ match }) => {
       <CardBody>
         {socketOpen ? (
           <div>
-            {' '}
             <Row>
-              <Colxx lg="12">
+              <Colxx lg="7">
                 <Row>
                   <Colxx lg="4">
                     <CardUser
                       internalId={1}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
-                    />{' '}
+                    />
                   </Colxx>
                   <Colxx lg="4">
                     <CardUser
                       internalId={2}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
-                    />{' '}
+                    />
                   </Colxx>
                   <Colxx lg="4">
                     <CardUser
                       internalId={3}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
-                    />{' '}
+                    />
                   </Colxx>
                   <Colxx lg="4">
                     <CardUser
                       internalId={4}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
-                    />{' '}
+                    />
                   </Colxx>
                   <Colxx lg="4">
                     <CardUser
                       internalId={5}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
-                    />{' '}
+                    />
                   </Colxx>
                   <Colxx lg="4">
                     <CardUser
                       internalId={6}
                       dataUsuarios={dataUsuarios}
                       conversor={conversor}
-                    />{' '}
+                    />
                   </Colxx>
                 </Row>
               </Colxx>
-              <Colxx lg="12">
-                <Card className="mb-2">
+              <Colxx lg="5">
+                <Card>
                   <CardBody>
-                    {' '}
                     <CardText>Vista Actual: {vistaActual}</CardText>{' '}
                     <CardText>Tratamiento: {tratamiento}</CardText>
+                    <CardText>Rondas: {rondasTotales}</CardText>
+                    <CardText>Ronda Actual: {rondaActual}</CardText>
                     {actividad > 0 && actividad < 5 && (
                       <CardText>ACTIVIDAD N° {actividad}</CardText>
                     )}
@@ -228,30 +232,51 @@ const Experimento1 = ({ match }) => {
       </CardBody>
       <CardFooter>
         <div className="d-flex justify-content-around">
-          <Button onClick={() => setModalCrearSesion(!modalCrearSesion)}>
-            NUEVA SESION
-          </Button>
+          {vistaActual === 'BIENVENIDO' && (
+            <Button onClick={() => setModalCrearSesion(!modalCrearSesion)}>
+              NUEVA SESION
+            </Button>
+          )}
 
           {actividad === 4 ? (
-            <Button
-              onClick={() =>
-                setModalConfirmacionEncuesta(!modalConfirmacionEncuesta)
-              }
-            >
-              INICIAR ENCUESTA
-            </Button>
+            <>
+              {vistaActual === 'MOSTRAR_FINALIZAR_SESION' && (
+                <Button
+                  onClick={() =>
+                    setModalConfirmacionEncuesta(!modalConfirmacionEncuesta)
+                  }
+                >
+                  INICIAR ENCUESTA
+                </Button>
+              )}
+            </>
           ) : (
             <>
               {actividad !== 1000 && (
-                <Button
-                  onClick={() =>
-                    setModalConfirmacionSiguienteActividad(
-                      !modalConfirmacionSiguienteActividad
-                    )
-                  }
-                >
-                  INICIAR ACTIVIDAD N° {actividad + 1}
-                </Button>
+                <>
+                  {vistaActual === 'MOSTRAR_FINALIZAR_ACTIVIDAD_PRUEBA' && (
+                    <Button
+                      onClick={() =>
+                        setModalConfirmacionSiguienteActividad(
+                          !modalConfirmacionSiguienteActividad
+                        )
+                      }
+                    >
+                      INICIAR ACTIVIDAD N° {actividad + 1}
+                    </Button>
+                  )}
+                  {vistaActual === 'MOSTRAR_FINALIZAR_ACTIVIDAD' && (
+                    <Button
+                      onClick={() =>
+                        setModalConfirmacionSiguienteActividad(
+                          !modalConfirmacionSiguienteActividad
+                        )
+                      }
+                    >
+                      INICIAR ACTIVIDAD N° {actividad + 1}
+                    </Button>
+                  )}
+                </>
               )}
             </>
           )}
