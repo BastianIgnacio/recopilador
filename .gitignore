@@ -74,3 +74,5 @@ back_1/fileJugadoresManager
 *.pyc
 
 back_2/fileJugadoresManager
+
+*.csv

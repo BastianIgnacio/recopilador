@@ -14,7 +14,7 @@ import 'rc-switch/assets/index.css';
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import './customRadio.css';
+import './transiciones.css';
 
 const FormikReactSelect = ({
   name,
@@ -273,7 +273,7 @@ const FormikCustomRadioGroup = ({
   );
 };
 
-const FormikCustomRadioGroupMax = ({
+const FormikCustomRadioGroupMaxExcluir = ({
   name,
   max,
   values,
@@ -316,9 +316,9 @@ const FormikCustomRadioGroupMax = ({
       {options.map((child, index) => {
         return (
           <>
-            {child.disabled ? (
+            {!child.disabled && (
               <CustomInput
-                className="ml-3 mb-3 custom-radiobutton"
+                className="ml-3 mb-3"
                 key={`${name}_${child.value}_${index}`}
                 type="radio"
                 id={`${name}_${child.value}_${index}`}
@@ -330,7 +330,58 @@ const FormikCustomRadioGroupMax = ({
                 disabled={child.disabled}
                 inline={inline}
               />
-            ) : (
+            )}
+          </>
+        );
+      })}
+    </>
+  );
+};
+
+const FormikCustomRadioGroupMaxIncluir = ({
+  name,
+  max,
+  values,
+  options,
+  inline = false,
+  onChange,
+  onBlur,
+}) => {
+  const handleChange = (val) => {
+    if (val === 'no') {
+      const newArray = [];
+      newArray.push(val);
+      onChange(name, newArray);
+    } else if (values.includes(val)) {
+      // Si lo incluye debemos eliminarlo
+      // debemos buscarlo y eliminarlo
+      const index = values.indexOf(val);
+      values.splice(index, 1);
+      onChange(name, values);
+    } else if (values.includes('no')) {
+      const newArray = [];
+      newArray.push(val);
+      onChange(name, newArray);
+    } else {
+      values.push(val);
+      if (values.length > max) {
+        values.shift();
+      }
+      onChange(name, values);
+    }
+    console.log(values);
+  };
+
+  const handleBlur = () => {
+    onBlur(name, true);
+  };
+
+  return (
+    <>
+      {options.map((child, index) => {
+        return (
+          <>
+            {!child.disabled && (
               <CustomInput
                 className="ml-3 mb-3"
                 key={`${name}_${child.value}_${index}`}
@@ -408,5 +459,6 @@ export {
   FormikTagsInput,
   FormikSwitch,
   FormikDatePicker,
-  FormikCustomRadioGroupMax,
+  FormikCustomRadioGroupMaxExcluir,
+  FormikCustomRadioGroupMaxIncluir,
 };

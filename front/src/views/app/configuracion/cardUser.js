@@ -16,45 +16,24 @@ import {
 
 const CardUser = ({ internalId, dataUsuarios, conversor }) => {
   const [conectado, setConectado] = useState(false);
-  const [jugador, setJugador] = useState('NO');
+  const [letra, setLetra] = useState('NO');
 
   useEffect(() => {
     const aux = [];
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < dataUsuarios.length; i++) {
-      aux.push(dataUsuarios[i].client_id);
-    }
-    if (aux.includes(internalId)) {
+    if (dataUsuarios.includes(internalId)) {
       setConectado(true);
-      setJugador(conversor[internalId]);
     } else {
       setConectado(false);
-      setJugador(conversor[internalId]);
     }
+    setLetra(internalId.toString());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataUsuarios, internalId, conversor]);
 
   return (
-    <Card className="m-2">
-      <div className="d-flex justify-content-start m-3">
-        <div>
-          {conectado && <Button color="success">{internalId}</Button>}
-          {!conectado && <Button color="danger">{internalId}</Button>}
-        </div>
-        <div className="d-flex align-items-center">
-          {conectado && (
-            <CardText className="text-muted text-medium  ml-3">
-              Jugador {jugador}
-            </CardText>
-          )}
-          {!conectado && (
-            <CardText className="text-muted text-medium ml-3">
-              Jugador {jugador}
-            </CardText>
-          )}
-        </div>
-      </div>
-    </Card>
+    <div>
+      {conectado && <Button color="success">{internalId}</Button>}
+      {!conectado && <Button color="danger">{internalId}</Button>}
+    </div>
   );
 };
 

@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/display-name */
@@ -5,13 +6,7 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-key */
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import { Row, Card, CardBody, Badge, CardHeader } from 'reactstrap';
-import IntlMessages from 'helpers/IntlMessages';
-import { Colxx, Separator } from 'components/common/CustomBootstrap';
-import Breadcrumb from 'containers/navs/Breadcrumb';
+import React, { useState, useEffect } from 'react';
 import { useTable, usePagination, useSortBy } from 'react-table';
 import {
   colorBlue,
@@ -21,20 +16,20 @@ import {
   colorYellow,
 } from 'constants/defaultValues';
 
-const TablaJugadores = ({ match, grupo, arrayTablasJugadores }) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+const TablaRetiros = ({ match, tabla }) => {
+  console.log(tabla);
   const colsRetirosJugadores = React.useMemo(
     () => [
       {
-        Header: 'ID INTERNA',
-        accessor: 'id',
+        Header: 'Jugador',
+        accessor: 'jugador',
         cellClass: 'w-10',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
       },
       {
-        Header: 'Jugador / Ronda',
-        accessor: 'jugador',
+        Header: 'Letra',
+        accessor: 'letra',
         cellClass: 'w-10',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
@@ -110,15 +105,29 @@ const TablaJugadores = ({ match, grupo, arrayTablasJugadores }) => {
         sortType: 'basic',
       },
       {
-        Header: 'Ganancias en esta ronda',
-        accessor: 'ganancia_ultima_ronda',
+        Header: 'R-11',
+        accessor: 'ronda_11',
+        cellClass: 'w-5',
+        Cell: (props) => <>{props.value}</>,
+        sortType: 'basic',
+      },
+      {
+        Header: 'R-12',
+        accessor: 'ronda_12',
+        cellClass: 'w-5',
+        Cell: (props) => <>{props.value}</>,
+        sortType: 'basic',
+      },
+      {
+        Header: 'Ganancias en la ultima ronda',
+        accessor: 'gananciaUltimaRonda',
         cellClass: 'mw-15',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
       },
       {
         Header: 'Ganacias acumuladas',
-        accessor: 'gananciaAcumulada',
+        accessor: 'gananciasAcumuladas',
         cellClass: 'mw-15',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
@@ -182,32 +191,10 @@ const TablaJugadores = ({ match, grupo, arrayTablasJugadores }) => {
           <tbody {...getTableBodyProps()}>
             {page.map((row) => {
               prepareRow(row);
+              console.log(row);
               return (
                 <>
-                  {row.original.club === 'AZUL' && (
-                    <tr
-                      {...row.getRowProps()}
-                      style={{
-                        backgroundColor: colorLightBlue,
-                        color: 'black',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
-                      ))}
-                    </tr>
-                  )}
-                  {row.original.club === 'AMARILLO' && (
+                  {row.original.color === 'AMARILLO' && (
                     <tr
                       {...row.getRowProps()}
                       style={{
@@ -230,42 +217,26 @@ const TablaJugadores = ({ match, grupo, arrayTablasJugadores }) => {
                       ))}
                     </tr>
                   )}
-                  {row.original.club === 'total' && (
+                  {row.original.color === 'AZUL' && (
                     <tr
                       {...row.getRowProps()}
                       style={{
-                        borderRadius: '10px',
-                        backgroundColor: colorPlomo,
-                        fontSize: '14px',
+                        backgroundColor: colorLightBlue,
+                        color: 'black',
+                        fontSize: '12px',
+                        textAlign: 'center',
                         fontWeight: 600,
                       }}
-                      className="mb-1"
                     >
                       {row.cells.map((cell, cellIndex) => (
-                        <>
-                          {cellIndex === 0 && (
-                            <td
-                              key={`td_${cellIndex}`}
-                              style={{
-                                color: 'black',
-                                textAlign: 'right',
-                              }}
-                            >
-                              {cell.render('Cell')}
-                            </td>
-                          )}
-                          {cellIndex !== 0 && (
-                            <td
-                              key={`td_${cellIndex}`}
-                              style={{
-                                color: 'black',
-                                textAlign: 'center',
-                              }}
-                            >
-                              {cell.render('Cell')}
-                            </td>
-                          )}
-                        </>
+                        <td
+                          key={`td_${cellIndex}`}
+                          style={{
+                            color: 'black',
+                          }}
+                        >
+                          {cell.render('Cell')}
+                        </td>
                       ))}
                     </tr>
                   )}
@@ -279,11 +250,12 @@ const TablaJugadores = ({ match, grupo, arrayTablasJugadores }) => {
   }
 
   return (
-    <Card>
-      <CardBody>
-        <Table columns={colsRetirosJugadores} data={arrayTablasJugadores} />
-      </CardBody>
-    </Card>
+    <>
+      {tabla !== undefined && (
+        <Table columns={colsRetirosJugadores} data={tabla} />
+      )}
+    </>
   );
 };
-export default TablaJugadores;
+
+export default TablaRetiros;

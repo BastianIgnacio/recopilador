@@ -1,0 +1,86 @@
+.custom-radiobutton-paint-amarillos {
+    border-radius: 5px;
+    padding-left : 10%;
+    cursor: pointer;
+    background-color: #FFF7D7;
+}
+
+.custom-radiobutton-paint-azules {
+    border-radius: 5px;
+    padding-left : 10%;
+    cursor: pointer;
+    background-color: #D7E7FF;
+}
+
+.transicion-votacion-Azul-Amarillo {
+    background-color: #F5C400;
+    animation-name: transicionVotacionAzulAmarillo;
+    animation-duration: 10s;
+    border-radius: 15px;
+}
+@keyframes transicionVotacionAzulAmarillo {
+    from {background-color: #001840;}
+    to {background-color: #F5C400;}
+}
+
+.transicion-votacion-Amarillo-Azul {
+    background-color: #001840;
+    animation-name: transicionVotacionAmarilloAzul;
+    animation-duration: 10s;
+    border-radius: 15px;
+}
+@keyframes transicionVotacionAmarilloAzul {
+    from {background-color: #F5C400;}
+    to {background-color: #001840;}
+}
+
+.transicion-votacion {
+  background-color: #F5C400;
+  animation-name: transicionVotacion;
+  animation-duration: 10s;
+  border-radius: 15px;
+
+}
+@keyframes transicionVotacion {
+  from {background-color: #001840;}
+  to {background-color: #F5C400;}
+}
+
+@keyframes square-in-center {
+    from {
+      clip-path: inset(100% 100% 100% 100%);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  
+  [transition-style="in:square:center"] {
+    animation: 2.5s cubic-bezier(.25, 1, .30, 1) square-in-center both;
+  }
+
+  @keyframes square-out-center {
+    from {
+      clip-path: inset(0 0 0 0);
+    }
+    to {
+      clip-path: inset(100% 100% 100% 100%);
+    }
+  }
+  
+  [transition-style="out:square:center"] {
+    animation: 2.5s cubic-bezier(.25, 1, .30, 1) square-out-center both;
+  }
+
+  @keyframes wipe-in-right {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  
+  [transition-style="in:wipe:right"] {
+    animation: 2.5s cubic-bezier(.25, 1, .30, 1) wipe-in-right both;
+  }

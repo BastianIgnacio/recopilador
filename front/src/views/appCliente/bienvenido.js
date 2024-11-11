@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-var */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
@@ -12,26 +13,27 @@ import {
 } from 'reactstrap';
 import { useParams } from 'react-router-dom';
 import { Colxx, Separator } from 'components/common/CustomBootstrap';
-import { colorBlue } from 'constants/defaultValues';
 
-const Bienvenido = ({
-  match,
-  id,
-  socketConectado,
-  ws,
-  bloqueado,
-  setBloqueadoView,
-}) => {
-  const comenzar = () => {
-    setBloqueadoView(true);
-    const data = { cliente: id };
-    const jsonSend = {
-      tipo: 'CLIENTE_INICIAR_BLOQUES_TRATAMIENTO',
-      data,
+const Bienvenido = ({ match, ws, client_id, entorno }) => {
+  const [bloqueado, setBloqueado] = useState(false);
+
+  const confirmar = () => {
+    const jsonData = {
+      tipo: 'CONFIRMAR_BIENVENIDO',
+      data: '',
     };
-    const dataQuery = JSON.stringify(jsonSend);
-    ws.send(dataQuery);
+    const jsonToSend = JSON.stringify(jsonData);
+    ws.send(jsonToSend);
+    setBloqueado(true);
   };
+
+  useEffect(() => {
+    const vistasBloqueadas = entorno.vistas;
+    const vistaBloqueada = vistasBloqueadas.find(
+      (vistaElement) => vistaElement.client_id === client_id
+    );
+    setBloqueado(vistaBloqueada.bloqueado);
+  }, [client_id, entorno]);
 
   return (
     <>
@@ -40,13 +42,13 @@ const Bienvenido = ({
           <Card className="mb-4">
             <CardBody>
               <div className="text-center">
-                <CardText className="text-muted text-medium mb-4 h5">
+                <CardText className="font-weight-bold mb-3 h5">
                   Bienvenido y gracias por aceptar participar.
                 </CardText>
-                <CardText className="text-muted text-medium mb-4 h5">
+                <CardText className="font-weight-bold mb-3 h5">
                   Por favor silenciar o apagar su telefono movil.
                 </CardText>
-                <CardText className="text-muted text-medium h5">
+                <CardText className="font-weight-bold h5">
                   Por favor no hablar o comunicarse con los demas participantes.
                 </CardText>
               </div>
@@ -54,11 +56,10 @@ const Bienvenido = ({
             <CardFooter>
               <Button
                 block
-                onClick={comenzar}
                 size="sm"
                 disabled={bloqueado}
+                onClick={() => confirmar()}
                 style={{
-                  backgroundColor: colorBlue,
                   fontWeight: 'bold',
                   fontSize: '20px',
                 }}

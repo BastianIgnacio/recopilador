@@ -17,8 +17,51 @@ export const wsAPI2 = 'ws://192.168.50.24:8001/ws/';
 export const wsAPI1 = 'ws://172.16.73.161:8000/ws/';
 export const wsAPI2 = 'ws://172.16.73.161:8001/ws/';
 */
+export const jugadores = [
+  { client_id: 0, letra: 'A', equipo: 'AZUL' },
+  { client_id: 1, letra: 'B', equipo: 'AMARILLO' },
+  { client_id: 2, letra: 'C', equipo: 'AZUL' },
+];
+export const vistasOptions = [
+  { label: 'BIENVENIDO', value: 'MOSTRAR_BIENVENIDO' },
+  {
+    label: 'INICIAR_ACTIVIDAD',
+    value: 'MOSTRAR_INICIAR_ACTIVIDAD',
+  },
+  {
+    label: 'ASIGNAR_CREDITOS',
+    value: 'MOSTRAR_ASIGNAR_CREDITOS',
+  },
+  {
+    label: 'DETALLE_ASIGNACION_CREDITOS',
+    value: 'MOSTRAR_ASIGNACION_CREDITOS',
+  },
+  { label: 'VOTAR_EXCLUIR', value: 'MOSTRAR_VOTAR_EXCLUIR' },
+  { label: 'RESULTADO_EXCLUSION', value: 'MOSTRAR_RESULTADO_EXCLUSION' },
+  { label: 'VOTA_INCLUIR', value: 'MOSTRAR_VOTAR_INCLUIR' },
+  { label: 'RESULTADO_INCLUSION', value: 'MOSTRAR_RESULTADO_INCLUSION' },
+  { label: 'RESUMEN_ACTIVIDAD', value: 'MOSTRAR_RESUMEN_ACTIVIDAD' },
+  { label: 'RESUMEN_SESION', value: 'MOSTRAR_RESUMEN_SESION' },
+  { label: 'ENCUESTA', value: 'MOSTRAR_ENCUESTA' },
+  { label: 'AGRADECIMIENTOS', value: 'MOSTRAR_AGRADECIMIENTOS' },
+];
 
-export const wsAPI1 = 'ws://172.16.70.11:8000/ws/';
+export const tratamientosOptions = [
+  { label: 'Trat. 1', value: 'T1', description: 'Baseline' },
+  { label: 'Trat. 2', value: 'T2', description: 'Exclusion Cost' },
+  {
+    label: 'Trat. 3',
+    value: 'T3',
+    description: 'Exclusion Cost + Congestion Cost',
+  },
+  { label: 'Trat. 4', value: 'T4', description: 'Congestion Cost' },
+];
+
+export const equipos = [
+  { id: 0, color: '#F5C400', colorLight: '#FFF7D7', club: 'AMARILLO' },
+  { id: 1, color: '#001840', colorLight: '#D7E7FF', club: 'AZUL' },
+];
+export const wsAPI1 = 'ws://127.0.0.1:8000/ws/';
 export const wsAPI2 = 'ws://172.16.70.11:8001/ws/';
 
 export const colorBlue = '#001840';
