@@ -33,6 +33,7 @@ const AsignarCreditos = ({ match, client_id, ws, entorno }) => {
   const [bloqueado, setBloqueado] = useState(false);
 
   const onSubmit = (values, { setSubmitting }) => {
+    setBloqueado(true);
     const payload = {
       ...values,
     };
@@ -42,7 +43,6 @@ const AsignarCreditos = ({ match, client_id, ws, entorno }) => {
     };
 
     setTimeout(() => {
-      setBloqueado(true);
       const jsonSend = {
         tipo: 'ENVIAR_ASIGNACION_CREDITOS',
         data,
@@ -87,54 +87,93 @@ const AsignarCreditos = ({ match, client_id, ws, entorno }) => {
         }}
       >
         <Row className="d-flex justify-content-center">
-          <Colxx lg="8">
-            <Card>
-              <div
-                style={{
-                  backgroundColor: clubColor.color,
-                  borderRadius: '5px',
-                }}
-              >
-                <div className="d-flex justify-content-around mt-2">
-                  <Label
-                    className="h5"
-                    style={{ color: 'white', fontWeight: 'bold' }}
+          <Colxx lg="9">
+            <TablaRetiros client_id={client_id} entorno={entorno} />
+          </Colxx>
+          <Colxx lg="3">
+            {club === 'AZUL' && (
+              <div>
+                <div
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: '16px',
+                    backgroundColor: '#001840',
+                    borderRadius: '10px',
+                    margin: '0px 10px 30px 10px',
+                  }}
+                >
+                  <div
+                    className="text-center"
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: '30px',
+                      color: 'white',
+                      alignSelf: 'center',
+                      padding: '20px',
+                    }}
                   >
-                    Jugador {jugador.letra} &#10143; Usted es integrante del
-                    club {jugador.club}
-                  </Label>
-                  <Label
-                    className="h5"
-                    style={{ color: 'white', fontWeight: 'bold' }}
-                  >
-                    Ronda {entorno.actividad.rondaActual} de{' '}
-                    {entorno.actividad.rondas}
-                  </Label>
+                    {' '}
+                    En esta ronda usted es integrante del Club Azul
+                  </div>
                 </div>
               </div>
-              <div className="m-2">
-                <TablaRetiros client_id={client_id} entorno={entorno} />
+            )}
+            {club === 'AMARILLO' && (
+              <div>
+                <div
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: '16px',
+                    backgroundColor: '#F5C400',
+                    borderRadius: '10px',
+                    margin: '0px 10px 30px 10px',
+                  }}
+                >
+                  <div
+                    className="text-center"
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: '30px',
+                      color: 'black',
+                      alignSelf: 'center',
+                      padding: '20px',
+                    }}
+                  >
+                    {' '}
+                    En esta ronda usted es integrante del Club Amarillo
+                  </div>
+                </div>
               </div>
-            </Card>
-          </Colxx>
-          <Colxx lg="4">
+            )}
             <Card className="mb-4">
               <div
                 style={{
                   backgroundColor: clubColor.color,
-                  borderRadius: '10px',
+                  borderRadius: '0px 0px 10px 10px',
                 }}
               >
                 <div className="text-center mt-2">
-                  <Label
+                  <div
                     style={{
-                      color: 'white',
+                      color: clubColor.colorLetra,
+                      fontWeight: 'bold',
+                      fontSize: '20px',
+                    }}
+                  >
+                    Ronda {entorno.actividad.rondaActual} de{' '}
+                    {entorno.actividad.rondas}
+                  </div>
+                </div>
+                <div className="text-center mb-2">
+                  <div
+                    style={{
+                      color: clubColor.colorLetra,
                       fontWeight: 'bold',
                       fontSize: '20px',
                     }}
                   >
                     Ingresa tu decisión aqui
-                  </Label>
+                  </div>
                 </div>
               </div>
               <Formik
@@ -279,6 +318,7 @@ const AsignarCreditos = ({ match, client_id, ws, entorno }) => {
                           backgroundColor: clubColor.color,
                           fontWeight: 'bold',
                           fontSize: '20px',
+                          color: clubColor.colorLetra,
                         }}
                         disabled={bloqueado}
                       >

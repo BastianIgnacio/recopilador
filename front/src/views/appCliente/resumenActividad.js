@@ -31,24 +31,31 @@ const ResumenActividad = ({ match, client_id, ws, entorno }) => {
   return (
     <>
       <Row className="d-flex justify-content-center">
-        <Colxx xl="6">
+        <Colxx xl="8">
           {actividadPrueba ? (
             <Card>
               <CardTitle className="text-center mt-4 font-weight-bold text-uppercase">
-                Muchas gracias por finalizar la actividad de prueba
+                Muchas gracias por finalizar la Actividad de Práctica
               </CardTitle>
-              <CardTitle className="text-center text-muted font-weight-bold">
-                Por favor esperar a los otros participantes...
+              <CardTitle className="text-center font-weight-bold text-uppercase">
+                Por favor esperar a los otros participantes
               </CardTitle>
             </Card>
           ) : (
             <Card>
-              <CardTitle className="text-center mt-3 font-weight-bold">
+              <div
+                className="text-center font-weight-bold text-uppercase"
+                style={{ paddingTop: '40px', fontSize: '24px' }}
+              >
                 Ha finalizado la actividad {entorno.actividad.numero}
-              </CardTitle>
-              <CardTitle className="text-center mt-3 font-weight-bold">
-                Por favor esperar a los otros participantes!
-              </CardTitle>
+              </div>
+              <div
+                className="text-center font-weight-bold text-uppercase"
+                style={{ paddingTop: '20px', fontSize: '20px' }}
+              >
+                {' '}
+                Por favor esperar a los otros participantes
+              </div>
               <CardBody>
                 <TablaResumenActividad
                   entorno={entorno}

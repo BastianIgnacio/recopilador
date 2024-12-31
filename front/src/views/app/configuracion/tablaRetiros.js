@@ -22,14 +22,14 @@ const TablaRetiros = ({ match, tabla }) => {
     () => [
       {
         Header: 'Jugador',
-        accessor: 'jugador',
+        accessor: 'clientId',
         cellClass: 'w-10',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
       },
       {
         Header: 'Letra',
-        accessor: 'letra',
+        accessor: 'label',
         cellClass: 'w-10',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
@@ -120,7 +120,7 @@ const TablaRetiros = ({ match, tabla }) => {
       },
       {
         Header: 'Ganancias en la ultima ronda',
-        accessor: 'gananciaUltimaRonda',
+        accessor: 'gananciaRondaActual',
         cellClass: 'mw-15',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
@@ -198,22 +198,97 @@ const TablaRetiros = ({ match, tabla }) => {
                     <tr
                       {...row.getRowProps()}
                       style={{
-                        backgroundColor: colorLightYellow,
-                        color: 'black',
                         fontSize: '12px',
                         textAlign: 'center',
                         fontWeight: 600,
                       }}
                     >
                       {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
+                        <>
+                          {typeof cell.value === 'undefined' && (
+                            <td
+                              key={`td_${cellIndex}`}
+                              style={{
+                                color: 'black',
+                                backgroundColor: colorPlomo,
+                              }}
+                            >
+                              -
+                            </td>
+                          )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO_JUGADOR' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorYellow,
+                                }}
+                              >
+                                {`${cell.value[0]}`}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO_CLIENT_ID' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorYellow,
+                                }}
+                              >
+                                {`${cell.value[0]}`}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorPlomo,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'AZUL' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorLightBlue,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'AMARILLO' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorLightYellow,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO_EXTRA' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorPlomo,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                        </>
                       ))}
                     </tr>
                   )}
@@ -221,22 +296,97 @@ const TablaRetiros = ({ match, tabla }) => {
                     <tr
                       {...row.getRowProps()}
                       style={{
-                        backgroundColor: colorLightBlue,
-                        color: 'black',
                         fontSize: '12px',
                         textAlign: 'center',
                         fontWeight: 600,
                       }}
                     >
                       {row.cells.map((cell, cellIndex) => (
-                        <td
-                          key={`td_${cellIndex}`}
-                          style={{
-                            color: 'black',
-                          }}
-                        >
-                          {cell.render('Cell')}
-                        </td>
+                        <>
+                          {typeof cell.value === 'undefined' && (
+                            <td
+                              key={`td_${cellIndex}`}
+                              style={{
+                                color: 'black',
+                                backgroundColor: colorPlomo,
+                              }}
+                            >
+                              -
+                            </td>
+                          )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO_JUGADOR' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'white',
+                                  backgroundColor: colorBlue,
+                                }}
+                              >
+                                {`${cell.value[0]}`}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO_CLIENT_ID' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'white',
+                                  backgroundColor: colorBlue,
+                                }}
+                              >
+                                {`${cell.value[0]}`}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorPlomo,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'AZUL' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorLightBlue,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'AMARILLO' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorLightYellow,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                          {typeof cell.value !== 'undefined' &&
+                            cell.value[1] === 'PLOMO_EXTRA' && (
+                              <td
+                                key={`td_${cellIndex}`}
+                                style={{
+                                  color: 'black',
+                                  backgroundColor: colorPlomo,
+                                }}
+                              >
+                                {cell.value[0]}
+                              </td>
+                            )}
+                        </>
                       ))}
                     </tr>
                   )}

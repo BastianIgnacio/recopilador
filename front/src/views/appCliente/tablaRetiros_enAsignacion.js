@@ -14,25 +14,21 @@ import {
   colorLightYellow,
   colorPlomo,
   colorYellow,
+  colorOrange,
+  colorAmarilloEliminado,
 } from 'constants/defaultValues';
+import { Card, CardBody, CardTitle, Label } from 'reactstrap';
+import { Separator } from 'components/common/CustomBootstrap';
 
 const TablaRetiros = ({ match, client_id, entorno }) => {
-  const senalarJugador = (array) => {
-    // eslint-disable-next-line func-names
-    array.forEach(function (i) {
-      if (i.jugador === client_id) {
-        // eslint-disable-next-line no-param-reassign
-        i.label = `(USTED) ${i.letra}`;
-      }
-    });
-  };
-
   // TENEMOS EL LABEL DE LA RONDA ACTUAL
   const labelRondalActual = `ronda_${entorno.actividad.rondaActual}`;
-  const amarillos = entorno.actividad.tabla.filter(
+  const amarillos = entorno.actividad.tablaAsignacion.filter(
     (j) => j.color === 'AMARILLO'
   );
+
   // eslint-disable-next-line func-names
+  /*
   amarillos.forEach(function (i) {
     const { rondaActual } = entorno.actividad;
 
@@ -49,13 +45,28 @@ const TablaRetiros = ({ match, client_id, entorno }) => {
         // eslint-disable-next-line no-param-reassign
         i.ronda_3 = '-';
         break;
+      case 4:
+        // eslint-disable-next-line no-param-reassign
+        i.ronda_4 = '-';
+        break;
+      case 5:
+        // eslint-disable-next-line no-param-reassign
+        i.ronda_5 = '-';
+        break;
+      case 5:
+          // eslint-disable-next-line no-param-reassign
+          i.ronda_5 = '-';
+          break;
       default:
         console.log(`ERROR AL OCULTAR`);
     }
   });
 
-  const azules = entorno.actividad.tabla.filter((j) => j.color === 'AZUL');
+  */
+  // eslint-disable-next-line prettier/prettier
+  const azules = entorno.actividad.tablaAsignacion.filter((j) => j.color === 'AZUL');
   // eslint-disable-next-line func-names
+  /*
   azules.forEach(function (i) {
     const { rondaActual } = entorno.actividad;
 
@@ -76,6 +87,7 @@ const TablaRetiros = ({ match, client_id, entorno }) => {
         console.log(`ERROR AL OCULTAR`);
     }
   });
+  */
 
   const colsRetirosJugadores = React.useMemo(
     () => [
@@ -205,7 +217,7 @@ const TablaRetiros = ({ match, client_id, entorno }) => {
       {
         columns,
         data,
-        initialState: { pageIndex: 0, pageSize: 8 },
+        initialState: { pageIndex: 0, pageSize: 9 },
       },
       useSortBy,
       usePagination
@@ -248,152 +260,438 @@ const TablaRetiros = ({ match, client_id, entorno }) => {
                 <>
                   {row.original.color === 'AMARILLO' && (
                     <>
-                      {row.original.rowTotal ? (
+                      {row.original.rowTotal && (
                         <tr
                           {...row.getRowProps()}
                           style={{
-                            backgroundColor: colorPlomo,
-                            color: 'black',
                             fontSize: '12px',
                             textAlign: 'center',
                             fontWeight: 600,
                           }}
                         >
                           {row.cells.map((cell, cellIndex) => (
-                            <td
-                              key={`td_${cellIndex}`}
-                              style={{
-                                color: 'black',
-                              }}
-                            >
-                              {cell.render('Cell')}
-                            </td>
+                            <>
+                              {typeof cell.value === 'undefined' && (
+                                <td
+                                  key={`td_${cellIndex}`}
+                                  style={{
+                                    color: 'black',
+                                    backgroundColor: colorPlomo,
+                                  }}
+                                >
+                                  -
+                                </td>
+                              )}
+                              {typeof cell.value !== 'undefined' && (
+                                <td
+                                  key={`td_${cellIndex}`}
+                                  style={{
+                                    color: 'black',
+                                    backgroundColor: colorPlomo,
+                                  }}
+                                >
+                                  {cell.render('Cell')}
+                                </td>
+                              )}
+                            </>
                           ))}
                         </tr>
-                      ) : (
-                        <>
-                          {row.original.jugador === client_id ? (
-                            <tr
-                              {...row.getRowProps()}
-                              style={{
-                                backgroundColor: colorLightYellow,
-                                color: 'black',
-                                fontSize: '12px',
-                                textAlign: 'center',
-                                fontWeight: 900,
-                              }}
-                            >
-                              {row.cells.map((cell, cellIndex) => (
-                                <td
-                                  key={`td_${cellIndex}`}
-                                  style={{
-                                    color: 'black',
-                                  }}
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              ))}
-                            </tr>
-                          ) : (
-                            <tr
-                              {...row.getRowProps()}
-                              style={{
-                                backgroundColor: colorLightYellow,
-                                color: 'black',
-                                fontSize: '12px',
-                                textAlign: 'center',
-                                fontWeight: 400,
-                              }}
-                            >
-                              {row.cells.map((cell, cellIndex) => (
-                                <td
-                                  key={`td_${cellIndex}`}
-                                  style={{
-                                    color: 'black',
-                                  }}
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              ))}
-                            </tr>
-                          )}
-                        </>
                       )}
+                      {row.original.jugador === client_id && (
+                        <tr
+                          {...row.getRowProps()}
+                          style={{
+                            fontSize: '12px',
+                            textAlign: 'center',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {row.cells.map((cell, cellIndex) => (
+                            <>
+                              {typeof cell.value === 'undefined' && (
+                                <td
+                                  key={`td_${cellIndex}`}
+                                  style={{
+                                    color: 'black',
+                                    backgroundColor: colorPlomo,
+                                  }}
+                                >
+                                  -
+                                </td>
+                              )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'PLOMO_JUGADOR' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorYellow,
+                                    }}
+                                    className="d-flex justify-content-around"
+                                  >
+                                    <span className="dotAmarilloBordeBlanco" />
+                                    {`USTED ${cell.value[0]}`}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'PLOMO' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorPlomo,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'AZUL' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorLightBlue,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'AMARILLO' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorLightYellow,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'PLOMO_EXTRA' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorPlomo,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                            </>
+                          ))}
+                        </tr>
+                      )}
+                      {row.original.jugador !== client_id &&
+                        !row.original.rowTotal && (
+                          <tr
+                            {...row.getRowProps()}
+                            style={{
+                              fontSize: '12px',
+                              textAlign: 'center',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {row.cells.map((cell, cellIndex) => (
+                              <>
+                                {typeof cell.value === 'undefined' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorPlomo,
+                                    }}
+                                  >
+                                    -
+                                  </td>
+                                )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'PLOMO_JUGADOR' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorPlomo,
+                                      }}
+                                      className="d-flex justify-content-around"
+                                    >
+                                      <span className="dotAmarillo" />
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'AZUL' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorLightBlue,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'AMARILLO' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorLightYellow,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'PLOMO' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorPlomo,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'PLOMO_EXTRA' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorPlomo,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                              </>
+                            ))}
+                          </tr>
+                        )}
                     </>
                   )}
                   {row.original.color === 'AZUL' && (
                     <>
-                      {row.original.rowTotal ? (
+                      {row.original.rowTotal && (
                         <tr
                           {...row.getRowProps()}
                           style={{
-                            backgroundColor: colorPlomo,
-                            color: 'black',
                             fontSize: '12px',
                             textAlign: 'center',
                             fontWeight: 600,
                           }}
                         >
                           {row.cells.map((cell, cellIndex) => (
-                            <td
-                              key={`td_${cellIndex}`}
-                              style={{
-                                color: 'black',
-                              }}
-                            >
-                              {cell.render('Cell')}
-                            </td>
+                            <>
+                              {typeof cell.value === 'undefined' && (
+                                <td
+                                  key={`td_${cellIndex}`}
+                                  style={{
+                                    color: 'black',
+                                    backgroundColor: colorPlomo,
+                                  }}
+                                >
+                                  -
+                                </td>
+                              )}
+                              {typeof cell.value !== 'undefined' && (
+                                <td
+                                  key={`td_${cellIndex}`}
+                                  style={{
+                                    color: 'black',
+                                    backgroundColor: colorPlomo,
+                                  }}
+                                >
+                                  {cell.render('Cell')}
+                                </td>
+                              )}
+                            </>
                           ))}
                         </tr>
-                      ) : (
-                        <>
-                          {row.original.jugador === client_id ? (
-                            <tr
-                              {...row.getRowProps()}
-                              style={{
-                                backgroundColor: colorLightBlue,
-                                color: 'black',
-                                fontSize: '12px',
-                                textAlign: 'center',
-                                fontWeight: 900,
-                              }}
-                            >
-                              {row.cells.map((cell, cellIndex) => (
-                                <td
-                                  key={`td_${cellIndex}`}
-                                  style={{
-                                    color: 'black',
-                                  }}
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              ))}
-                            </tr>
-                          ) : (
-                            <tr
-                              {...row.getRowProps()}
-                              style={{
-                                backgroundColor: colorLightBlue,
-                                color: 'black',
-                                fontSize: '12px',
-                                textAlign: 'center',
-                                fontWeight: 400,
-                              }}
-                            >
-                              {row.cells.map((cell, cellIndex) => (
-                                <td
-                                  key={`td_${cellIndex}`}
-                                  style={{
-                                    color: 'black',
-                                  }}
-                                >
-                                  {cell.render('Cell')}
-                                </td>
-                              ))}
-                            </tr>
-                          )}
-                        </>
                       )}
+                      {row.original.jugador === client_id && (
+                        <tr
+                          {...row.getRowProps()}
+                          style={{
+                            fontSize: '12px',
+                            textAlign: 'center',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {row.cells.map((cell, cellIndex) => (
+                            <>
+                              {typeof cell.value === 'undefined' && (
+                                <td
+                                  key={`td_${cellIndex}`}
+                                  style={{
+                                    color: 'black',
+                                    backgroundColor: colorPlomo,
+                                  }}
+                                >
+                                  -
+                                </td>
+                              )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'PLOMO_JUGADOR' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'white',
+                                      backgroundColor: colorBlue,
+                                    }}
+                                    className="d-flex justify-content-around"
+                                  >
+                                    <span className="dotAzulBordeBlanco" />
+                                    {`USTED ${cell.value[0]}`}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'PLOMO' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorPlomo,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'AZUL' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorLightBlue,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'AMARILLO' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorLightYellow,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                              {typeof cell.value !== 'undefined' &&
+                                cell.value[1] === 'PLOMO_EXTRA' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorPlomo,
+                                    }}
+                                  >
+                                    {cell.value[0]}
+                                  </td>
+                                )}
+                            </>
+                          ))}
+                        </tr>
+                      )}
+                      {row.original.jugador !== client_id &&
+                        !row.original.rowTotal && (
+                          <tr
+                            {...row.getRowProps()}
+                            style={{
+                              fontSize: '12px',
+                              textAlign: 'center',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {row.cells.map((cell, cellIndex) => (
+                              <>
+                                {typeof cell.value === 'undefined' && (
+                                  <td
+                                    key={`td_${cellIndex}`}
+                                    style={{
+                                      color: 'black',
+                                      backgroundColor: colorPlomo,
+                                    }}
+                                  >
+                                    -
+                                  </td>
+                                )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'PLOMO_JUGADOR' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorPlomo,
+                                      }}
+                                      className="d-flex justify-content-around"
+                                    >
+                                      <span className="dot" />
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'AZUL' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorLightBlue,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'AMARILLO' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorLightYellow,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'PLOMO' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorPlomo,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                                {typeof cell.value !== 'undefined' &&
+                                  cell.value[1] === 'PLOMO_EXTRA' && (
+                                    <td
+                                      key={`td_${cellIndex}`}
+                                      style={{
+                                        color: 'black',
+                                        backgroundColor: colorPlomo,
+                                      }}
+                                    >
+                                      {cell.value[0]}
+                                    </td>
+                                  )}
+                              </>
+                            ))}
+                          </tr>
+                        )}
                     </>
                   )}
                 </>
@@ -404,11 +702,48 @@ const TablaRetiros = ({ match, client_id, entorno }) => {
       </>
     );
   }
-  senalarJugador(entorno.actividad.tabla);
+
   return (
     <>
-      <Table columns={colsRetirosJugadores} data={azules} />
-      <Table columns={colsRetirosJugadores} data={amarillos} />
+      <Card>
+        <div
+          style={{
+            backgroundColor: colorBlue,
+          }}
+        >
+          <div>
+            <Label
+              className="h5 m-1 mt-2 ml-4"
+              style={{ color: 'white', fontWeight: 'bold' }}
+            >
+              Club Azul - Fichas retiradas y ganancias
+            </Label>
+          </div>
+        </div>
+        <div className="m-1">
+          <Table columns={colsRetirosJugadores} data={azules} />
+        </div>
+      </Card>
+      <Separator className="m-1" />
+      <Card>
+        <div
+          style={{
+            backgroundColor: colorYellow,
+          }}
+        >
+          <div>
+            <Label
+              className="h5 m-1 mt-2 ml-4"
+              style={{ color: 'black', fontWeight: 'bold' }}
+            >
+              Club Amarillo - Fichas retiradas y ganancias
+            </Label>
+          </div>
+        </div>
+        <div className="m-1">
+          <Table columns={colsRetirosJugadores} data={amarillos} />
+        </div>
+      </Card>
     </>
   );
 };

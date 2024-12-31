@@ -1,0 +1,37 @@
+.dot {
+  height: 16px;
+  width: 16px;
+  background-color: #001840;
+  border-radius: 80%;
+  display: inline-block;
+}
+
+.dotAmarillo {
+  height: 16px;
+  width: 16px;
+  background-color: #F5C400;
+  border-radius: 80%;
+  display: inline-block;
+}
+
+.dotAmarilloBordeBlanco {
+  height: 16px;
+  width: 16px;
+  background-color: #F5C400;
+  border-color: white;
+  border-width: 3px;
+  border-radius: 80%;
+  border-style: solid;
+  display: inline-block;
+}
+
+.dotAzulBordeBlanco {
+  height: 16px;
+  width: 16px;
+  background-color: #001840;
+  border-color: white;
+  border-width: 3px;
+  border-radius: 80%;
+  border-style: solid;
+  display: inline-block;
+}

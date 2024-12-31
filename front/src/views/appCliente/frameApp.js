@@ -29,22 +29,12 @@ const FrameAppCliente = ({ match }) => {
   const [socketConectado, setSocketConectado] = useState(false);
   const [ws, setWs] = useState([]);
 
-  const [arrayTablasJugadores, setArrayTablasJugadores] = useState([]);
-  const [notificacionesVotacion, setNotificacionesVotacion] = useState([]);
-  const [trasladosVotacion, setTrasladosVotacion] = useState([]);
-  const [info, setInfo] = useState([]);
-  const [resultadoJugadores, setResultadoJugadores] = useState([]);
-  const [asignacionesArray, setAsignacionesArray] = useState([]);
-
   const { idGrupoParam, idInternParam } = useParams();
   const [grupo, setGrupo] = useState(parseInt(idGrupoParam, 10));
   const [integrante, setIntegrante] = useState(parseInt(idInternParam, 10));
 
   const [arrayConvertJugador, setArrayConvertJugador] = useState([]);
   const [jugadorShow, setJugadorShow] = useState('');
-
-  // idInternParam ID ES NUMERO 1-6
-  // idGrupoParam es 1 o 2
 
   const [colorFondo, setColorFondo] = useState(colorLightBlue);
 
@@ -115,7 +105,7 @@ const FrameAppCliente = ({ match }) => {
   return (
     <>
       {socketConectado ? (
-        <div className="circle-in-hesitate">
+        <div className="circle-in-hesitate" style={{ minHeight: '800px' }}>
           {entorno.estado === 'MOSTRAR_BIENVENIDO' && (
             <Bienvenido ws={ws} client_id={integrante} entorno={entorno} />
           )}
@@ -171,7 +161,14 @@ const FrameAppCliente = ({ match }) => {
             />
           )}
           {entorno.estado === 'MOSTRAR_RESUMEN_SESION' && <ResumenSesion />}
-          {entorno.estado === 'MOSTRAR_ENCUESTA' && <Encuesta />}
+          {entorno.estado === 'MOSTRAR_ENCUESTA' && (
+            <Encuesta
+              entorno={entorno}
+              ws={ws}
+              client_id={integrante}
+              grupo={grupo}
+            />
+          )}
           {entorno.estado === 'MOSTRAR_AGRADECIMIENTOS' && <Agradecimientos />}
         </div>
       ) : (

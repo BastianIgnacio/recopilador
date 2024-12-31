@@ -5,7 +5,7 @@
 /* eslint-disable max-classes-per-file */
 import React from 'react';
 import Select from 'react-select';
-import { CustomInput } from 'reactstrap';
+import { CustomInput, Row } from 'reactstrap';
 
 import TagsInput from 'react-tagsinput';
 import 'react-tagsinput/react-tagsinput.css';
@@ -15,6 +15,7 @@ import 'rc-switch/assets/index.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './transiciones.css';
+import { colorPlomo } from 'constants/defaultValues';
 
 const FormikReactSelect = ({
   name,
@@ -213,7 +214,7 @@ const FormikRadioButtonGroup = ({
         return (
           <div
             key={`${name}_${child.value}_${index}`}
-            className={`position-relative form-check ${
+            className={`position-relative form-check  ${
               inline ? 'form-check-inline' : ''
             }`}
           >
@@ -228,6 +229,63 @@ const FormikRadioButtonGroup = ({
               disabled={child.disabled}
             />
             <label className="form-check-label">{child.label}</label>
+          </div>
+        );
+      })}
+    </>
+  );
+};
+
+const FormikRadioButtonGroupReelevancia = ({
+  name,
+  value,
+  options,
+  inline = false,
+  onChange,
+  onBlur,
+}) => {
+  const handleChange = (val) => {
+    onChange(name, val);
+  };
+
+  const handleBlur = () => {
+    onBlur(name, true);
+  };
+
+  return (
+    <>
+      {options.map((child, index) => {
+        return (
+          <div
+            className="d-flex flex-row bd-highlight"
+            key={`${name}_${child.value}_${index}`}
+            style={{
+              borderRadius: '10px',
+              marginTop: '10px',
+            }}
+          >
+            <div>
+              <input
+                id={child.value}
+                name={name}
+                type="radio"
+                className="form-check-input"
+                onChange={() => handleChange(child.value)}
+                onBlur={handleBlur}
+                defaultChecked={value === child.value}
+                disabled={child.disabled}
+                style={{
+                  margin: '0px',
+                }}
+              />
+            </div>
+            <div
+              style={{
+                marginTop: '20px',
+              }}
+            >
+              <label>{child.label}</label>
+            </div>
           </div>
         );
       })}
@@ -461,4 +519,5 @@ export {
   FormikDatePicker,
   FormikCustomRadioGroupMaxExcluir,
   FormikCustomRadioGroupMaxIncluir,
+  FormikRadioButtonGroupReelevancia,
 };

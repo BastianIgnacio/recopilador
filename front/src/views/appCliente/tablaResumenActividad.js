@@ -17,15 +17,7 @@ import {
 } from 'constants/defaultValues';
 
 const TablaResumenActividad = ({ match, client_id, entorno }) => {
-  const senalarJugador = (array) => {
-    // eslint-disable-next-line func-names
-    array.forEach(function (i) {
-      if (i.jugador === client_id) {
-        // eslint-disable-next-line no-param-reassign
-        i.label = `(USTED) ${i.letra}`;
-      }
-    });
-  };
+  const actNumero = entorno.actividad.numero;
 
   const colsRetirosJugadores = React.useMemo(
     () => [
@@ -37,8 +29,22 @@ const TablaResumenActividad = ({ match, client_id, entorno }) => {
         sortType: 'basic',
       },
       {
-        Header: 'Ganacias en la actividad',
-        accessor: 'ganancia',
+        Header: 'Pesos Experimentales',
+        accessor: 'pesosExperimentales',
+        cellClass: 'mw-15',
+        Cell: (props) => <>{props.value}</>,
+        sortType: 'basic',
+      },
+      {
+        Header: 'Tipo de cambio',
+        accessor: 'factorConversion',
+        cellClass: 'mw-15',
+        Cell: (props) => <>{props.value}</>,
+        sortType: 'basic',
+      },
+      {
+        Header: 'Sus ganancias en Pesos Chilenos',
+        accessor: 'pesosChilenos',
         cellClass: 'mw-15',
         Cell: (props) => <>{props.value}</>,
         sortType: 'basic',
@@ -51,7 +57,11 @@ const TablaResumenActividad = ({ match, client_id, entorno }) => {
     (element) => element.client_id === client_id && element.actividad !== 0
   );
 
-  function Table({ columns, data }) {
+  const totalActividades = arrayFiltrado.reduce((previous, current) => {
+    return previous + current.intPesosChilenos; // sumar el valor de una propiedad
+  }, 0);
+
+  function Table({ columns, data, actividad, pagoPresentacion, total }) {
     const {
       getTableProps,
       getTableBodyProps,
@@ -86,13 +96,21 @@ const TablaResumenActividad = ({ match, client_id, entorno }) => {
         >
           <thead>
             {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
+              <tr
+                {...headerGroup.getHeaderGroupProps()}
+                style={{
+                  backgroundColor: colorPlomo,
+                  color: 'black',
+                  fontSize: '18px',
+                  textAlign: 'center',
+                  fontWeight: 600,
+                }}
+              >
                 {headerGroup.headers.map((column, columnIndex) => (
                   <th
                     key={`th_${columnIndex}`}
                     style={{
                       backgroundColor: colorPlomo,
-                      maxWidth: '100px',
                       textAlign: 'center',
                     }}
                   >
@@ -112,7 +130,7 @@ const TablaResumenActividad = ({ match, client_id, entorno }) => {
                   style={{
                     backgroundColor: colorPlomo,
                     color: 'black',
-                    fontSize: '12px',
+                    fontSize: '18px',
                     textAlign: 'center',
                     fontWeight: 600,
                   }}
@@ -130,13 +148,97 @@ const TablaResumenActividad = ({ match, client_id, entorno }) => {
                 </tr>
               );
             })}
+            {actividad === 3 && (
+              <>
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{
+                      backgroundColor: colorPlomo,
+                      color: 'black',
+                      fontSize: '18px',
+                      textAlign: 'right',
+                      fontWeight: 600,
+                    }}
+                  >
+                    PAGO POR PRESENTACIÓN
+                  </td>
+                  <td
+                    colSpan={3}
+                    style={{
+                      backgroundColor: colorPlomo,
+                      color: 'black',
+                      fontSize: '18px',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                    }}
+                  >
+                    $ {pagoPresentacion}
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{
+                      backgroundColor: '#454545',
+                      color: 'white',
+                      fontSize: '22px',
+                      textAlign: 'right',
+                      fontWeight: 900,
+                    }}
+                  >
+                    TOTAL
+                  </td>
+                  <td
+                    colSpan={3}
+                    style={{
+                      backgroundColor: '#454545',
+                      color: 'white',
+                      fontSize: '22px',
+                      textAlign: 'center',
+                      fontWeight: 900,
+                    }}
+                  >
+                    $ {pagoPresentacion + total}
+                  </td>
+                </tr>
+              </>
+            )}
           </tbody>
         </table>
       </>
     );
   }
-  senalarJugador(entorno.actividad.tabla);
-  return <Table columns={colsRetirosJugadores} data={arrayFiltrado} />;
+
+  return (
+    <>
+      <Table
+        columns={colsRetirosJugadores}
+        data={arrayFiltrado}
+        actividad={actNumero}
+        pagoPresentacion={4500}
+        total={totalActividades}
+      />
+      {actNumero !== 3 && (
+        <div
+          className="text-center h4 mr-4 mt-4 font-weight-bold text-uppercase"
+          style={{ paddingTop: '40px' }}
+        >
+          Tu ganancia total en pesos chilenos hasta esta actividad es{' '}
+          {`$ ${totalActividades}`}
+        </div>
+      )}
+      {actNumero === 3 && (
+        <div
+          className="text-center h4 mr-4 mt-4 font-weight-bold text-uppercase"
+          style={{ paddingTop: '40px' }}
+        >
+          Tu ganancia total en pesos chilenos es{' '}
+          {`$ ${totalActividades + 4500}`}
+        </div>
+      )}
+    </>
+  );
 };
 
 export default TablaResumenActividad;

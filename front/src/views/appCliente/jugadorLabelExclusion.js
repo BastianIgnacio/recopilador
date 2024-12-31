@@ -22,8 +22,8 @@ const JugadorLabel = ({ client_id, element, transicionExclusion }) => {
         >
           <div className="text-center">
             <Label
-              className="h5 mb-3 mt-3"
-              style={{ color: 'white', fontWeight: 'bold' }}
+              className="h5 m-4"
+              style={{ color: 'black', fontWeight: 'bold' }}
             >
               {element.client_id === client_id && (
                 <>
@@ -41,14 +41,15 @@ const JugadorLabel = ({ client_id, element, transicionExclusion }) => {
         <>
           {transicionExclusion.includes(element.client_id) ? (
             <div
-              style={{ backgroundColor: colorYellow, borderRadius: '5px' }}
+              style={{
+                borderRadius: '5px',
+                backgroundColor: colorYellow,
+                color: 'black',
+              }}
               className="m-1 transicion-votacion-Azul-Amarillo"
             >
               <div className="text-center ">
-                <Label
-                  className="h5 mb-3 mt-3"
-                  style={{ color: 'white', fontWeight: 'bold' }}
-                >
+                <Label className="h5 m-4" style={{ fontWeight: 'bold' }}>
                   {element.client_id === client_id && (
                     <>
                       {ud} Jugador {element.letra}
@@ -67,7 +68,7 @@ const JugadorLabel = ({ client_id, element, transicionExclusion }) => {
             >
               <div className="text-center ">
                 <Label
-                  className="h5 mb-3 mt-3"
+                  className="h5 m-4"
                   style={{ color: 'white', fontWeight: 'bold' }}
                 >
                   {element.client_id === client_id && (

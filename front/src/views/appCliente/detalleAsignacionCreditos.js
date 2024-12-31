@@ -15,19 +15,10 @@ import {
   CardFooter,
   Button,
   Table,
-  CardTitle,
 } from 'reactstrap';
 import { Colxx, Separator } from 'components/common/CustomBootstrap';
-import {
-  colorBlue,
-  colorYellow,
-  colorCrema,
-  colorPlomo,
-  colorLightBlue,
-  colorLightYellow,
-  equipos,
-} from 'constants/defaultValues';
-import './tablas.css';
+import { equipos } from 'constants/defaultValues';
+import './tablaDetalleAsignacion.css';
 
 const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
   const [club, setClub] = useState('AZUL');
@@ -85,7 +76,7 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
         }}
       >
         <Row className="d-flex justify-content-center">
-          <Colxx lg="10">
+          <Colxx lg="12">
             <Card
               className="mb-4"
               style={{
@@ -101,93 +92,114 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                   }}
                   className="ml-2 mr-2 mt-2 mb-2"
                 >
-                  <div className="text-center mt-2 ml-4">
+                  <div className="text-left mt-2 ml-4">
                     <Label
-                      className="h3"
+                      className="h4"
                       style={{ color: 'black', fontWeight: 'bold' }}
                     >
                       DETALLE DE TUS GANANCIAS EN ESTA RONDA
                     </Label>
                   </div>
                 </div>
-                <div className="text-left mt-2 ml-4">
+                <div>
                   <Row>
                     {entorno.actividad.tratamiento === 'T1' && (
                       <Colxx lg="12">
                         {club === 'AZUL' && (
                           <Card>
                             <CardBody>
-                              <Table bordered>
+                              <Table bordered className="tablaCompleta">
                                 <thead>
                                   <tr>
-                                    <th colSpan="2">
-                                      RONDA N°{entorno.actividad.numero}
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
                                     </th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   <tr>
-                                    <td>
-                                      Tus fichas extraidas desde la cuenta club
-                                      azul
-                                    </td>
-                                    <td>{asignacion.fichasClub}</td>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
                                   </tr>
                                   <tr>
-                                    <td>
-                                      Tus fichas destinadas actividad privada
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
                                     </td>
-                                    <td>{asignacion.fichasActividadPrivada}</td>
+                                    <td className="number textoDetalle">
+                                      E$ 16
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${asignacion.fichasClub * 16}`}
+                                    </td>
                                   </tr>
                                   <tr>
-                                    <td>Las fichas restantes club azul</td>
-                                    <td>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.fichasActividadPrivada * 4
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Azul
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 8
+                                    </td>
+                                    <td className="number textoDetalle">
                                       {asignacion.cantidadFichasQuedanAzul}
                                     </td>
-                                  </tr>
-                                </tbody>
-                              </Table>
-                              <Table bordered>
-                                <thead>
-                                  <tr>
-                                    <th colSpan="2">
-                                      CALCULOS PESOS EXPERIMENTALES
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143; Fichas Actividad privada * 1$ +
-                                      Fichas Club * 4$ + Cantidad Fichas
-                                      restantes club Azul * 2$
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.cantidadFichasQuedanAzul * 8
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada} * 1$ +{' '}
-                                      {asignacion.fichasClub} * 4$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul} * 2$
+                                    <td colSpan="3" className="totalLabel">
+                                      Base
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      $E 50
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada * 1}$ +{' '}
-                                      {asignacion.fichasClub * 4}$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul * 2}$
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right"
+                                    >
+                                      Total
                                     </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      {' '}
-                                      &#10143;{' '}
-                                      {asignacion.resultadoPesosExperimentales}$
+                                    <td className="totalBlue number textoDetalle">
+                                      {`$E ${asignacion.resultadoPesosExperimentales}`}
                                     </td>
                                   </tr>
                                 </tbody>
@@ -196,103 +208,107 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                           </Card>
                         )}
                         {club === 'AMARILLO' && (
-                          <>
-                            <Card>
-                              <CardBody>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        RONDA N°{entorno.actividad.numero}
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>
-                                        Tus fichas extraidas desde la cuenta
-                                        club amarillo
-                                      </td>
-                                      <td>{asignacion.fichasClub}</td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Tus fichas destinadas actividad privada
-                                      </td>
-                                      <td>
-                                        {asignacion.fichasActividadPrivada}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Las fichas restantes club amarillo
-                                      </td>
-                                      <td>
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        CALCULOS PESOS EXPERIMENTALES
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143; Fichas Actividad privada *
-                                        0.25$ + Fichas Club * 1$ + Cantidad
-                                        Fichas restantes restantes club Amarillo
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada} *
-                                        0.25$ + {asignacion.fichasClub} * 1$ +{' '}
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }{' '}
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada *
-                                          0.25}
-                                        $ + {asignacion.fichasClub * 1}$ +{' '}
-                                        {asignacion.cantidadFichasQuedanAmarillo *
-                                          0.5}
-                                        $
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        {' '}
-                                        &#10143;{' '}
-                                        {
-                                          asignacion.resultadoPesosExperimentales
-                                        }
-                                        $
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                              </CardBody>
-                            </Card>
-                          </>
+                          <Card>
+                            <CardBody>
+                              <Table bordered>
+                                <thead>
+                                  <tr>
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${asignacion.fichasClub * 4}`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 1
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.fichasActividadPrivada * 1
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Amarillo
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 2
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.cantidadFichasQuedanAmarillo}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.cantidadFichasQuedanAmarillo *
+                                        2
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td colSpan={3} className="totalLabel ">
+                                      Base
+                                    </td>
+                                    <td className="number lightYellow  textoDetalle">
+                                      E$ 50
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right "
+                                    >
+                                      Total
+                                    </td>
+                                    <td className="number totalYellow textoDetalle">
+                                      {`E$ ${asignacion.resultadoPesosExperimentales}`}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </Table>
+                            </CardBody>
+                          </Card>
                         )}
                       </Colxx>
                     )}
@@ -301,89 +317,118 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                         {club === 'AZUL' && (
                           <Card>
                             <CardBody>
-                              <Table bordered>
+                              <Table bordered className="tablaCompleta">
                                 <thead>
                                   <tr>
-                                    <th colSpan="2">
-                                      RONDA N°{entorno.actividad.numero}
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
                                     </th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   <tr>
-                                    <td>
-                                      Tus fichas extraidas desde la cuenta club
-                                      azul
-                                    </td>
-                                    <td>{asignacion.fichasClub}</td>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
                                   </tr>
                                   <tr>
-                                    <td>
-                                      Tus fichas destinadas actividad privada
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
                                     </td>
-                                    <td>{asignacion.fichasActividadPrivada}</td>
+                                    <td className="number textoDetalle">
+                                      E$ 16
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${asignacion.fichasClub * 16}`}
+                                    </td>
                                   </tr>
                                   <tr>
-                                    <td>Las fichas restantes club azul</td>
-                                    <td>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.fichasActividadPrivada * 4
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Azul
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 8
+                                    </td>
+                                    <td className="number textoDetalle">
                                       {asignacion.cantidadFichasQuedanAzul}
                                     </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Costo de exclusion</td>
-                                    <td>
-                                      {asignacion.cantidadJugadoresAmarillo} *
-                                      $8 &#10143; $
-                                      {asignacion.cantidadJugadoresAmarillo * 8}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </Table>
-                              <Table bordered>
-                                <thead>
-                                  <tr>
-                                    <th colSpan="2">
-                                      CALCULOS PESOS EXPERIMENTALES
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143; Fichas Actividad privada * 1$ +
-                                      Fichas Club * 4$ + Cantidad Fichas
-                                      restantes club Azul * 2$ - Costo de
-                                      exclusion
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.cantidadFichasQuedanAzul * 8
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada} * 1$ +{' '}
-                                      {asignacion.fichasClub} * 4$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul} * 2$
-                                      - Costo de exclusion
+                                    <td className="textoDetalle">
+                                      Costos Exclusión
+                                    </td>
+                                    <td
+                                      colSpan="2"
+                                      className="number textoDetalle"
+                                    >
+                                      E$ 32 x{' '}
+                                      {asignacion.cantidadJugadoresAmarillo}{' '}
+                                      (Jugadores amarillos)
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      -
+                                      {`$E ${
+                                        asignacion.cantidadJugadoresAmarillo *
+                                        32
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada * 1}$ +{' '}
-                                      {asignacion.fichasClub * 4}$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul * 2}$
-                                      - $
-                                      {asignacion.cantidadJugadoresAmarillo * 8}
+                                    <td colSpan="3" className="totalLabel">
+                                      Base
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      $E 50
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      {' '}
-                                      &#10143;{' '}
-                                      {asignacion.resultadoPesosExperimentales}$
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right"
+                                    >
+                                      Total
+                                    </td>
+                                    <td className="totalBlue number textoDetalle">
+                                      {`$E ${asignacion.resultadoPesosExperimentales}`}
                                     </td>
                                   </tr>
                                 </tbody>
@@ -392,103 +437,107 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                           </Card>
                         )}
                         {club === 'AMARILLO' && (
-                          <>
-                            <Card>
-                              <CardBody>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        RONDA N°{entorno.actividad.numero}
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>
-                                        Tus fichas extraidas desde la cuenta
-                                        club amarillo
-                                      </td>
-                                      <td>{asignacion.fichasClub}</td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Tus fichas destinadas actividad privada
-                                      </td>
-                                      <td>
-                                        {asignacion.fichasActividadPrivada}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Las fichas restantes club amarillo
-                                      </td>
-                                      <td>
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        CALCULOS PESOS EXPERIMENTALES
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143; Fichas Actividad privada *
-                                        0.25$ + Fichas Club * 1$ + Cantidad
-                                        Fichas restantes restantes club Amarillo
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada} *
-                                        0.25$ + {asignacion.fichasClub} * 1$ +{' '}
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }{' '}
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada *
-                                          0.25}
-                                        $ + {asignacion.fichasClub * 1}$ +{' '}
-                                        {asignacion.cantidadFichasQuedanAmarillo *
-                                          0.5}
-                                        $
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        {' '}
-                                        &#10143;{' '}
-                                        {
-                                          asignacion.resultadoPesosExperimentales
-                                        }
-                                        $
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                              </CardBody>
-                            </Card>
-                          </>
+                          <Card>
+                            <CardBody>
+                              <Table bordered>
+                                <thead>
+                                  <tr>
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${asignacion.fichasClub * 4}`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 1
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.fichasActividadPrivada * 1
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Amarillo
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 2
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.cantidadFichasQuedanAmarillo}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.cantidadFichasQuedanAmarillo *
+                                        2
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td colSpan={3} className="totalLabel ">
+                                      Base
+                                    </td>
+                                    <td className="number lightYellow  textoDetalle">
+                                      E$ 50
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right "
+                                    >
+                                      Total
+                                    </td>
+                                    <td className="number totalYellow textoDetalle">
+                                      {`E$ ${asignacion.resultadoPesosExperimentales}`}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </Table>
+                            </CardBody>
+                          </Card>
                         )}
                       </Colxx>
                     )}
@@ -497,98 +546,136 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                         {club === 'AZUL' && (
                           <Card>
                             <CardBody>
-                              <Table bordered>
+                              <Table bordered className="tablaCompleta">
                                 <thead>
                                   <tr>
-                                    <th colSpan="2">
-                                      RONDA N°{entorno.actividad.numero}
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
                                     </th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   <tr>
-                                    <td>
-                                      Tus fichas extraidas desde la cuenta club
-                                      azul
-                                    </td>
-                                    <td>{asignacion.fichasClub}</td>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
                                   </tr>
                                   <tr>
-                                    <td>
-                                      Tus fichas destinadas actividad privada
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
                                     </td>
-                                    <td>{asignacion.fichasActividadPrivada}</td>
+                                    <td className="number textoDetalle">
+                                      E$ 16
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${asignacion.fichasClub * 16}`}
+                                    </td>
                                   </tr>
                                   <tr>
-                                    <td>Las fichas restantes club azul</td>
-                                    <td>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.fichasActividadPrivada * 4
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Azul
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 8
+                                    </td>
+                                    <td className="number textoDetalle">
                                       {asignacion.cantidadFichasQuedanAzul}
                                     </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Costo de exclusion</td>
-                                    <td>
-                                      {asignacion.cantidadJugadoresAmarillo} *
-                                      $8 &#10143; $
-                                      {asignacion.cantidadJugadoresAmarillo * 8}
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.cantidadFichasQuedanAzul * 8
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Costo de inclusion</td>
-                                    <td>
-                                      {asignacion.cantidadJugadoresAzul} * $8
-                                      &#10143; $
-                                      {asignacion.cantidadJugadoresAzul * 8}
+                                    <td className="textoDetalle">
+                                      Costo de Exclusión
                                     </td>
-                                  </tr>
-                                </tbody>
-                              </Table>
-                              <Table bordered>
-                                <thead>
-                                  <tr>
-                                    <th colSpan="2">
-                                      CALCULOS PESOS EXPERIMENTALES
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143; Fichas Actividad privada * 1$ +
-                                      Fichas Club * 4$ + Cantidad Fichas
-                                      restantes club Azul * 2$ - Costo de
-                                      exclusion - Costo de inclusion
+                                    <td
+                                      colSpan="2"
+                                      className="number textoDetalle"
+                                    >
+                                      E$ 32 x{' '}
+                                      {asignacion.cantidadJugadoresAmarillo}{' '}
+                                      (Jugadores amarillos)
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      -
+                                      {`$E ${
+                                        asignacion.cantidadJugadoresAmarillo *
+                                        32
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada} * 1$ +{' '}
-                                      {asignacion.fichasClub} * 4$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul} * 2$
-                                      - Costo de exclusion - Costo de inclusion
+                                    <td className="textoDetalle">
+                                      Costo de Congestión
+                                    </td>
+                                    <td
+                                      colSpan="2"
+                                      className="number textoDetalle"
+                                    >
+                                      E$ 32 x {asignacion.cantidadJugadoresAzul}{' '}
+                                      (Jugadores azules)
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      -
+                                      {`$E ${
+                                        asignacion.cantidadJugadoresAzul * 32
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada * 1}$ +{' '}
-                                      {asignacion.fichasClub * 4}$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul * 2}$
-                                      - $
-                                      {asignacion.cantidadJugadoresAmarillo * 8}
-                                      - ${asignacion.cantidadJugadoresAzul * 8}
+                                    <td colSpan="3" className="totalLabel">
+                                      Base
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      $E 50
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      {' '}
-                                      &#10143;{' '}
-                                      {asignacion.resultadoPesosExperimentales}$
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right"
+                                    >
+                                      Total
+                                    </td>
+                                    <td className="totalBlue number textoDetalle">
+                                      {`$E ${asignacion.resultadoPesosExperimentales}`}
                                     </td>
                                   </tr>
                                 </tbody>
@@ -597,103 +684,107 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                           </Card>
                         )}
                         {club === 'AMARILLO' && (
-                          <>
-                            <Card>
-                              <CardBody>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        RONDA N°{entorno.actividad.numero}
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>
-                                        Tus fichas extraidas desde la cuenta
-                                        club amarillo
-                                      </td>
-                                      <td>{asignacion.fichasClub}</td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Tus fichas destinadas actividad privada
-                                      </td>
-                                      <td>
-                                        {asignacion.fichasActividadPrivada}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Las fichas restantes club amarillo
-                                      </td>
-                                      <td>
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        CALCULOS PESOS EXPERIMENTALES
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143; Fichas Actividad privada *
-                                        0.25$ + Fichas Club * 1$ + Cantidad
-                                        Fichas restantes restantes club Amarillo
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada} *
-                                        0.25$ + {asignacion.fichasClub} * 1$ +{' '}
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }{' '}
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada *
-                                          0.25}
-                                        $ + {asignacion.fichasClub * 1}$ +{' '}
-                                        {asignacion.cantidadFichasQuedanAmarillo *
-                                          0.5}
-                                        $
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        {' '}
-                                        &#10143;{' '}
-                                        {
-                                          asignacion.resultadoPesosExperimentales
-                                        }
-                                        $
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                              </CardBody>
-                            </Card>
-                          </>
+                          <Card>
+                            <CardBody>
+                              <Table bordered>
+                                <thead>
+                                  <tr>
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${asignacion.fichasClub * 4}`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 1
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.fichasActividadPrivada * 1
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Amarillo
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 2
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.cantidadFichasQuedanAmarillo}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.cantidadFichasQuedanAmarillo *
+                                        2
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td colSpan={3} className="totalLabel ">
+                                      Base
+                                    </td>
+                                    <td className="number lightYellow  textoDetalle">
+                                      E$ 50
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right "
+                                    >
+                                      Total
+                                    </td>
+                                    <td className="number totalYellow textoDetalle">
+                                      {`E$ ${asignacion.resultadoPesosExperimentales}`}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </Table>
+                            </CardBody>
+                          </Card>
                         )}
                       </Colxx>
                     )}
@@ -702,88 +793,116 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                         {club === 'AZUL' && (
                           <Card>
                             <CardBody>
-                              <Table bordered>
+                              <Table bordered className="tablaCompleta">
                                 <thead>
                                   <tr>
-                                    <th colSpan="2">
-                                      RONDA N°{entorno.actividad.numero}
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
                                     </th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   <tr>
-                                    <td>
-                                      Tus fichas extraidas desde la cuenta club
-                                      azul
-                                    </td>
-                                    <td>{asignacion.fichasClub}</td>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
                                   </tr>
                                   <tr>
-                                    <td>
-                                      Tus fichas destinadas actividad privada
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
                                     </td>
-                                    <td>{asignacion.fichasActividadPrivada}</td>
+                                    <td className="number textoDetalle">
+                                      E$ 16
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${asignacion.fichasClub * 16}`}
+                                    </td>
                                   </tr>
                                   <tr>
-                                    <td>Las fichas restantes club azul</td>
-                                    <td>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.fichasActividadPrivada * 4
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Azul
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 8
+                                    </td>
+                                    <td className="number textoDetalle">
                                       {asignacion.cantidadFichasQuedanAzul}
                                     </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Costo de inclusion</td>
-                                    <td>
-                                      {asignacion.cantidadJugadoresAzul} * $8
-                                      &#10143; $
-                                      {asignacion.cantidadJugadoresAzul * 8}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </Table>
-                              <Table bordered>
-                                <thead>
-                                  <tr>
-                                    <th colSpan="2">
-                                      CALCULOS PESOS EXPERIMENTALES
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143; Fichas Actividad privada * 1$ +
-                                      Fichas Club * 4$ + Cantidad Fichas
-                                      restantes club Azul * 2$ - Costo de
-                                      inclusion
+                                    <td className="number lightBlue textoDetalle">
+                                      {`$E ${
+                                        asignacion.cantidadFichasQuedanAzul * 8
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada} * 1$ +{' '}
-                                      {asignacion.fichasClub} * 4$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul} * 2$
-                                      - Costo de inclusion
+                                    <td className="textoDetalle">
+                                      Costo de Congestión
+                                    </td>
+                                    <td
+                                      colSpan="2"
+                                      className="number textoDetalle"
+                                    >
+                                      E$ 32 x {asignacion.cantidadJugadoresAzul}{' '}
+                                      (Jugadores azules)
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      -
+                                      {`$E ${
+                                        asignacion.cantidadJugadoresAzul * 32
+                                      }`}
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      &#10143;{' '}
-                                      {asignacion.fichasActividadPrivada * 1}$ +{' '}
-                                      {asignacion.fichasClub * 4}$ +{' '}
-                                      {asignacion.cantidadFichasQuedanAzul * 2}$
-                                      - ${asignacion.cantidadJugadoresAzul * 8}
+                                    <td colSpan="3" className="totalLabel">
+                                      Base
+                                    </td>
+                                    <td className="number lightBlue textoDetalle">
+                                      $E 50
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td>Pesos experimentales</td>
-                                    <td>
-                                      {' '}
-                                      &#10143;{' '}
-                                      {asignacion.resultadoPesosExperimentales}$
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right"
+                                    >
+                                      Total
+                                    </td>
+                                    <td className="totalBlue number textoDetalle">
+                                      {`$E ${asignacion.resultadoPesosExperimentales}`}
                                     </td>
                                   </tr>
                                 </tbody>
@@ -792,103 +911,107 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                           </Card>
                         )}
                         {club === 'AMARILLO' && (
-                          <>
-                            <Card>
-                              <CardBody>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        RONDA N°{entorno.actividad.numero}
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>
-                                        Tus fichas extraidas desde la cuenta
-                                        club amarillo
-                                      </td>
-                                      <td>{asignacion.fichasClub}</td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Tus fichas destinadas actividad privada
-                                      </td>
-                                      <td>
-                                        {asignacion.fichasActividadPrivada}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        Las fichas restantes club amarillo
-                                      </td>
-                                      <td>
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                                <Table bordered>
-                                  <thead>
-                                    <tr>
-                                      <th colSpan="2">
-                                        CALCULOS PESOS EXPERIMENTALES
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143; Fichas Actividad privada *
-                                        0.25$ + Fichas Club * 1$ + Cantidad
-                                        Fichas restantes restantes club Amarillo
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada} *
-                                        0.25$ + {asignacion.fichasClub} * 1$ +{' '}
-                                        {
-                                          asignacion.cantidadFichasQuedanAmarillo
-                                        }{' '}
-                                        * 0.5$
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        &#10143;{' '}
-                                        {asignacion.fichasActividadPrivada *
-                                          0.25}
-                                        $ + {asignacion.fichasClub * 1}$ +{' '}
-                                        {asignacion.cantidadFichasQuedanAmarillo *
-                                          0.5}
-                                        $
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Pesos experimentales</td>
-                                      <td>
-                                        {' '}
-                                        &#10143;{' '}
-                                        {
-                                          asignacion.resultadoPesosExperimentales
-                                        }
-                                        $
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </Table>
-                              </CardBody>
-                            </Card>
-                          </>
+                          <Card>
+                            <CardBody>
+                              <Table bordered>
+                                <thead>
+                                  <tr>
+                                    <th
+                                      colSpan="4"
+                                      className="titulo fondoPlomo"
+                                    >
+                                      RONDA N°{entorno.actividad.rondaActual}
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <th className="titulo fondoPlomo">
+                                      Ítem de Ganancia
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Pago por ficha-$E
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Fichas
+                                    </th>
+                                    <th className="titulo fondoPlomo">
+                                      Total - $E
+                                    </th>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas retiradas de la
+                                      cuenta compartida
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 4
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasClub}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${asignacion.fichasClub * 4}`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas que mantiene en
+                                      Cuenta Privada
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 1
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.fichasActividadPrivada}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.fichasActividadPrivada * 1
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td className="textoDetalle">
+                                      Ganancias por fichas remanentes en Cuenta
+                                      Compartida del Club Amarillo
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      E$ 2
+                                    </td>
+                                    <td className="number textoDetalle">
+                                      {asignacion.cantidadFichasQuedanAmarillo}
+                                    </td>
+                                    <td className="number lightYellow textoDetalle">
+                                      {`E$ ${
+                                        asignacion.cantidadFichasQuedanAmarillo *
+                                        2
+                                      }`}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td colSpan={3} className="totalLabel ">
+                                      Base
+                                    </td>
+                                    <td className="number lightYellow  textoDetalle">
+                                      E$ 50
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td
+                                      colSpan="3"
+                                      className="totalLabel text-right "
+                                    >
+                                      Total
+                                    </td>
+                                    <td className="number totalYellow textoDetalle">
+                                      {`E$ ${asignacion.resultadoPesosExperimentales}`}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </Table>
+                            </CardBody>
+                          </Card>
                         )}
                       </Colxx>
                     )}
@@ -904,11 +1027,12 @@ const DetalleAsignacionCreditos = ({ match, client_id, ws, entorno }) => {
                     backgroundColor: clubColor.color,
                     fontWeight: 'bold',
                     fontSize: '20px',
+                    color: clubColor.colorLetra,
                   }}
                   disabled={bloqueado}
                 >
                   {!bloqueado
-                    ? 'Confirmar'
+                    ? 'Continuar'
                     : 'Esperando a los otros participantes..'}
                 </Button>
               </CardFooter>

@@ -20,7 +20,7 @@ import {
   CardSubtitle,
 } from 'reactstrap';
 import { Colxx } from 'components/common/CustomBootstrap';
-import { equipos } from 'constants/defaultValues';
+import { colorPlomo, equipos } from 'constants/defaultValues';
 import { NotificationManager } from 'components/common/react-notifications';
 import { useTable, usePagination, useSortBy } from 'react-table';
 import TablaRetiros from './tablaRetiros';
@@ -93,15 +93,16 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
       );
       return;
     }
+    // BLOQUEAMOS EL BOTON PARA QUE NO PUEDA VOTAR NUEVAMENTE
+    setBloqueado(true);
+
+    // CREAMOS EL PAQUETE DEL VOTO
     const data = {
       tipo: 'VOTACION_AMARILLO',
       voto: payload.customRadioGroup[0],
     };
 
-    console.log(data);
     setTimeout(() => {
-      setBloqueado(true);
-
       const jsonSend = {
         tipo: 'ENVIAR_VOTACION_EXCLUIR',
         data,
@@ -111,7 +112,7 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
       ws.send(dataQuery);
 
       setSubmitting(false);
-    }, 100);
+    }, 50);
   };
 
   const onSubmitAzul = (values, { setSubmitting }) => {
@@ -129,14 +130,16 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
       );
       return;
     }
+    // BLOQUEAMOS EL BOTON PARA QUE NO PUEDA VOLVER A VOTAR
+    setBloqueado(true);
+
+    // CREAMOS EL PAQUETE DEL VOTO
     const data = {
       tipo: 'VOTACION_AZUL',
       voto: payload.customRadioGroup[0],
     };
 
     setTimeout(() => {
-      setBloqueado(true);
-
       const jsonSend = {
         tipo: 'ENVIAR_VOTACION_EXCLUIR',
         data,
@@ -146,7 +149,7 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
       ws.send(dataQuery);
 
       setSubmitting(false);
-    }, 100);
+    }, 50);
   };
 
   useEffect(() => {
@@ -183,23 +186,7 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
       >
         <Row className="d-flex justify-content-center">
           <Colxx lg="9">
-            <Card className="mb-4">
-              <div
-                style={{
-                  backgroundColor: clubColor.color,
-                  borderRadius: '10px',
-                }}
-              >
-                <div className="text-center mt-3 ml-3">
-                  <Label className="h5" style={{ color: 'white' }}>
-                    FICHAS RETIRADAS DESDE EL CLUB AZUL Y GANANCIAS
-                  </Label>
-                </div>
-              </div>
-              <CardBody>
-                <TablaRetiros client_id={client_id} entorno={entorno} />
-              </CardBody>
-            </Card>
+            <TablaRetiros client_id={client_id} entorno={entorno} />
           </Colxx>
           <Colxx lg="3">
             <Card className="mb-4">
@@ -243,9 +230,32 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
                       >
                         {!bloqueado ? (
                           <>
-                            <CardTitle>
-                              EN ESTA RONDA UD NO PUEDE VOTAR.
-                            </CardTitle>
+                            <div>
+                              <div
+                                style={{
+                                  fontWeight: 'bold',
+                                  fontSize: '16px',
+                                  backgroundColor: colorPlomo,
+                                  borderRadius: '10px',
+                                  margin: '0px 10px 30px 10px',
+                                }}
+                              >
+                                <div
+                                  className="text-center"
+                                  style={{
+                                    fontWeight: 'bold',
+                                    fontSize: '30px',
+                                    color: 'black',
+                                    alignSelf: 'center',
+                                    padding: '20px',
+                                  }}
+                                >
+                                  {' '}
+                                  En esta ronda usted no puede votar porque
+                                  pertenece al Club Amarillo
+                                </div>
+                              </div>
+                            </div>
                             <FormGroup className="error-l-175">
                               <FormikCustomRadioGroupMaxExcluir
                                 name="customRadioGroup"
@@ -275,7 +285,8 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
                           style={{
                             backgroundColor: clubColor.color,
                             fontWeight: 'bold',
-                            fontSize: '12px',
+                            fontSize: '24px',
+                            color: clubColor.colorLetra,
                           }}
                           type="submit"
                           disabled={bloqueado}
@@ -352,7 +363,8 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
                           style={{
                             backgroundColor: clubColor.color,
                             fontWeight: 'bold',
-                            fontSize: '12px',
+                            fontSize: '20px',
+                            color: clubColor.colorLetra,
                           }}
                           type="submit"
                           disabled={bloqueado}

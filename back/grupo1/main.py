@@ -65,6 +65,37 @@ class ConnectionManager:
             if connection.client_id == 1000:
                 await connection.ws.send_text(message)
 
+class Encuesta:
+    def __init__(self,
+    integrante,grupo,genero,edad,comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia, anosSiendoIntegranteSindicato, tipoIntegrante,
+    importanciaMiembroSindicato, puedeExternoPostularSindicato, esPosibleExpulsarSindicato, sindicatoHaIntegradoNuevosMiembros, sindicatoHaExpulsadoNuevosMiembros,
+    confiaOtrosPescadores, creibleSistemaFiscalizacion, aceptableNormas, percibeImpactoNormas, probableSancion):
+        
+        self.integrante = integrante
+        self.grupo = grupo
+        self.genero = genero
+        self.edad = edad
+        self.comuna = comuna
+        self.estadoCivil = estadoCivil
+        self.jefeHogar = jefeHogar
+        self.personasDependen = personasDependen
+        self.anosViviendoLugar = anosViviendoLugar
+        self.ingresoFamilia = ingresoFamilia
+        self.anosSiendoIntegranteSindicato = anosSiendoIntegranteSindicato
+        self.tipoIntegrante = tipoIntegrante
+
+        self.importanciaMiembroSindicato = importanciaMiembroSindicato
+        self.puedeExternoPostularSindicato = puedeExternoPostularSindicato
+        self.esPosibleExpulsarSindicato = esPosibleExpulsarSindicato
+        self.sindicatoHaIntegradoNuevosMiembros = sindicatoHaIntegradoNuevosMiembros
+        self.sindicatoHaExpulsadoNuevosMiembros = sindicatoHaExpulsadoNuevosMiembros
+        self.confiaOtrosPescadores = confiaOtrosPescadores
+        self.creibleSistemaFiscalizacion = creibleSistemaFiscalizacion
+        self.aceptableNormas = aceptableNormas
+        self.percibeImpactoNormas = percibeImpactoNormas
+        self.probableSancion = probableSancion
+
+
 class Voto:
     def __init__(self, client_id: int, actividad: int, ronda:int, votaPor: int, tipo: str):
         self.client_id = client_id
@@ -237,6 +268,7 @@ class Actividad:
         for j in self.jugadores:
             jAdd = {"client_id": j.client_id, "letra": j.letra, "club": j.club, "label": "Jugador " + j.letra , "value": j.client_id, "trasladadoAzulAAmarillo": j.trasladadoAzulAAmarillo, "trasladadoAmarilloAAzul": j.trasladadoAmarilloAAzul, "puedeVotarExcluir": j.puedeVotarExcluir, "puedeVotarIncluir": j.puedeVotarIncluir}
             ju.append(jAdd)
+        ju.sort(key = self.sortFunction)
         return ju
     
     def getJugador(self, client_id):
@@ -256,7 +288,8 @@ class Actividad:
                 "rondaActual" : self. rondaActual,
                 "prueba" : self.prueba,
                 "asignaciones": self.getAsignaciones(),
-                "tabla": self.__getTablaClientes(),
+                "tablaVotacion": self.__getTablaClientesVotacion(),
+                "tablaAsignacion": self.__getTablaClientesAsignacion(),
                 "tablaAdmin": self.__getTablaAdmin(),
                 "jugadores": self.getDatosJugadores(),
                 "resultadosExcluir" : self.votosManager.getResultadosExcluir(),
@@ -291,12 +324,14 @@ class Actividad:
 
         if j is not None:
             club = j.getClub()
+            letra = j.letra
+            print(letra)
             print(client_id)
             print(club)
             print(self.rondaActual)
             print(fichasClub)
             print(fichasActividadPrivada)
-            asig = AsignacionCreditos(self, client_id, club, self.rondaActual, fichasClub, fichasActividadPrivada)
+            asig = AsignacionCreditos(self, client_id, letra, club, self.rondaActual, fichasClub, fichasActividadPrivada)
             self.asignaciones.append(asig)
         
         else:
@@ -335,33 +370,71 @@ class Actividad:
                 total = total + asig.resultadoPesosExperimentales
         return total
 
+    # METODO QUE RETORNA CUANTO GANO EL JUGADOR EN LA ACTIVIDAD EN PESOS CHILENOS 
+    def calcularGananciasPorJugador(self, client_id: int):
+        total = 0
+        for asig in self.asignaciones:
+            if asig.client_id == client_id:
+                total = total + asig.resultadoPesosExperimentales
+        return total * 3
 
-    #METODO PARA GENERAR LA TABLA A MOSTRAR EN LA WEB 
+
+    #METODO PARA GENERAR LA TABLA A MOSTRAR EN LA WEB, SE MUESTRA EN VOTACION
     #VAMOS A BUSCAR TODAS LAS ASIGNACIONES Y ENTREGAR LAS QUE CORRESPONDEN A SOLO UN JUGADOR
     def __getTablaPorJugador(self, client_id : int):
         data = {}
         data['jugador'] = client_id
         data['letra'] = self.getJugador(client_id).getLetra() 
-        data['label'] = "JUGADOR " + self.getJugador(client_id).getLetra()
+        data['label'] = ["JUG. " + self.getJugador(client_id).getLetra(), "PLOMO_JUGADOR"]
+        data['clientId'] = [str(client_id), "PLOMO_CLIENT_ID"]
         for r in range(1, self.rondas + 1):
             asig = self.__buscarAsignacion(client_id, r)
 
             if asig is not None:
-                data['ronda_'+ str(r)] = asig.fichasClub
+                data['ronda_'+ str(r)] = [asig.fichasClub, asig.club]
             else:
-                data['ronda_'+ str(r)] = "-"
+                data['ronda_'+ str(r)] = ["-", "PLOMO"]
+
+        asig = self.__buscarAsignacion(client_id, self.rondaActual)
+        data['gananciaRondaActual'] = ["-", "PLOMO_EXTRA"]
+        if asig is not None:
+            data['gananciaRondaActual'] = [ "E$ " + str(asig.resultadoPesosExperimentales), "PLOMO_EXTRA"]
+
+        #ACA DEBEMOS CALCULAR LAS GANACIAS ACUMULADAS
+        data['gananciasAcumuladas'] = ["E$ " + str(self.__calcularGananciasAcumuladas(client_id)), "PLOMO_EXTRA"]
+        data['color'] = self.getJugador(client_id).getClub()
+        data['rowTotal'] = False
+        return data
+
+    #METODO PARA GENERAR LA TABLA A MOSTRAR EN LA WEB EN ASIGNACION DE FICHAS, ENVIA LA RONDA ACTUAL
+    #VAMOS A BUSCAR TODAS LAS ASIGNACIONES Y ENTREGAR LAS QUE CORRESPONDEN A SOLO UN JUGADOR
+    def __getTablaPorJugadorAsignacion(self, client_id : int):
+        data = {}
+        data['jugador'] = client_id
+        data['letra'] = self.getJugador(client_id).getLetra() 
+        data['label'] = ["JUG. " + self.getJugador(client_id).getLetra(), "PLOMO_JUGADOR"]
+        for r in range(1, self.rondas + 1):
+            asig = self.__buscarAsignacion(client_id, r)
+
+            if asig is not None:
+                if r == self.rondaActual:
+                    data['ronda_'+ str(r)] = ["-", asig.club]
+                else:
+                    data['ronda_'+ str(r)] = [asig.fichasClub, asig.club]
+            else:
+                data['ronda_'+ str(r)] = ["-", "PLOMO"]
 
         if self.rondaActual == 1:
-            data['gananciaUltimaRonda'] = 0
+            data['gananciaUltimaRonda'] = ["E$ -", "PLOMO_EXTRA"]
 
         else:
             #ACA DEBEMOS CALCULARLO
             # ACA BUSCAMOS LA ULTIMO RONDA Y MOSTRAMOS LA GANANCIA 
             asig = self.__buscarAsignacion(client_id, self.rondaActual - 1)
-            data['gananciaUltimaRonda'] = asig.resultadoPesosExperimentales
+            data['gananciaUltimaRonda'] = ["E$ "+ str(asig.resultadoPesosExperimentales), "PLOMO_EXTRA"]
 
         #ACA DEBEMOS CALCULAR LAS GANACIAS ACUMULADAS
-        data['gananciasAcumuladas'] = self.__calcularGananciasAcumuladas(client_id)
+        data['gananciasAcumuladas'] = ["E$ " + str(self.__calcularGananciasAcumuladas(client_id)), "PLOMO_EXTRA"]
         data['color'] = self.getJugador(client_id).getClub()
         data['rowTotal'] = False
         return data
@@ -377,8 +450,36 @@ class Actividad:
             for asig in self.asignaciones:
                 if asig.club == "AZUL" and asig.ronda == r:
                     totalRetiros = totalRetiros + asig.fichasClub
-                
-            data['ronda_'+ str(r)] = totalRetiros
+
+            if r != self.rondaActual:
+                data['ronda_'+ str(r)] = "-"
+            else:
+                data['ronda_'+ str(r)] = totalRetiros
+
+        
+        data['gananciaUltimaRonda'] = "-"
+        data['gananciasAcumuladas'] = "-"
+        data['color'] = "AZUL"
+        data['rowTotal'] = True
+        return data
+    # VAMOS A CALCULAR EL RETIRO TOTAL DE LOS AZULES POR CADA RONDA, EXCEPTO LA RONDA ACTUAL
+    def __getTablaRetirosTotalesAzulesAsignacion(self):
+        data = {}
+        data['jugador'] = 100
+        data['letra'] = "z" 
+        data['label'] = "RETIROS TOTALES"
+        for r in range(1, self.rondas + 1):
+            totalRetiros = 0
+            for asig in self.asignaciones:
+                if asig.club == "AZUL" and asig.ronda == r:
+                    totalRetiros = totalRetiros + asig.fichasClub
+            if r == self.rondaActual:
+                data['ronda_'+ str(r)] = "-"
+            else:
+                if r > self.rondaActual:
+                    data['ronda_'+ str(r)] = "-"
+                else:
+                    data['ronda_'+ str(r)] = "-"
         
         data['gananciaUltimaRonda'] = "-"
         data['gananciasAcumuladas'] = "-"
@@ -398,7 +499,36 @@ class Actividad:
                 if asig.club == "AMARILLO" and asig.ronda == r:
                     totalRetiros = totalRetiros + asig.fichasClub
                 
-            data['ronda_'+ str(r)] = totalRetiros
+            if r != self.rondaActual:
+                data['ronda_'+ str(r)] = "-"
+            else:
+                data['ronda_'+ str(r)] = totalRetiros
+        
+        data['gananciaUltimaRonda'] = "-"
+        data['gananciasAcumuladas'] = "-"
+        data['color'] = "AMARILLO"
+        data['rowTotal'] = True
+        return data
+
+    # VAMOS A CALCULAR EL RETIRO TOTAL DE LOS AZULES POR CADA RONDA
+    def __getTablaRetirosTotalesAmarillosEnAsignacion(self):
+        data = {}
+        data['jugador'] = 99
+        data['letra'] = "z" 
+        data['label'] = "RETIROS TOTALES"
+        for r in range(1, self.rondas + 1):
+            totalRetiros = 0
+            for asig in self.asignaciones:
+                if asig.club == "AMARILLO" and asig.ronda == r:
+                    totalRetiros = totalRetiros + asig.fichasClub
+                
+            if r == self.rondaActual:
+                data['ronda_'+ str(r)] = "-"
+            else:
+                if r > self.rondaActual:
+                    data['ronda_'+ str(r)] = "-"
+                else:
+                    data['ronda_'+ str(r)] = "-"
         
         data['gananciaUltimaRonda'] = "-"
         data['gananciasAcumuladas'] = "-"
@@ -409,7 +539,7 @@ class Actividad:
     def sortFunction(self, e):
         return e['letra']
 
-    def __getTablaClientes(self):
+    def __getTablaClientesVotacion(self):
         dataTabla = []
         for participante in self.participantes:
             dataJugador = self.__getTablaPorJugador(participante)
@@ -417,6 +547,18 @@ class Actividad:
         dataTabla.sort(key = self.sortFunction)
         dataTabla.append(self.__getTablaRetirosTotalesAzules())
         dataTabla.append(self.__getTablaRetirosTotalesAmarillos())
+
+        return dataTabla
+
+    # ACA CREAMOS LA DATA PARA LA TABLA QUE SE MUESTRA EN ASIGNAR CREDITOS
+    def __getTablaClientesAsignacion(self):
+        dataTabla = []
+        for participante in self.participantes:
+            dataJugador = self.__getTablaPorJugadorAsignacion(participante)
+            dataTabla.append(dataJugador)
+        dataTabla.sort(key = self.sortFunction)
+        dataTabla.append(self.__getTablaRetirosTotalesAzulesAsignacion())
+        dataTabla.append(self.__getTablaRetirosTotalesAmarillosEnAsignacion())
 
         return dataTabla
 
@@ -436,14 +578,23 @@ class Actividad:
             for asig in self.asignaciones:
                 if asig.client_id == client_id_jugador:
                     totalGanancia = totalGanancia + asig.resultadoPesosExperimentales
-            resum = {"actividad" : self.numero ,"client_id": client_id_jugador ,"ganancia": totalGanancia}
+            # validamos que la ganancia sea igual a mayor a cero
+            if totalGanancia < 0:
+                totalGanancia = 0
+            factorConversion = "3 Pesos Chilenos por cada E$"
+            strPesosExperimentales = "E$ " + str(totalGanancia)
+            pesosChilenos = 3 * totalGanancia
+
+            strPesosChilenos = "$ "+str(pesosChilenos)
+            resum = {"actividad" : self.numero ,"client_id": client_id_jugador ,"pesosExperimentales": strPesosExperimentales, "factorConversion": factorConversion, "pesosChilenos": strPesosChilenos, "intPesosChilenos": pesosChilenos }
             arrayResumen.append(resum)
         return arrayResumen
 
 
 class AsignacionCreditos:
-    def __init__(self, actividad: Actividad, client_id: int, club: str, ronda:int, fichasClub: int, fichasActividadPrivada: int):
+    def __init__(self, actividad: Actividad, client_id: int, letra:str, club: str, ronda:int, fichasClub: int, fichasActividadPrivada: int):
         self.client_id = client_id
+        self.letra = letra
         self.club = club
         self.ronda = ronda
         self.fichasClub = fichasClub
@@ -452,6 +603,8 @@ class AsignacionCreditos:
 
         self.actividad = actividad
         self.resultadoPesosExperimentales = 0
+
+        self.base = 50
 
         #cantidad jugadores 
         self.cantidadJugadoresAzul = 0
@@ -508,44 +661,44 @@ class AsignacionCreditos:
             case "T1":
                 # BASELINE
                 if self.club == "AZUL":
-                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAzul * 2
-                    self.resultadoPesosExperimentales = pesosExp
+                    pesosExp = self.fichasActividadPrivada * 4 + self.fichasClub * 16 + quedanAzul * 8
+                    self.resultadoPesosExperimentales = pesosExp + self.base
                     
                 if self.club == "AMARILLO":
-                    pesosExp = self.fichasActividadPrivada * 0.25 + self.fichasClub * 1 + quedanAmarillo * 0.5
-                    self.resultadoPesosExperimentales = pesosExp
+                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAmarillo * 2
+                    self.resultadoPesosExperimentales = pesosExp + self.base
 
             case "T2":
                 # EXCLUSION COST
                 if self.club == "AZUL":
-                    costoExclusion = CJ_AMARILLO * 8
-                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAzul * 2 - costoExclusion
-                    self.resultadoPesosExperimentales = pesosExp
+                    costoExclusion = CJ_AMARILLO * 32
+                    pesosExp = self.fichasActividadPrivada * 4 + self.fichasClub * 16 + quedanAzul * 8 - costoExclusion
+                    self.resultadoPesosExperimentales = pesosExp + self.base
                     
                 if self.club == "AMARILLO":
-                    pesosExp = self.fichasActividadPrivada * 0.25 + self.fichasClub * 1 + quedanAmarillo * 0.5
-                    self.resultadoPesosExperimentales = pesosExp
+                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAmarillo * 2
+                    self.resultadoPesosExperimentales = pesosExp + self.base
             case "T3":
                 # EXCLUSION COST + CONGESTION COST
                 if self.club == "AZUL":
-                    costoExclusion = CJ_AMARILLO * 8
-                    costoCongestion = CJ_AZUL * 8
-                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAzul * 2 - costoExclusion - costoCongestion
-                    self.resultadoPesosExperimentales = pesosExp
+                    costoExclusion = CJ_AMARILLO * 32
+                    costoCongestion = CJ_AZUL * 32
+                    pesosExp = self.fichasActividadPrivada * 4 + self.fichasClub * 16 + quedanAzul * 8 - costoExclusion - costoCongestion
+                    self.resultadoPesosExperimentales = pesosExp + self.base
                     
                 if self.club == "AMARILLO":
-                    pesosExp = self.fichasActividadPrivada * 0.25 + self.fichasClub * 1 + quedanAmarillo * 0.5
-                    self.resultadoPesosExperimentales = pesosExp
+                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAmarillo * 2
+                    self.resultadoPesosExperimentales = pesosExp + self.base
             case "T4":
                 # CONGESTION COST
                 if self.club == "AZUL":
-                    costoCongestion = CJ_AZUL * 8
-                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAzul * 2 - costoCongestion
-                    self.resultadoPesosExperimentales = pesosExp
+                    costoCongestion = CJ_AZUL * 32
+                    pesosExp = self.fichasActividadPrivada * 4 + self.fichasClub * 16 + quedanAzul * 8 - costoCongestion
+                    self.resultadoPesosExperimentales = pesosExp  + self.base
                     
                 if self.club == "AMARILLO":
-                    pesosExp = self.fichasActividadPrivada * 0.25 + self.fichasClub * 1 + quedanAmarillo * 0.5
-                    self.resultadoPesosExperimentales = pesosExp
+                    pesosExp = self.fichasActividadPrivada * 1 + self.fichasClub * 4 + quedanAmarillo * 2
+                    self.resultadoPesosExperimentales = pesosExp + self.base
             case _:
                 print("ERROR NO SE ENCONTRO TRATAMIENTO")
 
@@ -636,9 +789,13 @@ class VotosManager:
         for j in jugadores:
             votantes.append(JugadorVot(j.client_id))
             if j.club == "AZUL":
-                cantidadAzules = cantidadAzules + 1
+                if not j.trasladadoAzulAAmarillo:
+                    cantidadAzules = cantidadAzules + 1
             if j.club == "AMARILLO":
                 cantidadAmarillos = cantidadAmarillos + 1
+
+        # ERROR CUANDO cantidadAzules se hace cero 
+
 
         # TENEMOS QUE SABER LOS VOTOS MINIMOS PARA SER EXCLUIDO O INCLUIDO
         minAzules = cantidadAzules * 0.5
@@ -646,6 +803,8 @@ class VotosManager:
 
         # VAMOS A CALCULAR LA VOTACION DE EXCLUIR
         if tipo == "EXCLUIR":
+            if minAzules == 0:
+                minAzules = 1
             self.resultadosExcluir = []
             for voto in self.votosDinamicos:
                 # POR QUIEN SE VOTO
@@ -667,6 +826,8 @@ class VotosManager:
                     self.jugadoresPorExcluir.append(jugador_movido)
 
         if tipo == "INCLUIR":
+            if minAzules == 0:
+                minAzules = 1
             self.resultadosIncluir = []
             for voto in self.votosDinamicos:
                 # POR QUIEN SE VOTO
@@ -700,6 +861,9 @@ class Entorno:
         self.participantesClubAmarillo = [6,7,8]
 
         self.dictParticipantes = [1,2,3,4,5,6,7,8]
+        self.grupo = 1
+        self.sesionNombre = ""
+        self.nombreSesion = ""
     
         self.estado = "INICIO"
         self.estadoAdmin = ""
@@ -715,11 +879,258 @@ class Entorno:
         # ARRAY DINAMICO DE CONFIRMACION
         self.arrayDinamicoConfirmacion = []
 
-        
+        #ENCUESTAS
+        self.encuestas: List[Encuesta] = []
+
     
-    def crearJuego(self, tratamiento, actividades, rondas):
+    # DATOS CSV
+    def exportarDatos(self):
+        #NOMBRE DEL ARCHIVO
+        nombreSesion = self.nombreSesion
+        grupo = self.grupo
+        nombreArchivoExportar = "exportacion_" + nombreSesion + "_grupo_" + str(grupo) + ".csv"
+
+        #ACTIVIDADES DE LA SESION
+        actividades = self.actividades
+
+        # COLUMNAS DEL ARCHIVO
+        headers = ['sessionId','groupNumber','activityNumber','activityTest','internId', 'playerLetter' ,'round', 'club','tokensTakenClub','tokensPrivateActivity', 
+        'cantidadJugadoresAzul' , 'cantidadJugadoresAmarillo', 'cantidadFichasRetiradasClubAzul', 'cantidadFichasRetiradasClubAmarillo', 'cantidadFichasRemanentesAzul' ,
+        'cantidadFichasRemanentesAmarillo', 'base','experimentalPesosEarnings','treatment',
+        "VE_1","VE_2","VE_3","VE_4","VE_5","VE_6","VE_7","VE_8","VRE","VI_1","VI_2","VI_3","VI_4","VI_5","VI_6","VI_7","VI_8","VRI"]
+        asigArray = []
+
+        for act in actividades:
+            asignaciones = act.asignaciones
+            tratamiento = act.tratamiento
+            numero = act.numero
+
+            for asigAux in asignaciones:
+
+                # DEBEMOS BUSCAR EL VOTO DE DICHA ASINACION
+                client_id = asigAux.client_id
+                letra = asigAux.letra
+                ronda = asigAux.ronda
+
+
+                # BUSCAMOS EL VOTOS MANAGER DE LA ACTIVIDAD
+                vm = act.votosManager
+
+                # BUSCAMOS LA LISTA DE VOTACION EXCLUIR
+                votosExcluir = vm.votosExcluir
+
+                # BUSCAMOS EL VOTO DE LA RONDA CORRESPONDIENTE
+                votoExcluirAux = None
+                for ve in votosExcluir:
+                    if ve.client_id == client_id and ronda == ve.ronda:
+                        votoExcluirAux = ve
+
+
+                #CREAMOS EL ARRAY VOTOS EXCLUIR
+                #vota_1, vota_2, vota_3, vota_4, vota_5, vota_6, vota_7,vota_8, VER
+                arrayVE = ["0","0","0","0","0","0","0","0","0"]
+                # NO PUEDE VOTAR POR EL MISMO
+                arrayVE[client_id - 1] = "."
+
+                ## IMPRIMIREMOS LOS VOTOS INCLUIR Y EXCLUIR
+                if votoExcluirAux is not None:
+                    if votoExcluirAux.votaPor != "no":
+                        client_id_voto = votoExcluirAux.votaPor
+                        arrayVE[client_id_voto - 1] = "1"
+                    print(arrayVE)
+                
+                # DEBEMOS CALCULAR LOS VOTOS RECIBIDOS 
+                votosRecibidos = 0
+                for ve in votosExcluir:
+                    if ve.ronda == ronda and ve.votaPor == client_id:
+                        votosRecibidos = votosRecibidos + 1
+                arrayVE[8] = votosRecibidos
+
+                # ----------------------------------------------------------
+
+                #BUSCAMOS LA LISTA DE VOTACION INCLUIR
+                votosIncluir = vm.votosIncluir
+
+                #BUSCAMOS EL VOTO DE INCLUIR
+                votoIncluirAux = None
+                for vi in votosIncluir:
+                    if vi.client_id == client_id and ronda == vi.ronda:
+                        votoIncluirAux = vi
+
+                #CREAMOS EL ARRAY VOTOS INCLUIR
+                #vota_1, vota_2, vota_3, vota_4, vota_5, vota_6, vota_7,vota_8, VRI
+                # NO PUEDE VOTAR POR EL MISMO
+                arrayVI = ["0","0","0","0","0","0","0","0","0"]
+                arrayVI[client_id - 1] = "."
+
+                if votoIncluirAux is not None:
+                    if votoIncluirAux.votaPor != "no":
+                        client_id_voto = votoIncluirAux.votaPor
+                        arrayVI[client_id_voto - 1] = "1"
+
+                # DEBEMOS CALCULAR LOS VOTOS RECIBIDOS 
+                votosRecibidos = 0
+                for vi in votosIncluir:
+                    if vi.ronda == ronda and vi.votaPor == client_id:
+                        votosRecibidos = votosRecibidos + 1
+                arrayVI[8] = votosRecibidos
+
+                # ----------------------------------------------------------
+                    
+                #CREAMOS EL ARRAY DE LA ASIGNACION
+                arrayToAsig = [nombreSesion, grupo,numero, str(act.prueba), asigAux.client_id, letra,asigAux.ronda ,
+                asigAux.club, asigAux.fichasClub,
+                asigAux.fichasActividadPrivada, asigAux.cantidadJugadoresAzul, asigAux.cantidadJugadoresAmarillo,
+                asigAux.cantidadFichasRetiradasClubAzul,asigAux.cantidadFichasRetiradasClubAmarillo,
+                asigAux.cantidadFichasQuedanAzul,asigAux.cantidadFichasQuedanAmarillo,
+                asigAux.base, asigAux.resultadoPesosExperimentales, tratamiento]
+                for i in arrayVE:
+                    arrayToAsig.append(i)
+                for i in arrayVI:
+                    arrayToAsig.append(i)
+                asigArray.append(arrayToAsig)
+        
+        with open(nombreArchivoExportar, mode='w', newline='') as file:
+
+            writer = csv.writer(file)
+            writer.writerow( headers) # Creamos las columnas
+
+            for asigAux in asigArray:
+                writer.writerow(asigAux)
+            
+        f.close()      
+
+    # ENCUESTA
+    def addEncuesta(self, data):
+        integrante = data["integrante"]
+        grupo = self.grupo
+        genero = data['genero']
+        edad = data['edad']
+        comuna = data['comuna']
+        estadoCivil = data['estadoCivil']
+        jefeHogar = data['jefeHogar']
+        personasDependen = data['personasDependen']
+        anosViviendoLugar = data['anosViviendoLugar']
+        ingresoFamilia = data['ingresoFamilia']
+        anosSiendoIntegranteSindicato = data['anosSiendoIntegranteSindicato']
+        tipoIntegrante = data['tipoIntegrante']
+        importanciaMiembroSindicato = data['importanciaMiembroSindicato']
+        puedeExternoPostularSindicato = data['puedeExternoPostularSindicato']
+        esPosibleExpulsarSindicato = data['esPosibleExpulsarSindicato']
+        sindicatoHaIntegradoNuevosMiembros = data['sindicatoHaIntegradoNuevosMiembros']
+        sindicatoHaExpulsadoNuevosMiembros = data['sindicatoHaExpulsadoNuevosMiembros']
+
+        confiaOtrosPescadores = data['confiaOtrosPescadores']
+        creibleSistemaFiscalizacion = data['creibleSistemaFiscalizacion']
+        aceptableNormas = data['aceptableNormas']
+        percibeImpactoNormas = data['percibeImpactoNormas']
+        probableSancion = data['probableSancion']
+
+
+
+        encuesta = Encuesta(integrante,grupo,genero,edad,comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia,
+        anosSiendoIntegranteSindicato, tipoIntegrante, importanciaMiembroSindicato, puedeExternoPostularSindicato, esPosibleExpulsarSindicato,
+        sindicatoHaIntegradoNuevosMiembros, sindicatoHaExpulsadoNuevosMiembros, confiaOtrosPescadores, creibleSistemaFiscalizacion,
+        aceptableNormas, percibeImpactoNormas, probableSancion)
+        print("añadiendo encuesta")
+        self.encuestas.append(encuesta)
+
+    # DATOS CSV
+    def exportarEncuestas(self):
+        #NOMBRE DEL ARCHIVO
+        nombreSesion = self.nombreSesion
+        grupo = self.grupo
+        nombreArchivoExportar = "exportacion_" + nombreSesion + "_grupo_" + str(grupo) + "_encuestas.csv"
+
+        # COLUMNAS DEL ARCHIVO
+        headers = ['integrante','grupo','genero','edad','comuna', 'estadoCivil', 'jefeHogar', 'personasDependen', 'anosViviendoLugar', 'ingresoFamilia', 'anosSiendoIntegranteSindicato', 'tipoIntegrante',
+        'importanciaMiembroSindicato', 'puedeExternoPostularSindicato', 'esPosibleExpulsarSindicato', 'sindicatoHaIntegradoNuevosMiembros', 'sindicatoHaExpulsadoNuevosMiembros',
+        'confiaOtrosPescadores', 'creibleSistemaFiscalizacion', 'aceptableNormas', 'percibeImpactoNormas', 'probableSancion']
+        asigArray = []
+
+        # REVISAMOS TODAS LAS ENCUESTAS
+        for enc in self.encuestas:
+            arrayAux = [enc.integrante, enc.grupo, enc.genero, enc.edad, enc.comuna, enc.estadoCivil, enc.jefeHogar, enc.personasDependen, enc.anosViviendoLugar, enc.ingresoFamilia, enc.anosSiendoIntegranteSindicato, enc.tipoIntegrante,
+            enc.importanciaMiembroSindicato, enc.puedeExternoPostularSindicato, enc.esPosibleExpulsarSindicato, enc.sindicatoHaIntegradoNuevosMiembros, enc.sindicatoHaExpulsadoNuevosMiembros,
+            enc.confiaOtrosPescadores, enc.creibleSistemaFiscalizacion, enc.aceptableNormas, enc.percibeImpactoNormas, enc.probableSancion]
+            asigArray.append(arrayAux)
+            
+        with open(nombreArchivoExportar, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow( headers) # Creamos las columnas
+            for asigAux in asigArray:
+                writer.writerow(asigAux)
+        f.close()     
+
+    def exportarPagos(self):
+        #NOMBRE DEL ARCHIVO
+        nombreSesion = self.nombreSesion
+        grupo = self.grupo
+        nombreArchivoExportar = "exportacion_" + nombreSesion + "_grupo_" + str(grupo) + "_pagos.csv"
+
+
+        #ACTIVIDADES DE LA SESION
+        actividades = self.actividades
+
+        # COLUMNAS DEL ARCHIVO
+        headers = ['integrante','BASE','ACTIVIDAD_1','ACTIVIDAD_2','ACTIVIDAD_3', 'TOTAL']
+        asigArray = []
+
+
+        for j in self.dictParticipantes:
+            
+            # j = del 1 al 8 client_id
+            arrayAux = []
+            arrayAux.append(j)
+            arrayAux.append(4500)
+
+            arrayGanancias = [0,0,0,0]
+            totalSesion = 4500
+            for act in actividades:
+                print("Jugador : " + str(j) + "  actividad: " + str(act.numero))
+                numeroActividad = act.numero
+                total = act.calcularGananciasPorJugador(j)
+                if numeroActividad != 0:
+                    totalSesion = totalSesion + total
+                    arrayGanancias[numeroActividad - 1] = total
+
+            arrayGanancias[3] = totalSesion
+            for ag in arrayGanancias:
+                arrayAux.append(ag)
+            
+            asigArray.append(arrayAux)
+                
+        with open(nombreArchivoExportar, mode='w', newline='') as file:
+
+            writer = csv.writer(file)
+            writer.writerow( headers) # Creamos las columnas
+
+            for asigAux in asigArray:
+                writer.writerow(asigAux)
+            
+        f.close()      
+ 
+
+    
+    #CSV EXPORTACIOONES
+    def iniciarEncuesta(self):
+        #DEBEMOS MODIFICAR LOS ESTADOS DE LOS PROGRAMAS
+        self.estado = "MOSTRAR_ENCUESTA"
+        self.setEstadoAdmin = "ESPERANDO_ENCUESTA"
+        self.estadoClientes = "CONFIRMANDO_ENCUESTA"
+
+        #DEBEMOS REINICIAR EL ARRAY DINAMICO DE CONFIRMACION
+        self.__reiniciarArrayDinamicoConfirmacion()
+    
+    def confirmarEntregaEncuesta(self, client_id: int):
+        if not client_id in self.arrayDinamicoConfirmacion:
+            self.arrayDinamicoConfirmacion.append(client_id)
+    
+
+    def crearJuego(self, nombreSesion, tratamiento, actividades, rondas):
         self.estado = "MOSTRAR_BIENVENIDO"
         self.juegoCreado = True
+        self.nombreSesion = nombreSesion
 
         #CREAMOS LA ACTIVIDAD DE PRUEBA
         self.actividades.append(Actividad(tratamiento,0,2,True, self.participantesClubAzul, self.participantesClubAmarillo, self.dictParticipantes))
@@ -731,8 +1142,8 @@ class Entorno:
     def calcularGanancias(self):
         act = self.getActividad(self.actividadActual)
         act.calcularGanancias()
-        
-
+    
+    
 
     def setEstadoAdmin(self, estadoAdmin):
         self.estadoAdmin = estadoAdmin
@@ -795,9 +1206,10 @@ class Entorno:
     def get_resumen_actividades(self):
         arrayResumen = []
         for act in self.actividades:
-            arrayResumenAct = act.getResumenActividad()
-            for arc in arrayResumenAct:
-                arrayResumen.append(arc)
+            if act.numero <= self.actividadActual:
+                arrayResumenAct = act.getResumenActividad()
+                for arc in arrayResumenAct:
+                    arrayResumen.append(arc)
         return arrayResumen
 
     # ENTORNO
@@ -806,6 +1218,7 @@ class Entorno:
                 "estadoAdmin": self.estadoAdmin,
                 "estadoClientes" : self.estadoClientes,
                 "juegoCreado": self.juegoCreado,
+                "sesion": self.nombreSesion,
                 "vistas": self.getVistasBloqueadas(),
                 "actividad" : self.getDatosActividad(),
                 "resumen_actividades": self.get_resumen_actividades(),
@@ -941,6 +1354,12 @@ class Entorno:
         self.estadoAdmin = "MOSTRANDO_RESULTADO_EXCLUSION"
         self.estadoClientes = "MOSTRANDO_RESULTADO_EXCLUSION"
 
+    # CONFIRMACION DE LOS RESULTADOS DE EXCLUSION
+    def confirmarResultadosVotacionExcluir(self, client_id):
+        if not client_id in self.arrayDinamicoConfirmacion:
+            self.arrayDinamicoConfirmacion.append(client_id)
+
+
     
     #RESULTADOS INCLUSION
     def mostrarResultadoInclusion(self):
@@ -951,6 +1370,11 @@ class Entorno:
         self.estado = "MOSTRAR_RESULTADO_INCLUSION"
         self.estadoAdmin = "MOSTRANDO_RESULTADO_INCLUSION"
         self.estadoClientes = "MOSTRANDO_RESULTADO_INCLUSION"
+
+    # CONFIRMACION DE LOS RESULTADOS DE INCLUSION
+    def confirmarResultadosVotacionIncluir(self, client_id):
+        if not client_id in self.arrayDinamicoConfirmacion:
+            self.arrayDinamicoConfirmacion.append(client_id)
     
     #RESUMEN ACTIVIDAD / ES
     def mostrarResumenActividad(self):
@@ -1009,7 +1433,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             while True:
                 data = await websocket.receive_text()
                 dataJson = json.loads(data)
-                print(dataJson)
+                
                 tipo = dataJson["tipo"]
                 data = dataJson["data"]
 
@@ -1019,11 +1443,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             #dataRecived = json.loads(data)
                             # SE DEBE CREAR EL JUEGO CON EL TRATAMIENTO INDICADO
                             tratamiento = data["tratamiento"]
+                            nombreSesion = data["nombreSesion"]
                             actividades = 3
-                            rondas = 12
+                            rondas = 3
 
                             # DEBEMOS ACTUALIZAR EL ENTONRO
-                            entorno.crearJuego(tratamiento, actividades, rondas)
+                            entorno.crearJuego(nombreSesion, tratamiento, actividades, rondas)
                             entorno.setEstadoAdmin("ESPERANDO CONFIRMACION DE BIENVENIDO")
                             entorno.setEstadoClientes("MOSTRANDO INTERFAZ DE BIENVENIDO")
                             guardarEstadoApp(entorno)
@@ -1045,13 +1470,29 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                             await manager.broadcast(json.dumps(data))
 
+                        case "INICIAR_ENCUESTA":
+                            print("MOSTRANDO LA ENCUESTA")
+                            entorno.iniciarEncuesta()
+
+                            # DEBEMOS ENVIARLE LA NUEVA INTERFAZ A TODOS
+                            data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
+                            await manager.broadcast(json.dumps(data))
+
+                        case "EXPORTAR_CSV":
+                            entorno.exportarDatos()
+                        
+                        case "EXPORTAR_ENCUESTAS_CSV":
+                            entorno.exportarEncuestas()
+
+                        case "EXPORTAR_PAGOS_CSV":
+                            entorno.exportarPagos()
+                            
+
 
                         
                         case _:
                             print("caso de default")
                 else:
-                    print("desde cliente")
-
                     match tipo:
                         case "CLIENTE_SOLICITAR_ENTORNO":
                             #DEBEMOS ENVIARLE EL ENTORNO AL CLIENTE QUE CORRESPONDE --> client_id
@@ -1097,7 +1538,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
 
                             # CONFIRMANDO QUE YA NOS ENVIARON LOS CREDITOS
                             entorno.confirmarAsignacionCreditos(client_id)
+
+                            #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO AL ADMIN ADMIN
+                            data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
+                            await manager.toAdminMensaje(json.dumps(data))
                             guardarEstadoApp(entorno)
+                                
 
                             if entorno.hanConfirmadoTodos():
                                 #ACA DEBEMOS HACER EL CALCULO DE LAS GANANCIAS EXPERIMENTALES
@@ -1147,15 +1593,19 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             tipo = data["tipo"]
                             if tipo == "VOTACION_AZUL":
                                 client_id_voto = data["voto"]
-                                print(client_id_voto)
                                 entorno.confirmarVotacionExcluir(client_id)
                                 entorno.votarExcluir(client_id,client_id_voto)
                                 #ACA DEBEMOS PROCESAR EL VOTO DE LOS AZULES
+                                guardarEstadoApp(entorno)
 
                             if tipo == "VOTACION_AMARILLO":
                                 entorno.confirmarVotacionExcluir(client_id)
                                 #SABEMOS QUE EL AMARILLO NO PUEDE VOTAR ENTONCES SOLO SE HACE UNA CONFIRMACION DE VOTO RECIBIDA
-                                voto = data["voto"]
+                                votoNo = data["voto"]
+                                #ACA DEBEMOS GUARDAR EL VOTO DE LOS AMARILLOS
+                                entorno.votarExcluir(client_id,votoNo)
+                                #GUARDAMOS EL ESTADO DE LA APP
+                                guardarEstadoApp(entorno)
 
                             if entorno.hanConfirmadoTodos():
                                 # DEBEMOS FINALIZAR LA VOTACION DE EXCLUIR Y PROCESAR LOS RESULTADOS
@@ -1169,15 +1619,30 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                                 await manager.broadcast(json.dumps(data))
 
-                                time.sleep(10)
+                                #time.sleep(10)
 
                                 #DEBEMOS INICIAR LA VOTACION DE INCLUIR
-                                entorno.iniciarVotacionIncluir()
-                                guardarEstadoApp(entorno)
+                                #entorno.iniciarVotacionIncluir()
+                                #guardarEstadoApp(entorno)
 
                                 #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO MODO BROADCAST CLIENTES Y ADMIN
+                                
+                                #data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
+                                #await manager.broadcast(json.dumps(data))
+
+                        case "CONFIRMAR_RESULTADOS_VOTACION_EXCLUIR":
+                            #DEBEMOS CONFIRMAR EL RESULTADO DE VOTACION PARA EL CLIENTE cliente_id
+                            entorno.confirmarResultadosVotacionExcluir(client_id)
+                            guardarEstadoApp(entorno)
+
+                            if entorno.hanConfirmadoTodos():
+                                print("iniciando votacion incluir")
+                                entorno.iniciarVotacionIncluir()
+                                guardarEstadoApp(entorno)
+                                
                                 data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                                 await manager.broadcast(json.dumps(data))
+
 
                         case "ENVIAR_VOTACION_INCLUIR":
                             tipo = data["tipo"]
@@ -1186,16 +1651,22 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 entorno.confirmarVotacionIncluir(client_id)
                                 entorno.votarIncluir(client_id,client_id_voto)
                                 #ACA DEBEMOS PROCESAR EL VOTO DE LOS AZULES
+                                guardarEstadoApp(entorno)
 
                             if tipo == "VOTACION_AMARILLO":
+                                # CONFIRMAMOS LA VOTACION DEL AMARILLO
                                 entorno.confirmarVotacionIncluir(client_id)
-                                #SABEMOS QUE EL AMARILLO NO PUEDE VOTAR ENTONCES SOLO SE HACE UNA CONFIRMACION DE VOTO RECIBIDA
-                                voto = data["voto"]
+                                #EMPAQUETAMOS EL VOTO COMO UN NO
+                                votoNo = data["voto"]
+                                entorno.votarIncluir(client_id,votoNo)
+                                # GUARDAMOS EL ESTADO DE LA APP
+                                guardarEstadoApp(entorno)
                                 
 
                             if entorno.hanConfirmadoTodos():
                                 # DEBEMOS FINALIZAR LA VOTACION DE EXCLUIR Y PROCESAR LOS RESULTADOS
                                 entorno.finalizarVotacionIncluir()
+                                guardarEstadoApp(entorno)
 
                                 #DEBEMOS MOSTRAR LOS EQUIPOS ACTUALES
                                 entorno.mostrarResultadoInclusion()
@@ -1205,9 +1676,24 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                                 await manager.broadcast(json.dumps(data))
 
-
+                                guardarEstadoApp(entorno)
+                            
                                 # DEBEMOS ESPERAR Y VOLVER A LA ASIGNACION DE CREDITOS
-                                time.sleep(10)
+                                #time.sleep(10)
+                                #entorno.siguienteRonda()
+                                #entorno.iniciarAsignarCreditos()
+                                #guardarEstadoApp(entorno)
+ 
+                                #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO MODO BROADCAST CLIENTES Y ADMIN
+                                #data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
+                                #await manager.broadcast(json.dumps(data))
+                        
+                        case "CONFIRMAR_RESULTADOS_VOTACION_INCLUIR":
+                            #DEBEMOS CONFIRMAR EL RESULTADO DE VOTACION PARA EL CLIENTE cliente_id
+                            entorno.confirmarResultadosVotacionIncluir(client_id)
+                            guardarEstadoApp(entorno)
+
+                            if entorno.hanConfirmadoTodos():
                                 entorno.siguienteRonda()
                                 entorno.iniciarAsignarCreditos()
                                 guardarEstadoApp(entorno)
@@ -1215,8 +1701,30 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO MODO BROADCAST CLIENTES Y ADMIN
                                 data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                                 await manager.broadcast(json.dumps(data))
-                            
 
+                        case "AUX_ENVIAR_ENCUESTA":
+                            dataDict = json.loads(data)
+                            print(dataDict["grupo"])
+                            entorno.addEncuesta(dataDict)
+                            entorno.confirmarEntregaEncuesta(client_id)
+
+                            #DEBEMOS ENVIARLE EL ENTORNO AL CLIENTE QUE CORRESPONDE --> client_id
+                            # ENVIAMOS LOS DATOS DEL ENTORNO
+                            data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
+                            await manager.send_personal_message(json.dumps(data),websocket)
+
+                            guardarEstadoApp(entorno)
+                        
+
+                            if entorno.hanConfirmadoTodos():
+                                print("ENTREGARON TODOOOOOS")
+                                guardarEstadoApp(entorno)
+ 
+                                #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO MODO BROADCAST CLIENTES Y ADMIN
+                                data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
+                                await manager.broadcast(json.dumps(data))
+
+                        
                         case _:
                             print("caso de default cliente")
 

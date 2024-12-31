@@ -60,43 +60,50 @@ const IniciarActividad = ({ match, client_id, ws, entorno }) => {
     }
   }, [client_id, entorno]);
 
+  function capitalizarPrimeraLetra(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
   return (
     <Card>
       <CardBody
         style={{
           backgroundColor: club.colorLight,
           borderRadius: '10px',
+          minHeight: '700px',
         }}
       >
         <Row className="d-flex justify-content-center">
-          <Colxx lg="6">
-            <Card className="mb-4">
+          <Colxx lg="8">
+            <Card className="mb-4" style={{ marginTop: '100px' }}>
               <CardBody>
                 <div className="text-center">
                   {entorno.actividad.prueba ? (
                     <>
-                      <CardText className="font-weight-bold mb-3 h5">
-                        Estamos a punto de comenzar con las rondas de practica!
+                      <CardText className="font-weight-bold mb-3 h3">
+                        Estamos a punto de empezar con las rondas de práctica
                       </CardText>
-                      <CardText className="text-muted font-weight-bold mb-3 h5">
-                        Su letra de identificacion para las siguientes{' '}
-                        {rondasTotales} rondas es &#10143; {letra}
+                      <CardText className="font-weight-bold mb-3 h3">
+                        Su letra de identificación para las siguientes{' '}
+                        {rondasTotales} rondas de práctica es &#10143; {letra}
                       </CardText>
-                      <CardText className="text-muted font-weight-bold mb-4 h5">
-                        Ademas, has sido ingresado en el club {club.club}
+                      <CardText className="font-weight-bold mb-4 h3">
+                        Además, usted es un integrante del Club{' '}
+                        {capitalizarPrimeraLetra(club.club)}
                       </CardText>
                     </>
                   ) : (
                     <>
-                      <CardText className="font-weight-bold mb-3 h5">
-                        Estamos a punto de comenzar la actividad N°{numero}!
+                      <CardText className="font-weight-bold mb-3 h4">
+                        Estamos a punto de empezar la Actividad {numero}!
                       </CardText>
-                      <CardText className="text-muted font-weight-bold mb-3 h5">
-                        Su letra de identificacion para las siguientes{' '}
+                      <CardText className="text-muted font-weight-bold mb-3 h4">
+                        Su letra de identificación para las siguientes{' '}
                         {rondasTotales} rondas es &#10143; {letra}
                       </CardText>
-                      <CardText className="text-muted font-weight-bold mb-4 h5">
-                        Ademas, has sido ingresado en el club {club.club}
+                      <CardText className="text-muted font-weight-bold mb-4 h4">
+                        Además, usted es un integrante del Club{' '}
+                        {capitalizarPrimeraLetra(club.club)}
                       </CardText>
                     </>
                   )}
@@ -110,8 +117,9 @@ const IniciarActividad = ({ match, client_id, ws, entorno }) => {
                   onClick={() => comenzarActividad()}
                   style={{
                     fontWeight: 'bold',
-                    fontSize: '20px',
+                    fontSize: '24px',
                     backgroundColor: club.color,
+                    borderColor: 'transparent',
                   }}
                 >
                   {!bloqueado

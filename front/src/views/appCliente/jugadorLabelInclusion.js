@@ -43,10 +43,7 @@ const JugadorLabel = ({ client_id, element, transicionInclusion }) => {
           className="ml-4 mr-4 mt-2 mb-2 "
         >
           <div className="text-center ">
-            <Label
-              className="h5 mb-3 mt-3"
-              style={{ color: 'white', fontWeight: 'bold' }}
-            >
+            <Label className="h5 mb-3 mt-3" style={{ fontWeight: 'bold' }}>
               {element.client_id === client_id && (
                 <>
                   {ud} Jugador {element.letra}
@@ -63,13 +60,13 @@ const JugadorLabel = ({ client_id, element, transicionInclusion }) => {
         <>
           {transicionInclusion.includes(element.client_id) ? (
             <div
-              style={{ backgroundColor: colorBlue, borderRadius: '5px' }}
+              style={{ borderRadius: '5px', backgroundColor: colorBlue }}
               className="ml-4 mr-4 mt-2 mb-2 transicion-votacion-Amarillo-Azul"
             >
-              <div className="text-center ">
+              <div className="text-center transicion-votacion-Amarillo-Azul">
                 <Label
-                  className="h5 mb-3 mt-3"
-                  style={{ color: 'white', fontWeight: 'bold' }}
+                  className="h5 mb-3 mt-3 transicion-votacion-Amarillo-Azul"
+                  style={{ fontWeight: 'bold', color: 'white' }}
                 >
                   {element.client_id === client_id && (
                     <>
@@ -90,7 +87,7 @@ const JugadorLabel = ({ client_id, element, transicionInclusion }) => {
               <div className="text-center ">
                 <Label
                   className="h5 mb-3 mt-3"
-                  style={{ color: 'white', fontWeight: 'bold' }}
+                  style={{ color: 'black', fontWeight: 'bold' }}
                 >
                   {element.client_id === client_id && (
                     <>

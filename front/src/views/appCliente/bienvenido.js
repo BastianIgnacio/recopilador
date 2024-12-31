@@ -12,6 +12,7 @@ import {
   CardFooter,
 } from 'reactstrap';
 import { useParams } from 'react-router-dom';
+import { colorPlomo } from 'constants/defaultValues';
 import { Colxx, Separator } from 'components/common/CustomBootstrap';
 
 const Bienvenido = ({ match, ws, client_id, entorno }) => {
@@ -36,20 +37,26 @@ const Bienvenido = ({ match, ws, client_id, entorno }) => {
   }, [client_id, entorno]);
 
   return (
-    <>
+    <div
+      style={{
+        paddingTop: '200px',
+        backgroundColor: colorPlomo,
+        paddingBottom: '200px',
+      }}
+    >
       <Row className="d-flex justify-content-center">
-        <Colxx lg="6">
+        <Colxx lg="8">
           <Card className="mb-4">
             <CardBody>
               <div className="text-center">
-                <CardText className="font-weight-bold mb-3 h5">
-                  Bienvenido y gracias por aceptar participar.
+                <CardText className="font-weight-bold mb-3 h3">
+                  Bienvenido/Bienvenida y gracias por aceptar participar.
                 </CardText>
-                <CardText className="font-weight-bold mb-3 h5">
-                  Por favor silenciar o apagar su telefono movil.
+                <CardText className="font-weight-bold mb-3 h3">
+                  Por favor silenciar o apagar su teléfono móvil
                 </CardText>
-                <CardText className="font-weight-bold h5">
-                  Por favor no hablar o comunicarse con los demas participantes.
+                <CardText className="font-weight-bold h3">
+                  Por favor no hablar o comunicarse con los demás participantes
                 </CardText>
               </div>
             </CardBody>
@@ -61,18 +68,21 @@ const Bienvenido = ({ match, ws, client_id, entorno }) => {
                 onClick={() => confirmar()}
                 style={{
                   fontWeight: 'bold',
-                  fontSize: '20px',
+                  fontSize: '24px',
+                  backgroundColor: colorPlomo,
+                  color: 'black',
+                  borderColor: 'transparent',
                 }}
               >
                 {!bloqueado
-                  ? 'Comenzar'
+                  ? 'Empezar'
                   : 'Esperando a los otros participantes..'}
               </Button>
             </CardFooter>
           </Card>
         </Colxx>
       </Row>
-    </>
+    </div>
   );
 };
 

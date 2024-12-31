@@ -13,37 +13,23 @@
 }
 
 .transicion-votacion-Azul-Amarillo {
-    background-color: #F5C400;
     animation-name: transicionVotacionAzulAmarillo;
-    animation-duration: 10s;
+    animation-duration: 5s;
     border-radius: 15px;
 }
 @keyframes transicionVotacionAzulAmarillo {
-    from {background-color: #001840;}
-    to {background-color: #F5C400;}
+    from {background-color: #001840; color:white;}
+    to {  background-color: #F5C400; color:black}
 }
 
 .transicion-votacion-Amarillo-Azul {
-    background-color: #001840;
     animation-name: transicionVotacionAmarilloAzul;
-    animation-duration: 10s;
+    animation-duration: 5s;
     border-radius: 15px;
 }
 @keyframes transicionVotacionAmarilloAzul {
-    from {background-color: #F5C400;}
-    to {background-color: #001840;}
-}
-
-.transicion-votacion {
-  background-color: #F5C400;
-  animation-name: transicionVotacion;
-  animation-duration: 10s;
-  border-radius: 15px;
-
-}
-@keyframes transicionVotacion {
-  from {background-color: #001840;}
-  to {background-color: #F5C400;}
+    from {background-color: #F5C400; color: black}
+    to {background-color: #001840; color: white}
 }
 
 @keyframes square-in-center {

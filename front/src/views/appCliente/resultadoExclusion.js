@@ -7,17 +7,9 @@
 /* eslint-disable react/jsx-key */
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
-import { Row, Card, CardBody, Label } from 'reactstrap';
+import { Row, Card, CardBody, Label, Button } from 'reactstrap';
 import { Colxx, Separator } from 'components/common/CustomBootstrap';
-import {
-  colorBlue,
-  colorYellow,
-  colorCrema,
-  colorPlomo,
-  colorLightBlue,
-  colorLightYellow,
-} from 'constants/defaultValues';
-import Notificacion from './notificacion';
+import { colorPlomo } from 'constants/defaultValues';
 
 import './transiciones.css';
 import JugadorLabel from './jugadorLabelExclusion';
@@ -25,27 +17,62 @@ import JugadorLabel from './jugadorLabelExclusion';
 const ResultadoExclusion = ({ match, client_id, ws, entorno }) => {
   const arrayExclusion = entorno.actividad.resultadosExcluir.excluidos;
   const [arrayNotificaciones, setArrayNotificacion] = useState([]);
+  const [bloqueado, setBloqueado] = useState(false);
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const jugadorExcluido of arrayExclusion) {
-    console.log(jugadorExcluido);
-    const { label } = entorno.actividad.jugadores.find(
-      (jugador) => jugador.client_id === jugadorExcluido
+  const confirmar = () => {
+    setBloqueado(true);
+    const data = {};
+    setTimeout(() => {
+      const jsonSend = {
+        tipo: 'CONFIRMAR_RESULTADOS_VOTACION_EXCLUIR',
+        data,
+      };
+      const dataQuery = JSON.stringify(jsonSend);
+      ws.send(dataQuery);
+    }, 100);
+  };
+
+  useEffect(() => {
+    // CHECKEAMOS SI LA VISTA DEBE ESTAR BLOQUEADA
+    const vistasBloqueadas = entorno.vistas;
+    const vistaBloqueada = vistasBloqueadas.find(
+      (vistaElement) => vistaElement.client_id === client_id
     );
-    arrayNotificaciones.push({
-      label: `${label} Ha sido movido al club amarillo`,
-      color: '#F5C400',
-    });
-    console.log(arrayNotificaciones);
-  }
+    setBloqueado(vistaBloqueada.bloqueado);
 
-  if (arrayNotificaciones.length === 0) {
-    arrayNotificaciones.push({
-      label: `Ningun jugador ha sido movido al club amarillo`,
-      color: '#E3E3E3',
-      colorLetra: 'black',
-    });
-  }
+    const array = [];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const jugadorExcluido of arrayExclusion) {
+      const jugadorEncontrado = entorno.actividad.jugadores.find(
+        (jugador) => jugador.client_id === jugadorExcluido
+      );
+
+      if (jugadorEncontrado.client_id === client_id) {
+        array.push({
+          label: `Usted ha sido trasladado al Club Amarillo`,
+          color: '#F5C400',
+          colorLetra: 'black',
+        });
+      } else {
+        array.push({
+          label: `${jugadorEncontrado.label} ha sido trasladado al Club Amarillo`,
+          color: '#F5C400',
+          colorLetra: 'black',
+        });
+      }
+    }
+
+    if (array.length === 0) {
+      array.push({
+        label: `Ningún jugador ha sido trasladado al Club Amarillo`,
+        color: '#E3E3E3',
+        colorLetra: 'black',
+      });
+    }
+    setArrayNotificacion(array);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  console.log(arrayNotificaciones);
 
   return (
     <>
@@ -67,7 +94,7 @@ const ResultadoExclusion = ({ match, client_id, ws, entorno }) => {
                   className="h3"
                   style={{ color: 'black', fontWeight: 'bold' }}
                 >
-                  RESULTADOS DE LA VOTACIÓN EXCLUSION
+                  RESULTADOS DE LA VOTACIÓN - EXCLUSIÓN
                 </Label>
               </div>
             </div>
@@ -84,11 +111,11 @@ const ResultadoExclusion = ({ match, client_id, ws, entorno }) => {
                       }}
                       className="ml-2 mr-2 mt-2 mb-2"
                     >
-                      <div className="text-center mt-4 ml-4">
+                      <div className="text-center p-4">
                         <Label
                           className="h2"
                           style={{
-                            color: 'white',
+                            color: notificacion.colorLetra,
                             fontWeight: 'bold',
                           }}
                         >
@@ -99,11 +126,11 @@ const ResultadoExclusion = ({ match, client_id, ws, entorno }) => {
                   </Colxx>
                 );
               })}
-              <Colxx lg="10">
+              <Colxx lg="11">
                 <Card
                   className="mb-4 mt-4"
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: colorPlomo,
                     borderRadius: '10px',
                     borderWidth: '2px',
                     borderColor: colorPlomo,
@@ -126,6 +153,25 @@ const ResultadoExclusion = ({ match, client_id, ws, entorno }) => {
                     </Row>
                   </CardBody>
                 </Card>
+              </Colxx>
+              <Colxx lg="8">
+                <Button
+                  block
+                  onClick={confirmar}
+                  style={{
+                    backgroundColor: colorPlomo,
+                    fontWeight: 'bold',
+                    fontSize: '20px',
+                    color: 'black',
+                    marginBottom: '20px',
+                    borderColor: 'transparent',
+                  }}
+                  disabled={bloqueado}
+                >
+                  {!bloqueado
+                    ? 'CONTINUAR'
+                    : 'Esperando a los otros participantes..'}
+                </Button>
               </Colxx>
             </Row>
           </Card>

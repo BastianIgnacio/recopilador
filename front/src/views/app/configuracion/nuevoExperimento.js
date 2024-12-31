@@ -7,6 +7,7 @@ import IntlMessages from 'helpers/IntlMessages';
 import { Colxx, Separator } from 'components/common/CustomBootstrap';
 import Breadcrumb from 'containers/navs/Breadcrumb';
 import Experimento1 from './experimento_1';
+import Experimento2 from './experimento_2';
 
 const NuevoExperimento = ({ match, grupo }) => (
   <>
@@ -19,6 +20,7 @@ const NuevoExperimento = ({ match, grupo }) => (
     <Row>
       <Colxx xl="12" className="mb-4">
         {grupo === 1 && <Experimento1 />}
+        {grupo === 2 && <Experimento2 />}
       </Colxx>
     </Row>
   </>
