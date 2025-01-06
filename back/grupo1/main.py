@@ -1471,9 +1471,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             await manager.broadcast(json.dumps(data))
 
                         case "INICIAR_ENCUESTA":
-                            print("MOSTRANDO LA ENCUESTA")
                             entorno.iniciarEncuesta()
-
                             # DEBEMOS ENVIARLE LA NUEVA INTERFAZ A TODOS
                             data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                             await manager.broadcast(json.dumps(data))
@@ -1712,19 +1710,14 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             # ENVIAMOS LOS DATOS DEL ENTORNO
                             data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                             await manager.send_personal_message(json.dumps(data),websocket)
-
                             guardarEstadoApp(entorno)
                         
-
                             if entorno.hanConfirmadoTodos():
-                                print("ENTREGARON TODOOOOOS")
                                 guardarEstadoApp(entorno)
- 
                                 #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO MODO BROADCAST CLIENTES Y ADMIN
                                 data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                                 await manager.broadcast(json.dumps(data))
 
-                        
                         case _:
                             print("caso de default cliente")
 
