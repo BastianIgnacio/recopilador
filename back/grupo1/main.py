@@ -67,14 +67,15 @@ class ConnectionManager:
 
 class Encuesta:
     def __init__(self,
-    integrante,grupo,genero,edad,comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia, anosSiendoIntegranteSindicato, tipoIntegrante,
+    integrante,grupo,genero,edad, nivelEducacional, comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia, anosSiendoIntegranteSindicato, tipoIntegrante,
     importanciaMiembroSindicato, puedeExternoPostularSindicato, esPosibleExpulsarSindicato, sindicatoHaIntegradoNuevosMiembros, sindicatoHaExpulsadoNuevosMiembros,
-    confiaOtrosPescadores, creibleSistemaFiscalizacion, aceptableNormas, percibeImpactoNormas, probableSancion):
+    confiaOtrosPescadores, creibleSistemaFiscalizacion, aceptableNormas, percibeImpactoNormas, probableSancion, razon1, razon2,razon3, razonOtra, comunaOtra, actividad1, actividad2, actividad3, actividadOtra):
         
         self.integrante = integrante
         self.grupo = grupo
         self.genero = genero
         self.edad = edad
+        self.nivelEducacional = nivelEducacional
         self.comuna = comuna
         self.estadoCivil = estadoCivil
         self.jefeHogar = jefeHogar
@@ -94,6 +95,17 @@ class Encuesta:
         self.aceptableNormas = aceptableNormas
         self.percibeImpactoNormas = percibeImpactoNormas
         self.probableSancion = probableSancion
+        self.razon1 = razon1
+        self.razon2 = razon2
+        self.razon3 = razon3
+        self.razonOtra = razonOtra
+
+        self.comunaOtra = comunaOtra
+
+        self.actividad1 = actividad1
+        self.actividad2 = actividad2
+        self.actividad3 = actividad3
+        self.actividadOtra = actividadOtra
 
 
 class Voto:
@@ -1006,6 +1018,7 @@ class Entorno:
         grupo = self.grupo
         genero = data['genero']
         edad = data['edad']
+        nivelEducacional = data['nivelEducacional']
         comuna = data['comuna']
         estadoCivil = data['estadoCivil']
         jefeHogar = data['jefeHogar']
@@ -1026,12 +1039,27 @@ class Entorno:
         percibeImpactoNormas = data['percibeImpactoNormas']
         probableSancion = data['probableSancion']
 
+        razon1 = data['razon1']
+        razon2 = data['razon2']
+        razon3 = data['razon3']
+        razonOtra = data['razonOtra']
+
+        comunaOtra = data['comunaOtra']
 
 
-        encuesta = Encuesta(integrante,grupo,genero,edad,comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia,
+        actividad1 = data['actividad1']
+        actividad2 = data['actividad2']
+        actividad3 = data['actividad3']
+        actividadOtra = data['actividadOtra']
+
+
+
+
+
+        encuesta = Encuesta(integrante,grupo,genero,edad,nivelEducacional, comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia,
         anosSiendoIntegranteSindicato, tipoIntegrante, importanciaMiembroSindicato, puedeExternoPostularSindicato, esPosibleExpulsarSindicato,
         sindicatoHaIntegradoNuevosMiembros, sindicatoHaExpulsadoNuevosMiembros, confiaOtrosPescadores, creibleSistemaFiscalizacion,
-        aceptableNormas, percibeImpactoNormas, probableSancion)
+        aceptableNormas, percibeImpactoNormas, probableSancion,razon1,razon2,razon3,razonOtra, comunaOtra, actividad1, actividad2, actividad3, actividadOtra)
         print("añadiendo encuesta")
         self.encuestas.append(encuesta)
 
@@ -1043,16 +1071,16 @@ class Entorno:
         nombreArchivoExportar = "exportacion_" + nombreSesion + "_grupo_" + str(grupo) + "_encuestas.csv"
 
         # COLUMNAS DEL ARCHIVO
-        headers = ['integrante','grupo','genero','edad','comuna', 'estadoCivil', 'jefeHogar', 'personasDependen', 'anosViviendoLugar', 'ingresoFamilia', 'anosSiendoIntegranteSindicato', 'tipoIntegrante',
+        headers = ['integrante','grupo','genero','edad','nivelEducacional','comuna', 'comunaOtra', 'estadoCivil', 'jefeHogar', 'personasDependen', 'anosViviendoLugar', 'ingresoFamilia', 'anosSiendoIntegranteSindicato', 'tipoIntegrante',
         'importanciaMiembroSindicato', 'puedeExternoPostularSindicato', 'esPosibleExpulsarSindicato', 'sindicatoHaIntegradoNuevosMiembros', 'sindicatoHaExpulsadoNuevosMiembros',
-        'confiaOtrosPescadores', 'creibleSistemaFiscalizacion', 'aceptableNormas', 'percibeImpactoNormas', 'probableSancion']
+        'confiaOtrosPescadores', 'creibleSistemaFiscalizacion', 'aceptableNormas', 'percibeImpactoNormas', 'probableSancion','razon1','razon2','razon3','razonOtra', 'actividad1', 'actividad2', 'actividad3', 'actividadOtra']
         asigArray = []
 
         # REVISAMOS TODAS LAS ENCUESTAS
         for enc in self.encuestas:
-            arrayAux = [enc.integrante, enc.grupo, enc.genero, enc.edad, enc.comuna, enc.estadoCivil, enc.jefeHogar, enc.personasDependen, enc.anosViviendoLugar, enc.ingresoFamilia, enc.anosSiendoIntegranteSindicato, enc.tipoIntegrante,
+            arrayAux = [enc.integrante, enc.grupo, enc.genero, enc.edad, enc.nivelEducacional, enc.comuna,  enc.comunaOtra, enc.estadoCivil, enc.jefeHogar, enc.personasDependen, enc.anosViviendoLugar, enc.ingresoFamilia, enc.anosSiendoIntegranteSindicato, enc.tipoIntegrante,
             enc.importanciaMiembroSindicato, enc.puedeExternoPostularSindicato, enc.esPosibleExpulsarSindicato, enc.sindicatoHaIntegradoNuevosMiembros, enc.sindicatoHaExpulsadoNuevosMiembros,
-            enc.confiaOtrosPescadores, enc.creibleSistemaFiscalizacion, enc.aceptableNormas, enc.percibeImpactoNormas, enc.probableSancion]
+            enc.confiaOtrosPescadores, enc.creibleSistemaFiscalizacion, enc.aceptableNormas, enc.percibeImpactoNormas, enc.probableSancion, enc.razon1, enc.razon2, enc.razon3, enc.razonOtra, enc.actividad1, enc.actividad2, enc.actividad3, enc.actividadOtra]
             asigArray.append(arrayAux)
             
         with open(nombreArchivoExportar, mode='w', newline='') as file:
@@ -1060,7 +1088,7 @@ class Entorno:
             writer.writerow( headers) # Creamos las columnas
             for asigAux in asigArray:
                 writer.writerow(asigAux)
-        f.close()     
+        file.close()     
 
     def exportarPagos(self):
         #NOMBRE DEL ARCHIVO
@@ -1108,7 +1136,7 @@ class Entorno:
             for asigAux in asigArray:
                 writer.writerow(asigAux)
             
-        f.close()      
+        file.close()      
  
 
     
@@ -1617,17 +1645,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
                                 await manager.broadcast(json.dumps(data))
 
-                                #time.sleep(10)
-
-                                #DEBEMOS INICIAR LA VOTACION DE INCLUIR
-                                #entorno.iniciarVotacionIncluir()
-                                #guardarEstadoApp(entorno)
-
-                                #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO MODO BROADCAST CLIENTES Y ADMIN
-                                
-                                #data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
-                                #await manager.broadcast(json.dumps(data))
-
                         case "CONFIRMAR_RESULTADOS_VOTACION_EXCLUIR":
                             #DEBEMOS CONFIRMAR EL RESULTADO DE VOTACION PARA EL CLIENTE cliente_id
                             entorno.confirmarResultadosVotacionExcluir(client_id)
@@ -1675,16 +1692,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                                 await manager.broadcast(json.dumps(data))
 
                                 guardarEstadoApp(entorno)
-                            
-                                # DEBEMOS ESPERAR Y VOLVER A LA ASIGNACION DE CREDITOS
-                                #time.sleep(10)
-                                #entorno.siguienteRonda()
-                                #entorno.iniciarAsignarCreditos()
-                                #guardarEstadoApp(entorno)
- 
-                                #DEBEMOS ENVIAR EL CAMBIO DE ENTORNO MODO BROADCAST CLIENTES Y ADMIN
-                                #data = {"tipo": "DATOS_ENTORNO","entorno": entorno.getDatosEntorno()}
-                                #await manager.broadcast(json.dumps(data))
                         
                         case "CONFIRMAR_RESULTADOS_VOTACION_INCLUIR":
                             #DEBEMOS CONFIRMAR EL RESULTADO DE VOTACION PARA EL CLIENTE cliente_id

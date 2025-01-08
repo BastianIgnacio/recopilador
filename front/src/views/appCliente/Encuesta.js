@@ -8,7 +8,7 @@
 /* eslint-disable react/jsx-key */
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
-import { Formik, Form } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import { Row, Card, CardBody, FormGroup, Label, Button } from 'reactstrap';
 import { Colxx } from 'components/common/CustomBootstrap';
 import { comunas } from 'constants/defaultValues';
@@ -16,11 +16,16 @@ import * as Yup from 'yup';
 import {
   FormikRadioButtonGroup,
   FormikRadioButtonGroupReelevancia,
+  FormikCustomRadioGroupRazones,
 } from './FormikFields';
 
 // eslint-disable-next-line camelcase
 const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
   const [botonDisabled, setBotonDisabled] = useState(false);
+  const [mostrarField, setMostrarField] = useState(false);
+  const [mostrarFieldComuna, setMostrarFieldComuna] = useState(false);
+  const [mostrarFieldOtraActividad, setMostrarFieldOtraActividad] =
+    useState(false);
   const [club, setClub] = useState('AZUL');
   const [jugador, setJugador] = useState([]);
   const sizeEncuesta = '20px';
@@ -55,18 +60,82 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
   };
 
   const onSubmit = (values, { setSubmitting }) => {
-    setBotonDisabled(true);
+    // setBotonDisabled(true);
     settextBoton('Encuesta enviada, muchas gracias!');
     console.log(values);
+
+    let comunaOtra = '.';
+    // VAMOS A GUARDAR LA COMUNA Y SI HAY OTRA COMUNA
+    const comuna = values.selectComuna;
+    if (comuna !== 'OTRA') {
+      comunaOtra = '.';
+    } else {
+      comunaOtra = values.fieldComunaOtra;
+    }
+
+    // En relación a las actividades laborales vinculadas al mar, ¿podría indicarme las 3 actividades, en orden de importancia, a las cuáles usted le dedica más tiempo?
+    const arrayActividades = values.actividadesLaboralesRadioGruop;
+    // INCLUYE LA RAZON OTRA
+    let actividadOtra = '';
+    if (arrayActividades.includes(0)) {
+      actividadOtra = values.fieldActividadLaboralOtra;
+    } else {
+      actividadOtra = '.';
+    }
+
+    // AHORA VAMOS A CHECKEAR LAS TRES RAZONES
+    let actividad1 = arrayActividades[0];
+    if (actividad1 === undefined) {
+      actividad1 = '.';
+    }
+    let actividad2 = arrayActividades[1];
+    if (actividad2 === undefined) {
+      actividad2 = '.';
+    }
+    let actividad3 = arrayActividades[2];
+    if (actividad3 === undefined) {
+      actividad3 = '.';
+    }
+
+    // PREGUNTA ¿Qué razones cree que pueden llevar a un pescador a no cumplir con las normas o a realizar pesca ilegal? (Seleccione hasta 3 opciones)
+    const arrayRazones = values.razonesRadioGruop;
+    // INCLUYE LA RAZON OTRA
+    let razonOtra = '';
+    if (arrayRazones.includes(0)) {
+      razonOtra = values.fieldRazonOtra;
+    } else {
+      razonOtra = '.';
+    }
+
+    // AHORA VAMOS A CHECKEAR LAS TRES RAZONES
+    let razon1 = arrayRazones[0];
+    if (razon1 === undefined) {
+      razon1 = '.';
+    }
+    let razon2 = arrayRazones[1];
+    if (razon2 === undefined) {
+      razon2 = '.';
+    }
+    let razon3 = arrayRazones[2];
+    if (razon3 === undefined) {
+      razon3 = '.';
+    }
+
     const datosEncuesta = {
       grupo: values.grupo,
       integrante: values.integrante,
       genero: values.selectGenero,
       edad: values.selectEdad,
       comuna: values.selectComuna,
+      nivelEducacional: values.selectNivelEducacional,
       estadoCivil: values.selectEstadoCivil,
       jefeHogar: values.selectJefeHogar,
       personasDependen: values.selectPersonasDependen,
+      actividadesLaboralesVinculadas: values.actividadesLaboralesRadioGruop,
+      actividad1,
+      actividad2,
+      actividad3,
+      actividadOtra,
       anosViviendoLugar: values.selectViviendoLugar,
       ingresoFamilia: values.selectIngresoFamilia,
       anosSiendoIntegranteSindicato: values.anosSiendoIntegranteSindicato,
@@ -83,6 +152,12 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
       aceptableNormas: values.selectAceptableNormas,
       percibeImpactoNormas: values.selectPercibeImpactoNormas,
       probableSancion: values.selectProbableSancion,
+      razonesPescaIlegal: values.razonesRadioGruop,
+      razon1,
+      razon2,
+      razon3,
+      razonOtra,
+      comunaOtra,
     };
     console.log(datosEncuesta);
     setTimeout(() => {
@@ -299,6 +374,80 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
     ];
   };
 
+  const optionsRazones = () => {
+    return [
+      { value: 1, label: 'Necesidad económica', disabled: false },
+      {
+        value: 2,
+        label:
+          'Las normas no están claras (confusión sobre lo que se permite y lo que no). ',
+        disabled: false,
+      },
+      {
+        value: 3,
+        label:
+          'Las normas son injustas (ej., no benefician a todos por igual).',
+        disabled: false,
+      },
+      { value: 4, label: 'No hay suficiente vigilancia', disabled: false },
+      {
+        value: 5,
+        label: 'Las sanciones no se aplican como deberían',
+        disabled: false,
+      },
+      {
+        value: 6,
+        label:
+          'Otros pescadores también incumplen (si ellos no cumplen, ¿por qué yo sí?).',
+        disabled: false,
+      },
+      {
+        value: 7,
+        label:
+          'Las normas afectan a mi trabajo (ej., me hacen ganar menos dinero).',
+        disabled: false,
+      },
+      {
+        value: 8,
+        label:
+          'No veo beneficios por cumplir con las normas (no mejora mi situación).',
+        disabled: false,
+      },
+      { value: 9, label: 'Presión de otros pescadores.', disabled: false },
+      { value: 0, label: 'Otra.', disabled: false },
+    ];
+  };
+
+  const optionsActividadesLaborales = () => {
+    return [
+      { value: 1, label: 'ARMADOR', opc: 'ARMADOR', disabled: false },
+      { value: 2, label: 'PATRON', opc: 'PATRON', disabled: false },
+      {
+        value: 3,
+        label: 'TRIPULANTE PESCADOR',
+        opc: 'TRIPULANTE_PESCADOR',
+        disabled: false,
+      },
+      { value: 4, label: 'BUZO', opc: 'BUZO', disabled: false },
+      {
+        value: 5,
+        label: 'AUXILIAR DE BUZO',
+        opc: 'AUXILIAR_DE_BUZO',
+        disabled: false,
+      },
+      { value: 6, label: 'ALGUERO', opc: 'ALGUERO', disabled: false },
+      { value: 7, label: 'MARISCADOR', opc: 'MARISCADOR', disabled: false },
+      { value: 8, label: 'VIGILANTE', opc: 'VIGILANTE', disabled: false },
+      {
+        value: 9,
+        label: 'LABORES DE ADMINISTRACION',
+        opc: 'LABORES_DE_ADMINISTRACION',
+        disabled: false,
+      },
+      { value: 0, label: 'OTRA', opc: 'OTRA', disabled: false },
+    ];
+  };
+
   const generarEdadOptions = (min, max) => {
     const array = [];
     // eslint-disable-next-line no-plusplus
@@ -352,9 +501,14 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                   selectAceptableNormas: '',
                   selectPercibeImpactoNormas: '',
                   selectProbableSancion: '',
+                  razonesRadioGruop: [],
+                  fieldRazonOtra: '',
+                  fieldComunaOtra: '',
+                  actividadesLaboralesRadioGruop: [],
+                  fieldActividadLaboralOtra: '',
                 }}
                 onSubmit={onSubmit}
-                validationSchema={SignupSchema}
+                // validationSchema={SignupSchema}
               >
                 {({
                   handleSubmit,
@@ -420,7 +574,7 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                           <option key="" value="" disabled>
                             Seleccione su respuesta!
                           </option>
-                          {generarEdadOptions(16, 71).map((opc) => (
+                          {generarEdadOptions(16, 81).map((opc) => (
                             <option key={opc.value} value={opc.value}>
                               {opc.label}
                             </option>
@@ -481,7 +635,17 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                           name="selectComuna"
                           className="form-control"
                           value={values.selectComuna}
-                          onChange={handleChange}
+                          onChange={(opc) => {
+                            const opcNueva = opc.target.value;
+
+                            if (opcNueva === 'OTRA') {
+                              setMostrarFieldComuna(true);
+                            } else {
+                              setMostrarFieldComuna(false);
+                            }
+                            setFieldValue('selectComuna', opcNueva);
+                            console.log(opc.target.value);
+                          }}
                           onBlur={handleBlur}
                           style={{ fontSize: sizeEncuesta }}
                         >
@@ -496,6 +660,13 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                             );
                           })}
                         </select>
+                        {mostrarFieldComuna && (
+                          <Field
+                            className="form-control mt-2"
+                            placeholder="INGRESE SU COMUNA"
+                            name="fieldComunaOtra"
+                          />
+                        )}
                         {errors.selectComuna && touched.selectComuna ? (
                           <div className="invalid-feedback d-block">
                             {errors.selectComuna}
@@ -609,6 +780,42 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                         ) : null}
                       </Colxx>
                     </FormGroup>
+                    <FormGroup
+                      row
+                      className="m-3  mt-4 tooltip-right-bottom"
+                      style={{ fontSize: sizeEncuesta }}
+                    >
+                      <Label className="d-block" sm={6}>
+                        En relación a las actividades laborales vinculadas al
+                        mar, ¿podría indicarme las 3 actividades, en orden de
+                        importancia, a las cuáles usted le dedica más tiempo?
+                      </Label>
+                      <Colxx sm={6}>
+                        <FormikCustomRadioGroupRazones
+                          name="actividadesLaboralesRadioGruop"
+                          id="actividadesLaboralesRadioGruop"
+                          values={values.actividadesLaboralesRadioGruop}
+                          onChange={setFieldValue}
+                          onBlur={setFieldTouched}
+                          options={optionsActividadesLaborales()}
+                          max={3}
+                          setMostrarField={setMostrarFieldOtraActividad}
+                        />
+                        {mostrarFieldOtraActividad && (
+                          <Field
+                            className="form-control"
+                            name="fieldActividadLaboralOtra"
+                          />
+                        )}
+                        {errors.actividadesLaboralesRadioGruop &&
+                        touched.actividadesLaboralesRadioGruop ? (
+                          <div className="invalid-feedback d-block">
+                            {errors.actividadesLaboralesRadioGruop}
+                          </div>
+                        ) : null}
+                      </Colxx>
+                    </FormGroup>
+
                     <FormGroup
                       row
                       className="m-3 tooltip-right-bottom"
@@ -958,7 +1165,7 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                             Seleccione su respuesta!
                           </option>
                           {confiaOptions(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
+                            <option key={opc.codigo} value={opc.value}>
                               {opc.label}
                             </option>
                           ))}
@@ -997,7 +1204,7 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                           </option>
                           {creibleSistemaFiscalizacion(botonDisabled).map(
                             (opc) => (
-                              <option key={opc.codigo} value={opc.codigo}>
+                              <option key={opc.codigo} value={opc.value}>
                                 {opc.label}
                               </option>
                             )
@@ -1035,7 +1242,7 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                             Seleccione su respuesta!
                           </option>
                           {normasAceptables(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
+                            <option key={opc.codigo} value={opc.value}>
                               {opc.label}
                             </option>
                           ))}
@@ -1072,7 +1279,7 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                             Seleccione su respuesta!
                           </option>
                           {impactoNormas(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
+                            <option key={opc.codigo} value={opc.value}>
                               {opc.label}
                             </option>
                           ))}
@@ -1108,7 +1315,7 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                             Seleccione su respuesta!
                           </option>
                           {probableSancion(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
+                            <option key={opc.codigo} value={opc.value}>
                               {opc.label}
                             </option>
                           ))}
@@ -1117,6 +1324,41 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                         touched.selectProbableSancion ? (
                           <div className="invalid-feedback d-block">
                             {errors.selectProbableSancion}
+                          </div>
+                        ) : null}
+                      </Colxx>
+                    </FormGroup>
+                    <FormGroup
+                      row
+                      className="m-3  mt-4 tooltip-right-bottom"
+                      style={{ fontSize: sizeEncuesta }}
+                    >
+                      <Label className="d-block" sm={6}>
+                        ¿Qué razones cree que pueden llevar a un pescador a no
+                        cumplir con las normas o a realizar pesca ilegal?
+                        (Seleccione hasta 3 opciones)
+                      </Label>
+                      <Colxx sm={6}>
+                        <FormikCustomRadioGroupRazones
+                          name="razonesRadioGruop"
+                          id="razonesRadioGruop"
+                          values={values.razonesRadioGruop}
+                          onChange={setFieldValue}
+                          onBlur={setFieldTouched}
+                          options={optionsRazones()}
+                          max={3}
+                          setMostrarField={setMostrarField}
+                        />
+                        {mostrarField && (
+                          <Field
+                            className="form-control"
+                            name="fieldRazonOtra"
+                          />
+                        )}
+                        {errors.razonesRadioGruop &&
+                        touched.razonesRadioGruop ? (
+                          <div className="invalid-feedback d-block">
+                            {errors.razonesRadioGruop}
                           </div>
                         ) : null}
                       </Colxx>

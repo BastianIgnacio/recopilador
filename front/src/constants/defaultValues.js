@@ -162,4 +162,5 @@ export const comunas = [
   { value: 'TALCAHUANO', key: 10 },
   { value: 'TREGUACO', key: 11 },
   { value: 'TOME', key: 12 },
+  { value: 'OTRA', key: 13 },
 ];

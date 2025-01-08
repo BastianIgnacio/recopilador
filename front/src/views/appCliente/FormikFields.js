@@ -16,6 +16,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './transiciones.css';
 import { colorPlomo } from 'constants/defaultValues';
+import { sassFalse } from 'sass';
 
 const FormikReactSelect = ({
   name,
@@ -461,6 +462,96 @@ const FormikCustomRadioGroupMaxIncluir = ({
   );
 };
 
+const FormikCustomRadioGroupRazones = ({
+  name,
+  max,
+  values,
+  options,
+  inline = false,
+  onChange,
+  onBlur,
+  setMostrarField,
+}) => {
+  const handleChange = (val) => {
+    // ESTAMOS HACIENDO EL CLICK A OTRA
+    if (values.includes(val)) {
+      // Si lo incluye debemos eliminarlo
+      // debemos buscarlo y eliminarlo
+      const index = values.indexOf(val);
+      values.splice(index, 1);
+      onChange(name, values);
+    } else {
+      // NO INCLUYE A LA OPCION
+      // POR ENDE DEBEMOS AÑADIRLO
+      values.push(val);
+      if (values.length > max) {
+        values.shift();
+      }
+      onChange(name, values);
+    }
+    if (values.includes(0)) {
+      console.log('mostrar Otra');
+      setMostrarField(true);
+    } else {
+      console.log('no mostrar otra');
+      setMostrarField(false);
+    }
+    /*
+    if (val === 0) {
+      console.log('click otra');
+      const newArray = [];
+      newArray.push(val);
+      onChange(name, newArray);
+    } else if (values.includes(val)) {
+      // Si lo incluye debemos eliminarlo
+      // debemos buscarlo y eliminarlo
+      const index = values.indexOf(val);
+      values.splice(index, 1);
+      onChange(name, values);
+    } else if (values.includes('no')) {
+      const newArray = [];
+      newArray.push(val);
+      onChange(name, newArray);
+    } else {
+      values.push(val);
+      if (values.length > max) {
+        values.shift();
+      }
+      onChange(name, values);
+    } */
+  };
+
+  const handleBlur = () => {
+    onBlur(name, true);
+  };
+
+  return (
+    <>
+      {options.map((child, index) => {
+        return (
+          <>
+            {!child.disabled && (
+              <CustomInput
+                className="ml-3 mb-3"
+                key={`${name}_${child.value}_${index}`}
+                type="radio"
+                id={`${name}_${child.value}_${index}`}
+                name={child.name}
+                label={child.label}
+                onClick={() => handleChange(child.value)}
+                onBlur={handleBlur}
+                checked={values.includes(child.value)}
+                disabled={child.disabled}
+                inline={inline}
+              />
+            )}
+          </>
+        );
+      })}
+    </>
+  );
+};
+
 const FormikTagsInput = ({ name, value, onChange, onBlur }) => {
   const handleChange = (val) => {
     onBlur(name, true);
@@ -520,4 +611,5 @@ export {
   FormikCustomRadioGroupMaxExcluir,
   FormikCustomRadioGroupMaxIncluir,
   FormikRadioButtonGroupReelevancia,
+  FormikCustomRadioGroupRazones,
 };
