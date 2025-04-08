@@ -15,8 +15,6 @@ import 'rc-switch/assets/index.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './transiciones.css';
-import { colorPlomo } from 'constants/defaultValues';
-import { sassFalse } from 'sass';
 
 const FormikReactSelect = ({
   name,
@@ -377,7 +375,7 @@ const FormikCustomRadioGroupMaxExcluir = ({
           <>
             {!child.disabled && (
               <CustomInput
-                className="ml-3 mb-3"
+                className="ml-3 mb-3 font-weight-bold h5"
                 key={`${name}_${child.value}_${index}`}
                 type="radio"
                 id={`${name}_${child.value}_${index}`}
@@ -442,7 +440,7 @@ const FormikCustomRadioGroupMaxIncluir = ({
           <>
             {!child.disabled && (
               <CustomInput
-                className="ml-3 mb-3"
+                className="ml-3 mb-3 font-weight-bold h5"
                 key={`${name}_${child.value}_${index}`}
                 type="radio"
                 id={`${name}_${child.value}_${index}`}

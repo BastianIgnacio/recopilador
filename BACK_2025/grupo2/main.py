@@ -66,46 +66,28 @@ class ConnectionManager:
                 await connection.ws.send_text(message)
 
 class Encuesta:
-    def __init__(self,
-    integrante,grupo,genero,edad, nivelEducacional, comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia, anosSiendoIntegranteSindicato, tipoIntegrante,
-    importanciaMiembroSindicato, puedeExternoPostularSindicato, esPosibleExpulsarSindicato, sindicatoHaIntegradoNuevosMiembros, sindicatoHaExpulsadoNuevosMiembros,
-    confiaOtrosPescadores, creibleSistemaFiscalizacion, aceptableNormas, percibeImpactoNormas, probableSancion, razon1, razon2,razon3, razonOtra, comunaOtra, actividad1, actividad2, actividad3, actividadOtra):
+
+    def __init__(self, integrante,grupo,genero,edad,carrera,anoCursandoCarrera,region,comuna,anoEsperaTenerCumplidosRequisitos,
+    ingresoFamilia,integrantesDeSuHogar,perteneceAlgunaAsociacion, puedeExternoPostular,esPosibleExpulsar,hanIngresadoNuevosIntegrantes,
+    hanExpulsadoAlgunIntegrante,importanciaFormarGrupos):
         
         self.integrante = integrante
         self.grupo = grupo
         self.genero = genero
         self.edad = edad
-        self.nivelEducacional = nivelEducacional
+        self.carrera = carrera
+        self.anoCursandoCarrera = anoCursandoCarrera
+        self.region = region
         self.comuna = comuna
-        self.estadoCivil = estadoCivil
-        self.jefeHogar = jefeHogar
-        self.personasDependen = personasDependen
-        self.anosViviendoLugar = anosViviendoLugar
+        self.anoEsperaTenerCumplidosRequisitos = anoEsperaTenerCumplidosRequisitos
         self.ingresoFamilia = ingresoFamilia
-        self.anosSiendoIntegranteSindicato = anosSiendoIntegranteSindicato
-        self.tipoIntegrante = tipoIntegrante
-
-        self.importanciaMiembroSindicato = importanciaMiembroSindicato
-        self.puedeExternoPostularSindicato = puedeExternoPostularSindicato
-        self.esPosibleExpulsarSindicato = esPosibleExpulsarSindicato
-        self.sindicatoHaIntegradoNuevosMiembros = sindicatoHaIntegradoNuevosMiembros
-        self.sindicatoHaExpulsadoNuevosMiembros = sindicatoHaExpulsadoNuevosMiembros
-        self.confiaOtrosPescadores = confiaOtrosPescadores
-        self.creibleSistemaFiscalizacion = creibleSistemaFiscalizacion
-        self.aceptableNormas = aceptableNormas
-        self.percibeImpactoNormas = percibeImpactoNormas
-        self.probableSancion = probableSancion
-        self.razon1 = razon1
-        self.razon2 = razon2
-        self.razon3 = razon3
-        self.razonOtra = razonOtra
-
-        self.comunaOtra = comunaOtra
-
-        self.actividad1 = actividad1
-        self.actividad2 = actividad2
-        self.actividad3 = actividad3
-        self.actividadOtra = actividadOtra
+        self.integrantesDeSuHogar = integrantesDeSuHogar
+        self.perteneceAlgunaAsociacion = perteneceAlgunaAsociacion
+        self.puedeExternoPostular = puedeExternoPostular
+        self.esPosibleExpulsar = esPosibleExpulsar
+        self.hanIngresadoNuevosIntegrantes = hanIngresadoNuevosIntegrantes
+        self.hanExpulsadoAlgunIntegrante = hanExpulsadoAlgunIntegrante
+        self.importanciaFormarGrupos = importanciaFormarGrupos
 
 
 class Voto:
@@ -1010,7 +992,7 @@ class Entorno:
             for asigAux in asigArray:
                 writer.writerow(asigAux)
             
-        f.close()      
+        file.close()      
 
     # ENCUESTA
     def addEncuesta(self, data):
@@ -1018,48 +1000,24 @@ class Entorno:
         grupo = self.grupo
         genero = data['genero']
         edad = data['edad']
-        nivelEducacional = data['nivelEducacional']
+        carrera = data['carrera']
+        anoCursandoCarrera = data['anoCursandoCarrera']
+        region = data['region']
         comuna = data['comuna']
-        estadoCivil = data['estadoCivil']
-        jefeHogar = data['jefeHogar']
-        personasDependen = data['personasDependen']
-        anosViviendoLugar = data['anosViviendoLugar']
+        anoEsperaTenerCumplidosRequisitos = data['anoEsperaTenerCumplidosRequisitos']
         ingresoFamilia = data['ingresoFamilia']
-        anosSiendoIntegranteSindicato = data['anosSiendoIntegranteSindicato']
-        tipoIntegrante = data['tipoIntegrante']
-        importanciaMiembroSindicato = data['importanciaMiembroSindicato']
-        puedeExternoPostularSindicato = data['puedeExternoPostularSindicato']
-        esPosibleExpulsarSindicato = data['esPosibleExpulsarSindicato']
-        sindicatoHaIntegradoNuevosMiembros = data['sindicatoHaIntegradoNuevosMiembros']
-        sindicatoHaExpulsadoNuevosMiembros = data['sindicatoHaExpulsadoNuevosMiembros']
-
-        confiaOtrosPescadores = data['confiaOtrosPescadores']
-        creibleSistemaFiscalizacion = data['creibleSistemaFiscalizacion']
-        aceptableNormas = data['aceptableNormas']
-        percibeImpactoNormas = data['percibeImpactoNormas']
-        probableSancion = data['probableSancion']
-
-        razon1 = data['razon1']
-        razon2 = data['razon2']
-        razon3 = data['razon3']
-        razonOtra = data['razonOtra']
-
-        comunaOtra = data['comunaOtra']
+        integrantesDeSuHogar = data['integrantesDeSuHogar']
+        perteneceAlgunaAsociacion = data['perteneceAlgunaAsociacion']
+        puedeExternoPostular = data['puedeExternoPostular']
+        esPosibleExpulsar = data['esPosibleExpulsar']
+        hanIngresadoNuevosIntegrantes = data['hanIngresadoNuevosIntegrantes']
+        hanExpulsadoAlgunIntegrante = data['hanExpulsadoAlgunIntegrante']
+        importanciaFormarGrupos = data['importanciaFormarGrupos']
 
 
-        actividad1 = data['actividad1']
-        actividad2 = data['actividad2']
-        actividad3 = data['actividad3']
-        actividadOtra = data['actividadOtra']
-
-
-
-
-
-        encuesta = Encuesta(integrante,grupo,genero,edad,nivelEducacional, comuna, estadoCivil, jefeHogar, personasDependen, anosViviendoLugar, ingresoFamilia,
-        anosSiendoIntegranteSindicato, tipoIntegrante, importanciaMiembroSindicato, puedeExternoPostularSindicato, esPosibleExpulsarSindicato,
-        sindicatoHaIntegradoNuevosMiembros, sindicatoHaExpulsadoNuevosMiembros, confiaOtrosPescadores, creibleSistemaFiscalizacion,
-        aceptableNormas, percibeImpactoNormas, probableSancion,razon1,razon2,razon3,razonOtra, comunaOtra, actividad1, actividad2, actividad3, actividadOtra)
+        encuesta = Encuesta(integrante,grupo,genero,edad,carrera,anoCursandoCarrera,region,comuna,anoEsperaTenerCumplidosRequisitos,
+        ingresoFamilia,integrantesDeSuHogar,perteneceAlgunaAsociacion, puedeExternoPostular,esPosibleExpulsar,hanIngresadoNuevosIntegrantes,
+        hanExpulsadoAlgunIntegrante,importanciaFormarGrupos)
         print("añadiendo encuesta")
         self.encuestas.append(encuesta)
 
@@ -1071,16 +1029,16 @@ class Entorno:
         nombreArchivoExportar = "exportacion_" + nombreSesion + "_grupo_" + str(grupo) + "_encuestas.csv"
 
         # COLUMNAS DEL ARCHIVO
-        headers = ['integrante','grupo','genero','edad','nivelEducacional','comuna', 'comunaOtra', 'estadoCivil', 'jefeHogar', 'personasDependen', 'anosViviendoLugar', 'ingresoFamilia', 'anosSiendoIntegranteSindicato', 'tipoIntegrante',
-        'importanciaMiembroSindicato', 'puedeExternoPostularSindicato', 'esPosibleExpulsarSindicato', 'sindicatoHaIntegradoNuevosMiembros', 'sindicatoHaExpulsadoNuevosMiembros',
-        'confiaOtrosPescadores', 'creibleSistemaFiscalizacion', 'aceptableNormas', 'percibeImpactoNormas', 'probableSancion','razon1','razon2','razon3','razonOtra', 'actividad1', 'actividad2', 'actividad3', 'actividadOtra']
+        headers = ['integrante','grupo','genero','edad','carrera','anoCursandoCarrera','region','comuna','anoEsperaTenerCumplidosRequisitos',
+        'ingresoFamilia','integrantesDeSuHogar','perteneceAlgunaAsociacion', 'puedeExternoPostular','esPosibleExpulsar','hanIngresadoNuevosIntegrantes',
+        'hanExpulsadoAlgunIntegrante','importanciaFormarGrupos']
         asigArray = []
 
         # REVISAMOS TODAS LAS ENCUESTAS
         for enc in self.encuestas:
-            arrayAux = [enc.integrante, enc.grupo, enc.genero, enc.edad, enc.nivelEducacional, enc.comuna,  enc.comunaOtra, enc.estadoCivil, enc.jefeHogar, enc.personasDependen, enc.anosViviendoLugar, enc.ingresoFamilia, enc.anosSiendoIntegranteSindicato, enc.tipoIntegrante,
-            enc.importanciaMiembroSindicato, enc.puedeExternoPostularSindicato, enc.esPosibleExpulsarSindicato, enc.sindicatoHaIntegradoNuevosMiembros, enc.sindicatoHaExpulsadoNuevosMiembros,
-            enc.confiaOtrosPescadores, enc.creibleSistemaFiscalizacion, enc.aceptableNormas, enc.percibeImpactoNormas, enc.probableSancion, enc.razon1, enc.razon2, enc.razon3, enc.razonOtra, enc.actividad1, enc.actividad2, enc.actividad3, enc.actividadOtra]
+            arrayAux = [enc.integrante, enc.grupo, enc.genero, enc.edad, enc.carrera, enc.anoCursandoCarrera, enc.region, enc.comuna, enc.anoEsperaTenerCumplidosRequisitos,
+            enc.ingresoFamilia, enc.integrantesDeSuHogar, enc.perteneceAlgunaAsociacion, enc.puedeExternoPostular, enc.esPosibleExpulsar, enc.hanIngresadoNuevosIntegrantes,
+            enc.hanExpulsadoAlgunIntegrante, enc.importanciaFormarGrupos]
             asigArray.append(arrayAux)
             
         with open(nombreArchivoExportar, mode='w', newline='') as file:
@@ -1089,30 +1047,6 @@ class Entorno:
             for asigAux in asigArray:
                 writer.writerow(asigAux)
         file.close()     
-        """
-        # EXPORTACOON PARA OSCAR
-        nombreArchivoExportar = "exportacion_" + nombreSesion + "_grupo_" + str(grupo) + "_encuestas_oscar.csv"
-
-        # COLUMNAS DEL ARCHIVO
-        headers = ['integrante','grupo','genero','edad','nivelEducacional','comuna', 'comunaOtra', 'estadoCivil', 'jefeHogar', 'personasDependen', 'anosViviendoLugar', 'ingresoFamilia', 'anosSiendoIntegranteSindicato', 'tipoIntegrante',
-        'importanciaMiembroSindicato', 'puedeExternoPostularSindicato', 'esPosibleExpulsarSindicato', 'sindicatoHaIntegradoNuevosMiembros', 'sindicatoHaExpulsadoNuevosMiembros',
-        'confiaOtrosPescadores', 'creibleSistemaFiscalizacion', 'aceptableNormas', 'percibeImpactoNormas', 'probableSancion','razon1','razon2','razon3','razonOtra', 'actividad1', 'actividad2', 'actividad3', 'actividadOtra']
-        asigArray = []
-
-        # REVISAMOS TODAS LAS ENCUESTAS
-        for enc in self.encuestas:
-            arrayAux = [enc.integrante, enc.grupo, enc.genero, enc.edad, enc.nivelEducacional, enc.comuna,  enc.comunaOtra, enc.estadoCivil, enc.jefeHogar, enc.personasDependen, enc.anosViviendoLugar, enc.ingresoFamilia, enc.anosSiendoIntegranteSindicato, enc.tipoIntegrante,
-            enc.importanciaMiembroSindicato, enc.puedeExternoPostularSindicato, enc.esPosibleExpulsarSindicato, enc.sindicatoHaIntegradoNuevosMiembros, enc.sindicatoHaExpulsadoNuevosMiembros,
-            enc.confiaOtrosPescadores, enc.creibleSistemaFiscalizacion, enc.aceptableNormas, enc.percibeImpactoNormas, enc.probableSancion, enc.razon1, enc.razon2, enc.razon3, enc.razonOtra, enc.actividad1, enc.actividad2, enc.actividad3, enc.actividadOtra]
-            asigArray.append(arrayAux)
-            
-        with open(nombreArchivoExportar, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow( headers) # Creamos las columnas
-            for asigAux in asigArray:
-                writer.writerow(asigAux)
-        file.close()    
-        """
 
     def exportarPagos(self):
         #NOMBRE DEL ARCHIVO
@@ -1185,11 +1119,11 @@ class Entorno:
         self.nombreSesion = nombreSesion
 
         #CREAMOS LA ACTIVIDAD DE PRUEBA
-        self.actividades.append(Actividad(tratamiento,0,2,True, self.participantesClubAzul, self.participantesClubAmarillo, self.dictParticipantes))
+        self.actividades.append(Actividad(tratamiento,0,3,True, self.participantesClubAzul, self.participantesClubAmarillo, self.dictParticipantes))
 
         #CREAMOS LAS ACTIVIDADES
         for i in range(1, actividades + 1):
-            self.actividades.append(Actividad(tratamiento,i,3,False, self.participantesClubAzul, self.participantesClubAmarillo, self.dictParticipantes))
+            self.actividades.append(Actividad(tratamiento,i,rondas,False, self.participantesClubAzul, self.participantesClubAmarillo, self.dictParticipantes))
 
     def calcularGanancias(self):
         act = self.getActividad(self.actividadActual)
@@ -1497,7 +1431,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
                             tratamiento = data["tratamiento"]
                             nombreSesion = data["nombreSesion"]
                             actividades = 3
-                            rondas = 3
+                            rondas = 12
 
                             # DEBEMOS ACTUALIZAR EL ENTONRO
                             entorno.crearJuego(nombreSesion, tratamiento, actividades, rondas)

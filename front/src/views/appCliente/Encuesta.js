@@ -11,12 +11,12 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field } from 'formik';
 import { Row, Card, CardBody, FormGroup, Label, Button } from 'reactstrap';
 import { Colxx } from 'components/common/CustomBootstrap';
-import { comunas } from 'constants/defaultValues';
+import { regionesChile, carrerasUtalca } from 'constants/defaultValues';
 import * as Yup from 'yup';
 import {
+  FormikCustomRadioGroup,
   FormikRadioButtonGroup,
   FormikRadioButtonGroupReelevancia,
-  FormikCustomRadioGroupRazones,
 } from './FormikFields';
 
 // eslint-disable-next-line camelcase
@@ -29,6 +29,22 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
   const [club, setClub] = useState('AZUL');
   const [jugador, setJugador] = useState([]);
   const sizeEncuesta = '20px';
+
+  const [pregunta9, setPregunta9] = useState(false);
+
+  const [regiones, setRegiones] = useState(
+    JSON.parse(JSON.stringify(regionesChile))
+  );
+  const [region, setRegion] = useState(regiones[0].region);
+  const getComunas = (regionBuscar) => {
+    const comunasReturn = regiones.find(
+      (regionIterator) => regionIterator.region === regionBuscar
+    );
+    return JSON.parse(JSON.stringify(comunasReturn.comunas));
+  };
+  const [comunas, setComunas] = useState(
+    JSON.parse(JSON.stringify(getComunas(region)))
+  );
 
   useEffect(() => {
     // CHECKEAMOS SI LA VISTA DEBE ESTAR BLOQUEADA
@@ -60,10 +76,10 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
   };
 
   const onSubmit = (values, { setSubmitting }) => {
-    // setBotonDisabled(true);
+    setBotonDisabled(true);
     settextBoton('Encuesta enviada, muchas gracias!');
-    console.log(values);
 
+    /*
     let comunaOtra = '.';
     // VAMOS A GUARDAR LA COMUNA Y SI HAY OTRA COMUNA
     const comuna = values.selectComuna;
@@ -107,57 +123,27 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
       razonOtra = '.';
     }
 
-    // AHORA VAMOS A CHECKEAR LAS TRES RAZONES
-    let razon1 = arrayRazones[0];
-    if (razon1 === undefined) {
-      razon1 = '.';
-    }
-    let razon2 = arrayRazones[1];
-    if (razon2 === undefined) {
-      razon2 = '.';
-    }
-    let razon3 = arrayRazones[2];
-    if (razon3 === undefined) {
-      razon3 = '.';
-    }
-
+    */
+    console.log(values);
     const datosEncuesta = {
       grupo: values.grupo,
       integrante: values.integrante,
       genero: values.selectGenero,
       edad: values.selectEdad,
+      carrera: values.selectCarrera,
+      anoCursandoCarrera: values.selectAnoCursandoCarrera,
+      region: values.selectRegion,
       comuna: values.selectComuna,
-      nivelEducacional: values.selectNivelEducacional,
-      estadoCivil: values.selectEstadoCivil,
-      jefeHogar: values.selectJefeHogar,
-      personasDependen: values.selectPersonasDependen,
-      actividadesLaboralesVinculadas: values.actividadesLaboralesRadioGruop,
-      actividad1,
-      actividad2,
-      actividad3,
-      actividadOtra,
-      anosViviendoLugar: values.selectViviendoLugar,
-      ingresoFamilia: values.selectIngresoFamilia,
-      anosSiendoIntegranteSindicato: values.anosSiendoIntegranteSindicato,
-      tipoIntegrante: values.selectIntegranteFundador,
-      importanciaMiembroSindicato: values.radioButtonReelevanciaSindicato,
-      puedeExternoPostularSindicato: values.selectPuedeExternoPostular,
-      esPosibleExpulsarSindicato: values.selectPuedeSindicatoExpulsar,
-      sindicatoHaIntegradoNuevosMiembros:
-        values.selectSindicatoHaIntegradoNuevosMiembros,
-      sindicatoHaExpulsadoNuevosMiembros:
-        values.selectSindicatoHaExpulsadoNuevosMiembros,
-      confiaOtrosPescadores: values.selectConfiaOtrosPescadores,
-      creibleSistemaFiscalizacion: values.selectCreibleSistemaFiscalizacion,
-      aceptableNormas: values.selectAceptableNormas,
-      percibeImpactoNormas: values.selectPercibeImpactoNormas,
-      probableSancion: values.selectProbableSancion,
-      razonesPescaIlegal: values.razonesRadioGruop,
-      razon1,
-      razon2,
-      razon3,
-      razonOtra,
-      comunaOtra,
+      anoEsperaTenerCumplidosRequisitos:
+        values.selectAnoEsperaTenerCumplidosRequisitos,
+      ingresoFamilia: values.radioButtonIngresoFamilia,
+      integrantesDeSuHogar: values.selectIntegrantesDeSuHogar,
+      perteneceAlgunaAsociacion: values.selectPerteneceAlgunaAsociacion,
+      puedeExternoPostular: values.selectPuedeExternoPostular,
+      esPosibleExpulsar: values.selectEsPosibleExpulsar,
+      hanIngresadoNuevosIntegrantes: values.selectHanIngresadoNuevosIntegrantes,
+      hanExpulsadoAlgunIntegrante: values.selectHanExpulsadoAlgunIntegrante,
+      importanciaFormarGrupos: values.radioButtonImportaciaFormarGrupos,
     };
     console.log(datosEncuesta);
     setTimeout(() => {
@@ -170,61 +156,41 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
       'Debes seleccionar una respuesta por favor!'
     ),
     selectEdad: Yup.string().required('Debes seleccionar tu edad por favor!'),
-    selectNivelEducacional: Yup.string().required(
-      'Debes seleccionar por favor!'
+    selectCarrera: Yup.string().required('Debes seleccionar por favor!'),
+    selectAnoCursandoCarrera: Yup.string().required(
+      'Debes seleccionar un año por favor!'
+    ),
+    selectRegion: Yup.string().required(
+      'Debes seleccionar una región por favor!'
     ),
     selectComuna: Yup.string().required(
       'Debes seleccionar una comuna por favor!'
     ),
-    selectEstadoCivil: Yup.string().required(
+    selectAnoEsperaTenerCumplidosRequisitos: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
-    selectJefeHogar: Yup.string().required(
+    radioButtonIngresoFamilia: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
-    selectPersonasDependen: Yup.string().required(
+    selectIntegrantesDeSuHogar: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
-    selectViviendoLugar: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    selectIngresoFamilia: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    anosSiendoIntegranteSindicato: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    selectIntegranteFundador: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    radioButtonReelevanciaSindicato: Yup.string().required(
+    selectPerteneceAlgunaAsociacion: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
     selectPuedeExternoPostular: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
-    selectPuedeSindicatoExpulsar: Yup.string().required(
+    selectEsPosibleExpulsar: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
-    selectSindicatoHaIntegradoNuevosMiembros: Yup.string().required(
+    selectHanIngresadoNuevosIntegrantes: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
-    selectSindicatoHaExpulsadoNuevosMiembros: Yup.string().required(
+    selectHanExpulsadoAlgunIntegrante: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
-    selectConfiaOtrosPescadores: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    selectCreibleSistemaFiscalizacion: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    selectAceptableNormas: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    selectPercibeImpactoNormas: Yup.string().required(
-      'Debes seleccionar una respuesta por favor!'
-    ),
-    selectProbableSancion: Yup.string().required(
+    radioButtonImportaciaFormarGrupos: Yup.string().required(
       'Debes seleccionar una respuesta por favor!'
     ),
   });
@@ -290,8 +256,8 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
 
   const siNOOptions = (disabled) => {
     return [
-      { value: 'SI', label: 'SI', disabled },
-      { value: 'NO', label: 'NO', disabled },
+      { value: 'SI', label: 'SI', disabled, boolean: true },
+      { value: 'NO', label: 'NO', disabled, boolean: false },
     ];
   };
 
@@ -342,6 +308,84 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
       { value: 3, label: 'MODERADAMENTE PROBABLE', disabled },
       { value: 4, label: 'MUY PROBABLE', disabled },
       { value: 5, label: 'TOTALMENTE PROBABLE', disabled },
+    ];
+  };
+
+  const anosCursandoOptions = (disabled) => {
+    return [
+      { value: 1, label: '1° Año', disabled },
+      { value: 2, label: '2° Año', disabled },
+      { value: 3, label: '3° Año', disabled },
+      { value: 4, label: '4° Año', disabled },
+      { value: 5, label: '5° Año', disabled },
+      { value: 6, label: '6° Año', disabled },
+      { value: 7, label: '7° Año', disabled },
+      { value: -1, label: 'OTRO', disabled },
+    ];
+  };
+
+  const anoEsperaTitularseOpctions = (disabled) => {
+    return [
+      { value: 2025, label: 'En 2025', disabled },
+      { value: 2026, label: 'En 2026', disabled },
+      { value: 2027, label: 'En 2027', disabled },
+      { value: 2028, label: 'En 2028', disabled },
+      { value: 2029, label: 'En 2029', disabled },
+      { value: 2030, label: 'En 2030', disabled },
+      { value: 2031, label: 'En 2031', disabled },
+      { value: 2032, label: 'En 2032', disabled },
+    ];
+  };
+
+  const integrantesHogarOptions = (disabled) => {
+    return [
+      { value: 1, label: '1 Integrante', disabled },
+      { value: 2, label: '2 Integrantes', disabled },
+      { value: 3, label: '3 Integrantes', disabled },
+      { value: 4, label: '4 Integrantes', disabled },
+      { value: 5, label: '5 Integrantes', disabled },
+      { value: 6, label: '6 Integrantes', disabled },
+      { value: 7, label: '7 Integrantes', disabled },
+      { value: 8, label: '8 Integrantes', disabled },
+      { value: 9, label: '9 Integrantes', disabled },
+      { value: 10, label: '10 Integrantes', disabled },
+      { value: 11, label: '11 Integrantes', disabled },
+      { value: 12, label: '12 Integrantes', disabled },
+      { value: 13, label: '13 Integrantes', disabled },
+      { value: 14, label: '14 Integrantes', disabled },
+      { value: 15, label: '15 Integrantes', disabled },
+      { value: 16, label: '16 Integrantes', disabled },
+      { value: 99, label: 'Más de 16 Integrantes', disabled },
+    ];
+  };
+
+  const puedeExternoPostularOptions = (disabled) => {
+    return [
+      {
+        value: 'SI',
+        label: 'Sí, es posible postular para ser miembro de la agrupación.',
+        disabled,
+      },
+      {
+        value: 'NO',
+        label: 'No es posible postular para ser miembro de la agrupación.',
+        disabled,
+      },
+    ];
+  };
+
+  const puedeExpulsarIntegrante = (disabled) => {
+    return [
+      {
+        value: 'SI',
+        label: 'Sí, es posible expulsar.',
+        disabled,
+      },
+      {
+        value: 'NO',
+        label: 'No es posible expulsar.',
+        disabled,
+      },
     ];
   };
 
@@ -482,33 +526,22 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                   integrante: client_id,
                   selectGenero: '',
                   selectEdad: '',
-                  selectNivelEducacional: '',
-                  selectComuna: '',
-                  selectEstadoCivil: '',
-                  selectJefeHogar: '',
-                  selectPersonasDependen: '',
-                  selectViviendoLugar: '',
-                  selectIngresoFamilia: '',
-                  anosSiendoIntegranteSindicato: '',
-                  selectIntegranteFundador: '',
-                  radioButtonReelevanciaSindicato: '',
+                  selectCarrera: '',
+                  selectAnoCursandoCarrera: '',
+                  selectRegion: regiones[0].region,
+                  selectComuna: regiones[0].comunas[0],
+                  selectAnoEsperaTenerCumplidosRequisitos: '',
+                  radioButtonIngresoFamilia: '',
+                  selectIntegrantesDeSuHogar: '',
+                  selectPerteneceAlgunaAsociacion: '',
                   selectPuedeExternoPostular: '',
-                  selectPuedeSindicatoExpulsar: '',
-                  selectSindicatoHaIntegradoNuevosMiembros: '',
-                  selectSindicatoHaExpulsadoNuevosMiembros: '',
-                  selectConfiaOtrosPescadores: '',
-                  selectCreibleSistemaFiscalizacion: '',
-                  selectAceptableNormas: '',
-                  selectPercibeImpactoNormas: '',
-                  selectProbableSancion: '',
-                  razonesRadioGruop: [],
-                  fieldRazonOtra: '',
-                  fieldComunaOtra: '',
-                  actividadesLaboralesRadioGruop: [],
-                  fieldActividadLaboralOtra: '',
+                  selectEsPosibleExpulsar: '',
+                  selectHanIngresadoNuevosIntegrantes: '',
+                  selectHanExpulsadoAlgunIntegrante: '',
+                  radioButtonImportaciaFormarGrupos: '',
                 }}
                 onSubmit={onSubmit}
-                // validationSchema={SignupSchema}
+                validationSchema={SignupSchema}
               >
                 {({
                   handleSubmit,
@@ -522,18 +555,18 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                   isSubmitting,
                 }) => (
                   <Form className="av-tooltip">
+                    {/** GENERO */}
                     <FormGroup
                       row
                       className="m-3 tooltip-right-bottom"
                       style={{ fontSize: sizeEncuesta }}
                     >
-                      <Label sm={6}>Género</Label>
+                      <Label sm={6}>1. Género</Label>
                       <Colxx lg={6}>
                         <select
                           disabled={botonDisabled}
                           name="selectGenero"
                           className="form-control"
-                          placeholder="Seleccione"
                           value={values.selectGenero}
                           onChange={handleChange}
                           onBlur={handleBlur}
@@ -555,12 +588,15 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                         ) : null}
                       </Colxx>
                     </FormGroup>
+                    {/** EDAD */}
                     <FormGroup
                       row
                       className="m-3 tooltip-right-bottom"
                       style={{ fontSize: sizeEncuesta }}
                     >
-                      <Label sm={6}>¿Qué edad tiene ? (Años cumplidos)</Label>
+                      <Label sm={6}>
+                        2. ¿Qué edad tiene ? (Años cumplidos)
+                      </Label>
                       <Colxx sm={6}>
                         <select
                           disabled={botonDisabled}
@@ -574,7 +610,7 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                           <option key="" value="" disabled>
                             Seleccione su respuesta!
                           </option>
-                          {generarEdadOptions(16, 81).map((opc) => (
+                          {generarEdadOptions(16, 61).map((opc) => (
                             <option key={opc.value} value={opc.value}>
                               {opc.label}
                             </option>
@@ -587,21 +623,19 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                         ) : null}
                       </Colxx>
                     </FormGroup>
+                    {/** CARRERA */}
                     <FormGroup
                       row
                       className="m-3 tooltip-right-bottom"
                       style={{ fontSize: sizeEncuesta }}
                     >
-                      <Label sm={6}>
-                        ¿Cuál fue el último año de escolaridad formal que usted
-                        aprobó?
-                      </Label>
+                      <Label sm={6}>3. ¿Qué carrera estudia ?</Label>
                       <Colxx sm={6}>
                         <select
                           disabled={botonDisabled}
-                          name="selectNivelEducacional"
+                          name="selectCarrera"
                           className="form-control"
-                          value={values.selectNivelEducacional}
+                          value={values.selectCarrera}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           style={{ fontSize: sizeEncuesta }}
@@ -609,255 +643,164 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                           <option key="" value="" disabled>
                             Seleccione su respuesta!
                           </option>
-                          {optionsNivelEstudios.map((opc) => (
-                            <option key={opc.value} value={opc.value}>
-                              {opc.label}
+                          {carrerasUtalca.map((opc) => (
+                            <option key={opc.codigo} value={opc.codigo}>
+                              {opc.nombre}
                             </option>
                           ))}
                         </select>
-                        {errors.selectNivelEducacional &&
-                        touched.selectNivelEducacional ? (
+                        {errors.selectCarrera && touched.selectCarrera ? (
                           <div className="invalid-feedback d-block">
-                            {errors.selectNivelEducacional}
+                            {errors.selectCarrera}
                           </div>
                         ) : null}
                       </Colxx>
                     </FormGroup>
+                    {/** AÑO CURSANDO */}
                     <FormGroup
                       row
                       className="m-3 tooltip-right-bottom"
                       style={{ fontSize: sizeEncuesta }}
                     >
-                      <Label sm={6}>¿Cúal es su comuna de residencia?</Label>
+                      <Label sm={6}>
+                        4. ¿Qué año esta actualemente cursando en su carrera ?
+                      </Label>
                       <Colxx sm={6}>
+                        <select
+                          disabled={botonDisabled}
+                          name="selectAnoCursandoCarrera"
+                          className="form-control"
+                          value={values.selectAnoCursandoCarrera}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          style={{ fontSize: sizeEncuesta }}
+                        >
+                          <option key="" value="" disabled>
+                            Seleccione su respuesta!
+                          </option>
+                          {anosCursandoOptions(botonDisabled).map((opc) => (
+                            <option key={opc.value} value={opc.value}>
+                              {opc.label}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.selectAnoCursandoCarrera &&
+                        touched.selectAnoCursandoCarrera ? (
+                          <div className="invalid-feedback d-block">
+                            {errors.selectAnoCursandoCarrera}
+                          </div>
+                        ) : null}
+                      </Colxx>
+                    </FormGroup>
+                    {/** AÑO ESPERA TENER CUMPLIDO  */}
+                    <FormGroup
+                      row
+                      className="m-3 tooltip-right-bottom"
+                      style={{ fontSize: sizeEncuesta }}
+                    >
+                      <Label sm={6}>
+                        5. ¿En que año espera tener cumplido todos los
+                        requisitos para titularse ?
+                      </Label>
+                      <Colxx sm={6}>
+                        <select
+                          disabled={botonDisabled}
+                          name="selectAnoEsperaTenerCumplidosRequisitos"
+                          className="form-control"
+                          value={values.selectAnoEsperaTenerCumplidosRequisitos}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          style={{ fontSize: sizeEncuesta }}
+                        >
+                          <option key="" value="" disabled>
+                            Seleccione su respuesta!
+                          </option>
+                          {anoEsperaTitularseOpctions(botonDisabled).map(
+                            (opc) => (
+                              <option key={opc.value} value={opc.value}>
+                                {opc.label}
+                              </option>
+                            )
+                          )}
+                        </select>
+                        {errors.selectAnoEsperaTenerCumplidosRequisitos &&
+                        touched.selectAnoEsperaTenerCumplidosRequisitos ? (
+                          <div className="invalid-feedback d-block">
+                            {errors.selectAnoEsperaTenerCumplidosRequisitos}
+                          </div>
+                        ) : null}
+                      </Colxx>
+                    </FormGroup>
+                    {/** RESIDENCIA DE LA FAMILIA */}
+                    <FormGroup
+                      row
+                      className="m-3 tooltip-right-bottom"
+                      style={{ fontSize: sizeEncuesta }}
+                    >
+                      <Label sm={6}>
+                        6. ¿Cuál es su comuna de residencia (comuna de
+                        residencia de la familia o aquella en que residía antes
+                        de venir a la Universidad)?
+                      </Label>
+                      <Colxx sm={3}>
+                        <select
+                          disabled={botonDisabled}
+                          name="selectRegion"
+                          className="form-control"
+                          value={values.selectRegion}
+                          onChange={(event) => {
+                            setFieldValue('selectRegion', event.target.value);
+                            const comunasNuevaRegion = getComunas(
+                              event.target.value
+                            );
+                            setComunas(comunasNuevaRegion);
+                            setFieldValue(
+                              'selectComuna',
+                              comunasNuevaRegion[0]
+                            );
+                          }}
+                          onBlur={handleBlur}
+                          style={{ fontSize: sizeEncuesta }}
+                        >
+                          {regiones.map((item, i) => {
+                            return (
+                              <option value={item.region} key={item.region}>
+                                {item.region}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </Colxx>
+                      <Colxx sm={3}>
                         <select
                           disabled={botonDisabled}
                           name="selectComuna"
                           className="form-control"
                           value={values.selectComuna}
-                          onChange={(opc) => {
-                            const opcNueva = opc.target.value;
-
-                            if (opcNueva === 'OTRA') {
-                              setMostrarFieldComuna(true);
-                            } else {
-                              setMostrarFieldComuna(false);
-                            }
-                            setFieldValue('selectComuna', opcNueva);
-                            console.log(opc.target.value);
+                          onChange={(event) => {
+                            setFieldValue('selectComuna', event.target.value);
                           }}
                           onBlur={handleBlur}
                           style={{ fontSize: sizeEncuesta }}
                         >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
                           {comunas.map((item, i) => {
                             return (
-                              <option value={item.value} key={item.key}>
-                                {item.value}
+                              <option value={item} key={item}>
+                                {item}
                               </option>
                             );
                           })}
                         </select>
-                        {mostrarFieldComuna && (
-                          <Field
-                            className="form-control mt-2"
-                            placeholder="INGRESE SU COMUNA"
-                            name="fieldComunaOtra"
-                          />
-                        )}
-                        {errors.selectComuna && touched.selectComuna ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectComuna}
-                          </div>
-                        ) : null}
                       </Colxx>
                     </FormGroup>
+                    {/** INGRESO FAMILIA */}
                     <FormGroup
                       row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        Estado Civil
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectEstadoCivil"
-                          className="form-control"
-                          value={values.selectEstadoCivil}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {estadoCivlesOptions.map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
-                              {opc.value}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectEstadoCivil &&
-                        touched.selectEstadoCivil ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectEstadoCivil}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        Jefe de hogar
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectJefeHogar"
-                          className="form-control"
-                          value={values.selectJefeHogar}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {jefeHogarOptions.map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
-                              {opc.value}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectJefeHogar && touched.selectJefeHogar ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectJefeHogar}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3 tooltip-right-bottom"
+                      className="m-3 tooltip-center-bottom "
                       style={{ fontSize: sizeEncuesta }}
                     >
                       <Label sm={6}>
-                        ¿Cúantas personas que viven con usted dependen
-                        económicamente de los ingresos que usted aporta al hogar
-                        ?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectPersonasDependen"
-                          className="form-control"
-                          value={values.selectPersonasDependen}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {generarPersonasDependenOptions(1, 16).map((opc) => (
-                            <option key={opc.value} value={opc.value}>
-                              {opc.label}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectPersonasDependen &&
-                        touched.selectPersonasDependen ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectPersonasDependen}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  mt-4 tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label className="d-block" sm={6}>
-                        En relación a las actividades laborales vinculadas al
-                        mar, ¿podría indicarme las 3 actividades, en orden de
-                        importancia, a las cuáles usted le dedica más tiempo?
-                      </Label>
-                      <Colxx sm={6}>
-                        <FormikCustomRadioGroupRazones
-                          name="actividadesLaboralesRadioGruop"
-                          id="actividadesLaboralesRadioGruop"
-                          values={values.actividadesLaboralesRadioGruop}
-                          onChange={setFieldValue}
-                          onBlur={setFieldTouched}
-                          options={optionsActividadesLaborales()}
-                          max={3}
-                          setMostrarField={setMostrarFieldOtraActividad}
-                        />
-                        {mostrarFieldOtraActividad && (
-                          <Field
-                            className="form-control"
-                            name="fieldActividadLaboralOtra"
-                          />
-                        )}
-                        {errors.actividadesLaboralesRadioGruop &&
-                        touched.actividadesLaboralesRadioGruop ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.actividadesLaboralesRadioGruop}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-
-                    <FormGroup
-                      row
-                      className="m-3 tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label sm={6}>
-                        ¿Cúantos años lleva usted viviendo en este lugar ?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectViviendoLugar"
-                          className="form-control"
-                          value={values.selectViviendoLugar}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {viviendoLugarOptions(30).map((opc) => (
-                            <option key={opc.value} value={opc.value}>
-                              {opc.label}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectViviendoLugar &&
-                        touched.selectViviendoLugar ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectViviendoLugar}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3 tooltip-right-top"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label sm={6}>
-                        Considere el ingreso percibido por todos en su hogar
+                        7. Considere el ingreso percibido por todos en su hogar
                         durante el año pasado (2024). Sumando todos los ingresos
                         de las personas de su hogar, ¿Qué rango describe de
                         mejor forma el ingreso mensual de su hogar antes de
@@ -867,37 +810,38 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                       </Label>
                       <Colxx sm={6}>
                         <FormikRadioButtonGroup
-                          name="selectIngresoFamilia"
-                          id="selectIngresoFamilia"
-                          value={values.selectIngresoFamilia}
+                          name="radioButtonIngresoFamilia"
+                          id="radioButtonIngresoFamilia"
+                          value={values.radioButtonIngresoFamilia}
                           onChange={setFieldValue}
                           onBlur={setFieldTouched}
                           options={generarIngresoFamiliarOptions(botonDisabled)}
                           style={{ fontSize: sizeEncuesta }}
                         />
-                        {errors.selectIngresoFamilia &&
-                        touched.selectIngresoFamilia ? (
+                        {errors.radioButtonIngresoFamilia &&
+                        touched.radioButtonIngresoFamilia ? (
                           <div className="invalid-feedback d-block">
-                            {errors.selectIngresoFamilia}
+                            {errors.radioButtonIngresoFamilia}
                           </div>
                         ) : null}
                       </Colxx>
                     </FormGroup>
+                    {/** INTEGRANTES DEL HOGAR */}
                     <FormGroup
                       row
                       className="m-3 tooltip-right-bottom"
                       style={{ fontSize: sizeEncuesta }}
                     >
                       <Label sm={6}>
-                        ¿Cúantos años lleva usted como integrante del sindicato
-                        ?
+                        8. Indique, por favor, el número de integrantes de su
+                        hogar
                       </Label>
                       <Colxx sm={6}>
                         <select
                           disabled={botonDisabled}
-                          name="anosSiendoIntegranteSindicato"
+                          name="selectIntegrantesDeSuHogar"
                           className="form-control"
-                          value={values.anosSiendoIntegranteSindicato}
+                          value={values.selectIntegrantesDeSuHogar}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           style={{ fontSize: sizeEncuesta }}
@@ -905,77 +849,265 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                           <option key="" value="" disabled>
                             Seleccione su respuesta!
                           </option>
-                          {viviendoLugarOptions(30).map((opc) => (
+                          {integrantesHogarOptions(botonDisabled).map((opc) => (
                             <option key={opc.value} value={opc.value}>
                               {opc.label}
                             </option>
                           ))}
                         </select>
-                        {errors.anosSiendoIntegranteSindicato &&
-                        touched.anosSiendoIntegranteSindicato ? (
+                        {errors.selectIntegrantesDeSuHogar &&
+                        touched.selectIntegrantesDeSuHogar ? (
                           <div className="invalid-feedback d-block">
-                            {errors.anosSiendoIntegranteSindicato}
+                            {errors.selectIntegrantesDeSuHogar}
                           </div>
                         ) : null}
                       </Colxx>
                     </FormGroup>
+                    {/** PERTENECE ALGUNA ASOCIACION */}
                     <FormGroup
                       row
                       className="m-3 tooltip-right-bottom"
                       style={{ fontSize: sizeEncuesta }}
                     >
                       <Label sm={6}>
-                        ¿Usted es un integrante fundador del sindicato o postuló
-                        para ingresar después de su creación ?
+                        9. ¿Pertenece usted a alguna asociación, agrupación, o
+                        club? (considere cualquier tipo de agrupación) (En caso
+                        que su respuesta a la pregunta 9 sea “No”, pasar a la
+                        pregunta 14)
                       </Label>
                       <Colxx sm={6}>
                         <select
                           disabled={botonDisabled}
-                          name="selectIntegranteFundador"
+                          name="selectPerteneceAlgunaAsociacion"
                           className="form-control"
-                          value={values.selectIntegranteFundador}
-                          onChange={handleChange}
+                          value={values.selectPerteneceAlgunaAsociacion}
+                          onChange={(event) => {
+                            const valor = event.target.value;
+                            setFieldValue(
+                              'selectPerteneceAlgunaAsociacion',
+                              valor
+                            );
+                            if (valor === 'SI') {
+                              setPregunta9(true);
+                            }
+                            if (valor === 'NO') {
+                              setPregunta9(false);
+                              setFieldValue('selectPuedeExternoPostular', 'NO');
+                              setFieldValue('selectEsPosibleExpulsar', 'NO');
+                              setFieldValue(
+                                'selectHanIngresadoNuevosIntegrantes',
+                                'NO'
+                              );
+                              setFieldValue(
+                                'selectHanExpulsadoAlgunIntegrante',
+                                'NO'
+                              );
+                            }
+                          }}
                           onBlur={handleBlur}
                           style={{ fontSize: sizeEncuesta }}
                         >
                           <option key="" value="" disabled>
                             Seleccione su respuesta!
                           </option>
-                          {postuloOMiembro.map((opc) => (
+                          {siNOOptions(botonDisabled).map((opc) => (
                             <option key={opc.value} value={opc.value}>
                               {opc.label}
                             </option>
                           ))}
                         </select>
-                        {errors.selectIntegranteFundador &&
-                        touched.selectIntegranteFundador ? (
+                        {errors.selectPerteneceAlgunaAsociacion &&
+                        touched.selectPerteneceAlgunaAsociacion ? (
                           <div className="invalid-feedback d-block">
-                            {errors.selectIntegranteFundador}
+                            {errors.selectPerteneceAlgunaAsociacion}
                           </div>
                         ) : null}
                       </Colxx>
                     </FormGroup>
+                    {pregunta9 && (
+                      <>
+                        {/** PUEDE EXTERNO POSTULAR */}
+                        <FormGroup
+                          row
+                          className="m-3 tooltip-right-bottom"
+                          style={{ fontSize: sizeEncuesta }}
+                        >
+                          <Label sm={6}>
+                            10. Considere la situación actual en la asociación,
+                            agrupación, o club a la que usted pertenece. ¿Puede
+                            una persona externa postular para ser miembro de la
+                            agrupación?
+                          </Label>
+                          <Colxx sm={6}>
+                            <select
+                              disabled={botonDisabled}
+                              name="selectPuedeExternoPostular"
+                              className="form-control"
+                              value={values.selectPuedeExternoPostular}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              style={{ fontSize: sizeEncuesta }}
+                            >
+                              <option key="" value="" disabled>
+                                Seleccione su respuesta!
+                              </option>
+                              {puedeExternoPostularOptions(botonDisabled).map(
+                                (opc) => (
+                                  <option key={opc.value} value={opc.value}>
+                                    {opc.label}
+                                  </option>
+                                )
+                              )}
+                            </select>
+                            {errors.selectPuedeExternoPostular &&
+                            touched.selectPuedeExternoPostular ? (
+                              <div className="invalid-feedback d-block">
+                                {errors.selectPuedeExternoPostular}
+                              </div>
+                            ) : null}
+                          </Colxx>
+                        </FormGroup>
+                        {/** ES POSIBLE EXPULSAR */}
+                        <FormGroup
+                          row
+                          className="m-3 tooltip-right-bottom"
+                          style={{ fontSize: sizeEncuesta }}
+                        >
+                          <Label sm={6}>
+                            11. Considere la situación actual en su asociación,
+                            agrupación, o club.  ¿Es posible expulsar a un
+                            integrante de la agrupación?
+                          </Label>
+                          <Colxx sm={6}>
+                            <select
+                              disabled={botonDisabled}
+                              name="selectEsPosibleExpulsar"
+                              className="form-control"
+                              value={values.selectEsPosibleExpulsar}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              style={{ fontSize: sizeEncuesta }}
+                            >
+                              <option key="" value="" disabled>
+                                Seleccione su respuesta!
+                              </option>
+                              {puedeExpulsarIntegrante(botonDisabled).map(
+                                (opc) => (
+                                  <option key={opc.value} value={opc.value}>
+                                    {opc.label}
+                                  </option>
+                                )
+                              )}
+                            </select>
+                            {errors.selectEsPosibleExpulsar &&
+                            touched.selectEsPosibleExpulsar ? (
+                              <div className="invalid-feedback d-block">
+                                {errors.selectEsPosibleExpulsar}
+                              </div>
+                            ) : null}
+                          </Colxx>
+                        </FormGroup>
+                        {/** HAN INGRESADO NUEVOS INTEGRANTES EN LOS ULTIMOS 5 AÑOS */}
+                        <FormGroup
+                          row
+                          className="m-3 tooltip-right-bottom"
+                          style={{ fontSize: sizeEncuesta }}
+                        >
+                          <Label sm={6}>
+                            12. Considere los últimos 5 años de funcionamiento
+                            de su asociación, agrupación, o club. ¿Han ingresado
+                            nuevos integrantes en el periodo antes referido?
+                          </Label>
+                          <Colxx sm={6}>
+                            <select
+                              disabled={botonDisabled}
+                              name="selectHanIngresadoNuevosIntegrantes"
+                              className="form-control"
+                              value={values.selectHanIngresadoNuevosIntegrantes}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              style={{ fontSize: sizeEncuesta }}
+                            >
+                              <option key="" value="" disabled>
+                                Seleccione su respuesta!
+                              </option>
+                              {siNOOptions(botonDisabled).map((opc) => (
+                                <option key={opc.value} value={opc.value}>
+                                  {opc.label}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.selectHanIngresadoNuevosIntegrantes &&
+                            touched.selectHanIngresadoNuevosIntegrantes ? (
+                              <div className="invalid-feedback d-block">
+                                {errors.selectHanIngresadoNuevosIntegrantes}
+                              </div>
+                            ) : null}
+                          </Colxx>
+                        </FormGroup>
+                        {/** HAN EXPULSADO NUEVOS INTEGRANTES EN LOS ULTIMOS 5 AÑOS */}
+                        <FormGroup
+                          row
+                          className="m-3 tooltip-right-bottom"
+                          style={{ fontSize: sizeEncuesta }}
+                        >
+                          <Label sm={6}>
+                            13. Considere los últimos 5 años de funcionamiento
+                            de su asociación, agrupación, o club. ¿Ha sido
+                            expulsado algún integrante en el periodo antes
+                            referido?
+                          </Label>
+                          <Colxx sm={6}>
+                            <select
+                              disabled={botonDisabled}
+                              name="selectHanExpulsadoAlgunIntegrante"
+                              className="form-control"
+                              value={values.selectHanExpulsadoAlgunIntegrante}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              style={{ fontSize: sizeEncuesta }}
+                            >
+                              <option key="" value="" disabled>
+                                Seleccione su respuesta!
+                              </option>
+                              {siNOOptions(botonDisabled).map((opc) => (
+                                <option key={opc.value} value={opc.value}>
+                                  {opc.label}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.selectHanExpulsadoAlgunIntegrante &&
+                            touched.selectHanExpulsadoAlgunIntegrante ? (
+                              <div className="invalid-feedback d-block">
+                                {errors.selectHanExpulsadoAlgunIntegrante}
+                              </div>
+                            ) : null}
+                          </Colxx>
+                        </FormGroup>
+                      </>
+                    )}
+                    {/** IMPORTANCIA DE FORMAR GRUPOS */}
                     <FormGroup
                       row
                       className="m-3 tooltip-center-bottom "
                       style={{ fontSize: sizeEncuesta }}
                     >
                       <Label sm={6}>
-                        En su opinión, ¿cuán importante es ser miembro del
-                        sindicato para el desarrollo de sus actividades ?
-                        Utilice una escala entre 1 y 10, 1 indica que ser
-                        integrante del sindicato es irrelevante para sus
-                        actividades, y 10 indica que ser parte del sindicato es
-                        muy importante para sus actividades.
+                        14. En su opinión, ¿cuán importante es formar grupos o
+                        asociaciones (de estudiantes, trabajo, amigos, etc) en
+                        su vida cotidiana? Utilice una escala entre 1 y 10, 1
+                        indica que formar grupos es irrelevante para sus
+                        actividades cotidianas, y 10 indica que formar grupos es
+                        muy importante para sus actividades cotidianas.
                       </Label>
                       <Colxx sm={6}>
                         <div className="d-flex justify-content-between">
                           <Label className="m-2">Irrelevante</Label>
                           <FormikRadioButtonGroupReelevancia
                             inline
-                            name="radioButtonReelevanciaSindicato"
-                            id="radioButtonReelevanciaSindicato"
-                            value={values.radioButtonReelevanciaSindicato}
+                            name="radioButtonImportaciaFormarGrupos"
+                            id="radioButtonImportaciaFormarGrupos"
+                            value={values.radioButtonImportaciaFormarGrupos}
                             onChange={setFieldValue}
                             onBlur={setFieldTouched}
                             options={reelevanteOptions(botonDisabled)}
@@ -983,382 +1115,10 @@ const Encuesta = ({ match, client_id, ws, entorno, grupo }) => {
                           />
                           <Label className="m-2">Muy importante</Label>
                         </div>
-                        {errors.radioButtonReelevanciaSindicato &&
-                        touched.radioButtonReelevanciaSindicato ? (
+                        {errors.radioButtonImportaciaFormarGrupos &&
+                        touched.radioButtonImportaciaFormarGrupos ? (
                           <div className="invalid-feedback d-block">
-                            {errors.radioButtonReelevanciaSindicato}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        Considere la situacion actual en su sindicato, ¿Puede
-                        una persona externa postular para ser miembro de la
-                        organización ?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectPuedeExternoPostular"
-                          className="form-control"
-                          value={values.selectPuedeExternoPostular}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {siNOOptions(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
-                              {opc.value}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectPuedeExternoPostular &&
-                        touched.selectPuedeExternoPostular ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectPuedeExternoPostular}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        Considere la situación actual en su sindicato, ¿Es
-                        posible expulsar a un integrante del sindicato?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectPuedeSindicatoExpulsar"
-                          className="form-control"
-                          value={values.selectPuedeSindicatoExpulsar}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {siNOOptions(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
-                              {opc.value}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectPuedeSindicatoExpulsar &&
-                        touched.selectPuedeSindicatoExpulsar ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectPuedeSindicatoExpulsar}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        Considere los últimos 5 años de funcionamiento del
-                        sindicato. ¿Han ingresado nuevos integrantes al
-                        sindicato en el periodo antes referido ?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectSindicatoHaIntegradoNuevosMiembros"
-                          className="form-control"
-                          value={
-                            values.selectSindicatoHaIntegradoNuevosMiembros
-                          }
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {siNOOptions(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
-                              {opc.value}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectSindicatoHaIntegradoNuevosMiembros &&
-                        touched.selectSindicatoHaIntegradoNuevosMiembros ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectSindicatoHaIntegradoNuevosMiembros}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        Considere los últimos 5 años de funcionamiento del
-                        sindicato. ¿Ha sido expulsado algún integrante en el
-                        período antes referido?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectSindicatoHaExpulsadoNuevosMiembros"
-                          className="form-control"
-                          value={
-                            values.selectSindicatoHaExpulsadoNuevosMiembros
-                          }
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {siNOOptions(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.codigo}>
-                              {opc.value}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectSindicatoHaExpulsadoNuevosMiembros &&
-                        touched.selectSindicatoHaExpulsadoNuevosMiembros ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectSindicatoHaExpulsadoNuevosMiembros}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        ¿Confía en que otros pescadores respetan las cuotas,
-                        áreas de manejo o vedas establecidas?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectConfiaOtrosPescadores"
-                          className="form-control"
-                          value={values.selectConfiaOtrosPescadores}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {confiaOptions(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.value}>
-                              {opc.label}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectConfiaOtrosPescadores &&
-                        touched.selectConfiaOtrosPescadores ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectConfiaOtrosPescadores}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        ¿Qué tan creíble considera que es el sistema de
-                        fiscalización y sanciones para garantizar el
-                        cumplimiento de las normas pesqueras en su área de
-                        manejo y/o zona de pesca?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectCreibleSistemaFiscalizacion"
-                          className="form-control"
-                          value={values.selectCreibleSistemaFiscalizacion}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {creibleSistemaFiscalizacion(botonDisabled).map(
-                            (opc) => (
-                              <option key={opc.codigo} value={opc.value}>
-                                {opc.label}
-                              </option>
-                            )
-                          )}
-                        </select>
-                        {errors.selectCreibleSistemaFiscalizacion &&
-                        touched.selectCreibleSistemaFiscalizacion ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectCreibleSistemaFiscalizacion}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        ¿Qué tan aceptables cree que son las normas que regulan
-                        el acceso, las cuotas y las vedas en su actividad
-                        pesquera?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectAceptableNormas"
-                          className="form-control"
-                          value={values.selectAceptableNormas}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {normasAceptables(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.value}>
-                              {opc.label}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectAceptableNormas &&
-                        touched.selectAceptableNormas ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectAceptableNormas}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        ¿Cómo percibe el impacto de las normas que regulan el
-                        acceso, las cuotas y las vedas en su actividad pesquera
-                        y la conservación de los recursos?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectPercibeImpactoNormas"
-                          className="form-control"
-                          value={values.selectPercibeImpactoNormas}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {impactoNormas(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.value}>
-                              {opc.label}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectPercibeImpactoNormas &&
-                        touched.selectPercibeImpactoNormas ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectPercibeImpactoNormas}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label for="emailHorizontal" sm={6}>
-                        ¿Qué tan probable cree que sea sancionado si incumple
-                        con las normas de pesca?
-                      </Label>
-                      <Colxx sm={6}>
-                        <select
-                          disabled={botonDisabled}
-                          name="selectProbableSancion"
-                          className="form-control"
-                          value={values.selectProbableSancion}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          style={{ fontSize: sizeEncuesta }}
-                        >
-                          <option key="" value="" disabled>
-                            Seleccione su respuesta!
-                          </option>
-                          {probableSancion(botonDisabled).map((opc) => (
-                            <option key={opc.codigo} value={opc.value}>
-                              {opc.label}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.selectProbableSancion &&
-                        touched.selectProbableSancion ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.selectProbableSancion}
-                          </div>
-                        ) : null}
-                      </Colxx>
-                    </FormGroup>
-                    <FormGroup
-                      row
-                      className="m-3  mt-4 tooltip-right-bottom"
-                      style={{ fontSize: sizeEncuesta }}
-                    >
-                      <Label className="d-block" sm={6}>
-                        ¿Qué razones cree que pueden llevar a un pescador a no
-                        cumplir con las normas o a realizar pesca ilegal?
-                        (Seleccione hasta 3 opciones)
-                      </Label>
-                      <Colxx sm={6}>
-                        <FormikCustomRadioGroupRazones
-                          name="razonesRadioGruop"
-                          id="razonesRadioGruop"
-                          values={values.razonesRadioGruop}
-                          onChange={setFieldValue}
-                          onBlur={setFieldTouched}
-                          options={optionsRazones()}
-                          max={3}
-                          setMostrarField={setMostrarField}
-                        />
-                        {mostrarField && (
-                          <Field
-                            className="form-control"
-                            name="fieldRazonOtra"
-                          />
-                        )}
-                        {errors.razonesRadioGruop &&
-                        touched.razonesRadioGruop ? (
-                          <div className="invalid-feedback d-block">
-                            {errors.razonesRadioGruop}
+                            {errors.radioButtonImportaciaFormarGrupos}
                           </div>
                         ) : null}
                       </Colxx>

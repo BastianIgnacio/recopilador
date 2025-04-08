@@ -208,7 +208,7 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
                 }}
               >
                 <div className="text-center mt-3 ml-3">
-                  <Label className="h5" style={{ color: 'white' }}>
+                  <Label className="h4" style={{ color: 'white' }}>
                     VOTACIÓN INCLUSIÓN
                   </Label>
                 </div>
@@ -244,21 +244,19 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
                             <div>
                               <div
                                 style={{
-                                  fontWeight: 'bold',
-                                  fontSize: '16px',
                                   backgroundColor: colorPlomo,
                                   borderRadius: '10px',
-                                  margin: '0px 10px 30px 10px',
+                                  margin: '0px 2px 30px 2px',
                                 }}
                               >
                                 <div
                                   className="text-center"
                                   style={{
                                     fontWeight: 'bold',
-                                    fontSize: '30px',
+                                    fontSize: '24px',
                                     color: 'black',
                                     alignSelf: 'center',
-                                    padding: '20px',
+                                    padding: '5px 5px 5px 5px',
                                   }}
                                 >
                                   {' '}
@@ -338,11 +336,31 @@ const VotacionExcluir = ({ match, client_id, ws, entorno }) => {
                       >
                         {!bloqueado ? (
                           <>
-                            <CardTitle>
-                              En esta ronda usted puede votar para trasladar un
-                              máximo de 1 integrante desde el club amarillo al
-                              club azul.
-                            </CardTitle>
+                            <div>
+                              <div
+                                style={{
+                                  backgroundColor: colorPlomo,
+                                  borderRadius: '10px',
+                                  margin: '0px 2px 30px 2px',
+                                }}
+                              >
+                                <div
+                                  className="text-center"
+                                  style={{
+                                    fontWeight: 'bold',
+                                    fontSize: '24px',
+                                    color: 'black',
+                                    alignSelf: 'center',
+                                    padding: '5px 5px 5px 5px',
+                                  }}
+                                >
+                                  {' '}
+                                  En esta ronda usted puede votar para trasladar
+                                  un máximo de 1 integrante desde el Club
+                                  Amarillo al Club Azul.
+                                </div>
+                              </div>
+                            </div>
                             <FormGroup className="error-l-175">
                               <FormikCustomRadioGroupMaxIncluir
                                 name="customRadioGroup"

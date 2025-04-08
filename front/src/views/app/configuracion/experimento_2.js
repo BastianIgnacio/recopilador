@@ -2,10 +2,6 @@
 /* eslint-disable no-var */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink } from 'react-router-dom';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import CustomSelectInput from 'components/common/CustomSelectInput';
-import Select from 'react-select';
 import {
   Row,
   Card,
@@ -30,9 +26,9 @@ import { Formik, Form, Field } from 'formik';
 // eslint-disable-next-line import/no-unresolved
 import {
   colorPlomo,
-  wsAPI2,
   vistasOptions,
   tratamientosOptions,
+  wsAPI2,
 } from 'constants/defaultValues';
 import CardUser from './cardUser';
 import TablaRetiros from './tablaRetiros';
@@ -102,7 +98,10 @@ const Experimento2 = ({ match }) => {
     };
     const jsonData = {
       tipo: 'CREAR_JUEGO',
-      data: { tratamiento: payload.tratamiento },
+      data: {
+        tratamiento: payload.tratamiento,
+        nombreSesion: payload.nombreSesion,
+      },
     };
     const jsonToSend = JSON.stringify(jsonData);
     ws.send(jsonToSend);
@@ -140,6 +139,24 @@ const Experimento2 = ({ match }) => {
     ws.send(jsonToSend);
   };
 
+  const exportarEncuestas = () => {
+    const jsonData = {
+      tipo: 'EXPORTAR_ENCUESTAS_CSV',
+      data: {},
+    };
+    const jsonToSend = JSON.stringify(jsonData);
+    ws.send(jsonToSend);
+  };
+
+  const exportarPagos = () => {
+    const jsonData = {
+      tipo: 'EXPORTAR_PAGOS_CSV',
+      data: {},
+    };
+    const jsonToSend = JSON.stringify(jsonData);
+    ws.send(jsonToSend);
+  };
+
   return (
     <Card>
       <CardBody transition-style="in:circle:top-right">
@@ -152,15 +169,31 @@ const Experimento2 = ({ match }) => {
                     <Row>
                       <Colxx lg="6">
                         <Colxx>
-                          <Button onClick={() => exportarACsv()}>
-                            exportar
+                          <Button
+                            className="m-2"
+                            onClick={() => exportarACsv()}
+                          >
+                            EXPORTAR CSV
                           </Button>
                           <Button
+                            className="m-2"
                             onClick={() =>
                               setModalMostrarEncuesta(!modalMostrarEncuesta)
                             }
                           >
                             MOSTRAR ENCUESTA
+                          </Button>
+                          <Button
+                            className="m-2"
+                            onClick={() => exportarPagos()}
+                          >
+                            EXPORTAR PAGOS
+                          </Button>
+                          <Button
+                            className="m-2"
+                            onClick={() => exportarEncuestas()}
+                          >
+                            EXPORTAR ENCUESTAS
                           </Button>
                         </Colxx>
                         {entorno.estado === 'INICIO' && (
@@ -270,6 +303,7 @@ const Experimento2 = ({ match }) => {
         <Formik
           initialValues={{
             tratamiento: 'T1',
+            nombreSesion: '',
           }}
           onSubmit={onSubmit}
         >
@@ -286,6 +320,10 @@ const Experimento2 = ({ match }) => {
           }) => (
             <Form className="av-tooltip tooltip-label-right">
               <CardBody>
+                <FormGroup>
+                  <Label>Nombre Sesion</Label>
+                  <Field className="form-control" name="nombreSesion" />
+                </FormGroup>
                 <FormGroup className="error-l-100 pt-3 pl-3 pr-3" row>
                   <Label sm={6}>Tratamiento a realizar</Label>
                   <Colxx sm={6}>
